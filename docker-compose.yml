@@ -7,9 +7,9 @@ services:
     image: postgres:11
     container_name: dagster_postgresql
     environment:
-      POSTGRES_USER: "postgres_user"
-      POSTGRES_PASSWORD: "postgres_password"
-      POSTGRES_DB: "postgres_db"
+      POSTGRES_USER: "${DAGSTER_POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${DAGSTER_POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${DAGSTER_POSTGRES_DB}"
     networks:
       - dagster_network
 
@@ -24,13 +24,13 @@ services:
       context: .
       dockerfile: ./Dockerfile_pipeline
     container_name: dagster_pipeline
-    image: dagster_pipeline_image
+    image: "${DAGSTER_CURRENT_IMAGE}"
     restart: always
     environment:
-      DAGSTER_POSTGRES_USER: "postgres_user"
-      DAGSTER_POSTGRES_PASSWORD: "postgres_password"
-      DAGSTER_POSTGRES_DB: "postgres_db"
-      DAGSTER_CURRENT_IMAGE: "dagster_pipeline_image"
+      - DAGSTER_POSTGRES_USER
+      - DAGSTER_POSTGRES_PASSWORD
+      - DAGSTER_POSTGRES_DB
+      - DAGSTER_CURRENT_IMAGE
     networks:
       - dagster_network
 
@@ -55,9 +55,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DAGSTER_POSTGRES_USER: "postgres_user"
-      DAGSTER_POSTGRES_PASSWORD: "postgres_password"
-      DAGSTER_POSTGRES_DB: "postgres_db"
+      - DAGSTER_POSTGRES_USER
+      - DAGSTER_POSTGRES_PASSWORD
+      - DAGSTER_POSTGRES_DB
     volumes: # Make docker client accessible so we can terminate containers from dagster-webserver
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
@@ -79,9 +79,9 @@ services:
     container_name: dagster_daemon
     restart: on-failure
     environment:
-      DAGSTER_POSTGRES_USER: "postgres_user"
-      DAGSTER_POSTGRES_PASSWORD: "postgres_password"
-      DAGSTER_POSTGRES_DB: "postgres_db"
+      - DAGSTER_POSTGRES_USER
+      - DAGSTER_POSTGRES_PASSWORD
+      - DAGSTER_POSTGRES_DB
     volumes: # Make docker client accessible so we can launch containers using host docker
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
