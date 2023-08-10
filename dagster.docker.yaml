@@ -5,6 +5,10 @@ scheduler:
 run_coordinator:
   module: dagster.core.run_coordinator
   class: QueuedRunCoordinator
+  config:
+    max_concurrent_runs: 15
+    dequeue_use_threads: true
+    dequeue_interval_seconds: 1
 
 run_storage:
   module: dagster_postgres.run_storage
