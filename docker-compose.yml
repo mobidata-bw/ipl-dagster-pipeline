@@ -30,7 +30,7 @@ services:
       - DAGSTER_POSTGRES_USER
       - DAGSTER_POSTGRES_PASSWORD
       - DAGSTER_POSTGRES_DB
-      - DAGSTER_CURRENT_IMAGE
+      - IPL_LAMASSU_BASE_URL
     networks:
       - dagster_network
 

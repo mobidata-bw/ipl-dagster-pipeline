@@ -11,6 +11,8 @@ from dagster import (
     sensor,
 )
 
+from pipeline.resources import LamassuResource
+
 '''
 Define a dynamic partition gbfs_systems, which will be checked periodically by a sensor
 '''
@@ -18,23 +20,25 @@ gbfs_system_partitions_def = DynamicPartitionsDefinition(name='gbfs_systems')
 
 
 @asset(partitions_def=gbfs_system_partitions_def)
-def stations(context):
+def stations(context, lamassu: LamassuResource):
     """
     Pushes stations published by lamassu
     to table in a postgis database.
     """
     system_id = context.asset_partition_key_for_output()
-    print(f'Load stations for {system_id}')
+    feeds = lamassu.get_system_feeds(system_id)
+    return lamassu.get_stations_as_frame(feeds, system_id)
 
 
 @asset(partitions_def=gbfs_system_partitions_def)
-def vehicles(context):
+def vehicles(context, lamassu: LamassuResource):
     """
     Pushes vehicles published by lamassu
     to table in a postgis database.
     """
     system_id = context.asset_partition_key_for_output()
-    print(f'Load vehicles for {system_id}')
+    feeds = lamassu.get_system_feeds(system_id)
+    return lamassu.get_vehicles_as_frame(feeds, system_id)
 
 
 '''
@@ -68,9 +72,8 @@ def update_stations_and_vehicles_minutely(context):
 
 
 @sensor(job=stations_and_vehicles_job, default_status=DefaultSensorStatus.RUNNING)
-def gbfs_feeds_sensor(context):
-    # TOOD retrieve from lamassu
-    current_systems = [f'id{cnt}' for cnt in range(0, 20)]
+def gbfs_feeds_sensor(context, lamassu: LamassuResource):
+    current_systems = [system['id'] for system in lamassu.get_systems()]
     new_systems = [
         system_id
         for system_id in current_systems
