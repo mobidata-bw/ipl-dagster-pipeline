@@ -1,10 +1,4 @@
-from dagster import (
-    Definitions,
-    load_assets_from_modules,
-    define_asset_job,
-    DefaultScheduleStatus,
-    ScheduleDefinition
-)
+from dagster import DefaultScheduleStatus, Definitions, ScheduleDefinition, define_asset_job, load_assets_from_modules
 
 from .assets import sharing
 
