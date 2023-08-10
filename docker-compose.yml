@@ -58,8 +58,7 @@ services:
       - DAGSTER_POSTGRES_USER
       - DAGSTER_POSTGRES_PASSWORD
       - DAGSTER_POSTGRES_DB
-    volumes: # Make docker client accessible so we can terminate containers from dagster-webserver
-      - /var/run/docker.sock:/var/run/docker.sock
+    volumes:
       - /tmp/io_manager_storage:/tmp/io_manager_storage
     networks:
       - dagster_network
@@ -82,8 +81,7 @@ services:
       - DAGSTER_POSTGRES_USER
       - DAGSTER_POSTGRES_PASSWORD
       - DAGSTER_POSTGRES_DB
-    volumes: # Make docker client accessible so we can launch containers using host docker
-      - /var/run/docker.sock:/var/run/docker.sock
+    volumes:
       - /tmp/io_manager_storage:/tmp/io_manager_storage
     networks:
       - dagster_network
