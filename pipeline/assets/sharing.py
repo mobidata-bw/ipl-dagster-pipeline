@@ -1,12 +1,98 @@
 from dagster import (
-    asset
+    asset,
+    define_asset_job,
+    schedule,
+    sensor,
+    DefaultScheduleStatus,
+    DefaultSensorStatus,
+    DynamicPartitionsDefinition,
+    RunRequest,
+    ScheduleDefinition,
+    SensorResult,
 )
 
 
-@asset
-def sharing_data() -> None:
+"""
+Define a dynamic partition gbfs_systems, which will be checked periodically by a sensor
+"""
+gbfs_system_partitions_def = DynamicPartitionsDefinition(name="gbfs_systems")
+
+@asset(partitions_def=gbfs_system_partitions_def)
+def stations(context):
     """
-    Pushes stations and vehicles published by lamassu 
-    to tables in a postgis database.
+    Pushes stations published by lamassu 
+    to table in a postgis database.
     """
-    print("Load assets")
+    system_id = context.asset_partition_key_for_output()
+    print(f'Load stations for {system_id}')
+
+@asset(partitions_def=gbfs_system_partitions_def)
+def vehicles(context):
+    """
+    Pushes vehicles published by lamassu 
+    to table in a postgis database.
+    """
+    system_id = context.asset_partition_key_for_output()
+    print(f'Load vehicles for {system_id}')
+
+
+"""
+Default execution mode (which could be overriden for the whole code location)
+is multiprocess, resulting in a new process startet for every new job execution.
+That results in a large overhead for launching aa new process, initializing db connections etc.,
+so we want high frequency jobs to be execucted in process.
+Note: this config has to be provided for job definitions and for RunRequests.
+"""
+in_process_job_config = {
+        "execution": {
+            "config": {
+              "in_process": {}
+            }   
+        }
+    }
+
+"""
+Define asset job grouping update of stations and vehicles asset.
+"""
+stations_and_vehicles_job = define_asset_job("stations_and_vehicles_job", selection=[stations, vehicles], config=in_process_job_config)
+
+
+@schedule(job=stations_and_vehicles_job, cron_schedule="* * * * *", default_status=DefaultScheduleStatus.RUNNING)
+def update_stations_and_vehicles_minutely(context):
+    """
+    For currently registered systems (which we treat as partition),
+    the stations_and_vehicles_job is run on the provided schedule (minutely). 
+    """
+    system_ids = gbfs_system_partitions_def.get_partition_keys(dynamic_partitions_store=context.instance)
+    return [RunRequest(partition_key=system_id, run_key=system_id, run_config=in_process_job_config) for system_id in system_ids]
+
+
+@sensor(job=stations_and_vehicles_job, default_status=DefaultSensorStatus.RUNNING)
+def gbfs_feeds_sensor(context):
+    # TOOD retrieve from lamassu
+    current_systems = [f'id{cnt}' for cnt in range(0,20)]
+    new_systems = [
+        system_id
+        for system_id in current_systems
+        if not context.instance.has_dynamic_partition(
+            gbfs_system_partitions_def.name, system_id
+        )
+    ]
+    deleted_systems = [
+        system_id
+        for system_id in context.instance.get_dynamic_partitions(gbfs_system_partitions_def.name)
+        if not system_id in current_systems
+    ]
+    return SensorResult(
+        run_requests=[
+            # TODO is specifying a partition_key only sufficient
+            RunRequest(partition_key=system_id, run_config=in_process_job_config) for system_id in new_systems
+        ]
+        # TODO append RunRequests for deleted systems
+        # RunRequest(partition_key=system_id, run_config=in_process_job_config, job_name=TODO_delete) for system_id in deleted_systems
+        ,
+        dynamic_partitions_requests=[
+            gbfs_system_partitions_def.build_add_request(new_systems),
+            gbfs_system_partitions_def.build_delete_request(deleted_systems)
+        ],
+    )

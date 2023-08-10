@@ -2,6 +2,7 @@ from dagster import (
     Definitions,
     load_assets_from_modules,
     define_asset_job,
+    DefaultScheduleStatus,
     ScheduleDefinition
 )
 
@@ -11,12 +12,6 @@ assets = load_assets_from_modules([sharing])
 
 defs = Definitions(
     assets=assets,
-    schedules=[
-        ScheduleDefinition(
-            job=define_asset_job(
-                "sharing_data_job", selection=["sharing_data"]
-            ),
-            cron_schedule="* * * * *",  # every minute
-        )
-    ],
+    sensors=[sharing.gbfs_feeds_sensor],
+    schedules=[sharing.update_stations_and_vehicles_minutely],
 )
