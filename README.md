@@ -7,10 +7,14 @@ databases form where they are served, e.g. as WMS/WFS or REST service.
 To run this pipeline, copy `.env.EXAMPLE` to `.env` and adapt the variables, i.e. 
 choose your proper password for the DAGSTER_POSTGRES_PASSWORD.
 
-This dagster project can be started either in develepment mode, using 
+To start this dagster project in interactive develepment mode, you should use a DAGSTER_HOME other than 
+this project directory, as a) the dagster.yml defines a postgres storage for dagster run information 
+and is usually intended for prod use, and b) a number of files is generated in the temporary dagster 
+directories which would impact your IDE responsiveness if it's indexing new files continuously.
+
 
 ```sh
-$ dagster dev
+$  DAGSTER_HOME=/tmp/DAGSTER_HOME dagster dev
 ```
 
 or via docker-compose, which is the way it is itended to be deployed with:
