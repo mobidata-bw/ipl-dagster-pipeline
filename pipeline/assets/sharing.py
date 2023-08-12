@@ -19,7 +19,12 @@ Define a dynamic partition gbfs_systems, which will be checked periodically by a
 gbfs_system_partitions_def = DynamicPartitionsDefinition(name='gbfs_systems')
 
 
-@asset(partitions_def=gbfs_system_partitions_def)
+@asset(
+    partitions_def=gbfs_system_partitions_def,
+    io_manager_key='pg_gpd_io_manager',
+    compute_kind='Lamassu',
+    group_name='sharing',
+)
 def stations(context, lamassu: LamassuResource):
     """
     Pushes stations published by lamassu
@@ -30,7 +35,12 @@ def stations(context, lamassu: LamassuResource):
     return lamassu.get_stations_as_frame(feeds, system_id)
 
 
-@asset(partitions_def=gbfs_system_partitions_def)
+@asset(
+    partitions_def=gbfs_system_partitions_def,
+    io_manager_key='pg_gpd_io_manager',
+    compute_kind='Lamassu',
+    group_name='sharing',
+)
 def vehicles(context, lamassu: LamassuResource):
     """
     Pushes vehicles published by lamassu
@@ -54,7 +64,8 @@ in_process_job_config: dict = {'execution': {'config': {'in_process': {}}}}
 Define asset job grouping update of stations and vehicles asset.
 '''
 stations_and_vehicles_job = define_asset_job(
-    'stations_and_vehicles_job', selection=[stations, vehicles], config=in_process_job_config
+    'stations_and_vehicles_job', selection=[stations, vehicles], config=in_process_job_config,
+    description='Pushes stations and vehicles from Lamassu to PostGIS'
 )
 
 

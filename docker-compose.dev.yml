@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  # This service runs the postgis DB used to publish datasets, either via GeoServer or REST services,
+  # and to perform data transformation
+  ipl_postgis:
+    image: postgis/postgis:${IPL_POSTGIS_VERSION_TAG}
+    container_name: ipl_postgis
+    volumes:
+      - ./geo-db-data:/var/lib/postgresql
+    ports:
+      - 5432:5432
+    restart: on-failure
+    healthcheck:
+      test: "PGPASSWORD=${IPL_POSTGRES_PASSWORD} pg_isready -h 127.0.0.1 -U ${IPL_POSTGRES_USER} -d ${IPL_POSTGRES_DB}"
+    environment:
+      POSTGRES_USER: "${IPL_POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${IPL_POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${IPL_POSTGRES_DB}"
