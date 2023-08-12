@@ -24,6 +24,7 @@ gbfs_system_partitions_def = DynamicPartitionsDefinition(name='gbfs_systems')
     io_manager_key='pg_gpd_io_manager',
     compute_kind='Lamassu',
     group_name='sharing',
+    metadata={'partition_expr': 'feed_id'},
 )
 def stations(context, lamassu: LamassuResource):
     """
@@ -40,6 +41,7 @@ def stations(context, lamassu: LamassuResource):
     io_manager_key='pg_gpd_io_manager',
     compute_kind='Lamassu',
     group_name='sharing',
+    metadata={'partition_expr': 'feed_id'},
 )
 def vehicles(context, lamassu: LamassuResource):
     """

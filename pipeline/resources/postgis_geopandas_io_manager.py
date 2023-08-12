@@ -15,7 +15,7 @@
 import csv
 from contextlib import contextmanager
 from io import StringIO
-from typing import Iterator, Optional, Sequence
+from typing import (Iterator, Optional, Sequence, cast)
 
 import geopandas
 import pandas
@@ -100,14 +100,25 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):
             columns = (context.metadata or {}).get('columns')
             return self._load_input(con, table, schema, columns, context)
 
+    def _get_partition_expr(self, context: OutputContext) -> str:
+        output_context_metadata = context.metadata or {}
+        partition_expr = output_context_metadata.get("partition_expr")
+        if partition_expr is None:
+            raise ValueError(
+                f"Asset '{context.asset_key}' has partitions, but no 'partition_expr'"
+                " metadata value, so we don't know what column it's partitioned on. To"
+                " specify a column, set this metadata value. E.g."
+                ' @asset(metadata={"partition_expr": "your_partition_column"}).'
+            )
+        return cast(str, partition_expr)
+
     def delete_asset(self, context: OutputContext):
         schema, table = self._get_schema_table(context.asset_key)
         if context.has_partition_key:
             # add additional column (name? for now just partition)
             # to the frame and initialize with partition_name
             # (name could become part of metadata, or deduced from partiton def)
-            # TODO hard coded partition_col_name, need to provide it externally
-            partition_col_name = 'feed_id'
+            partition_col_name = self._get_partition_expr(context)
             partition_key = context.partition_key
             # We leave other partions untouched, but need to delete data from this
             with connect_postgresql(config=self._config) as con:
@@ -161,8 +172,7 @@ class PostGISGeoPandasIOManager(PostgreSQLPandasIOManager):
                     # add additional column (name? for now just partition)
                     # to the frame and initialize with partition_name
                     # (name could become part of metadata, ob may be contained already)
-                    # TODO figure out how to transmit partition_col_name
-                    partition_col_name = 'feed_id'
+                    partition_col_name = self._get_partition_expr(context)
                     partition_key = context.partition_key
                     obj[partition_col_name] = partition_key
 
