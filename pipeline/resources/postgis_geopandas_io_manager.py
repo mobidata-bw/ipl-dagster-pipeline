@@ -127,8 +127,14 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):
             raise Exception('Deletion of not-partitioned assets not yet supported.')
 
     def _delete_partition(self, schema, table, partition_col_name, partition_key, con):
-        with con.connection.cursor() as c:
+        with con.connection as connection:
+            try:
+                c = connection.cursor()
             c.execute(f"DELETE FROM {schema}.{table} WHERE {partition_col_name}='{partition_key}'")
+            except UndefinedTable:
+                # TODO log debug info, asset did not exist, so nothing to
+                connection.rollback()
+                pass
 
     def _load_input(
         self, con: Connection, table: str, schema: str, columns: Optional[Sequence[str]], context: InputContext
