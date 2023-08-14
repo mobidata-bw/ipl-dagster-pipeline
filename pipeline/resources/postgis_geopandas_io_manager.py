@@ -15,7 +15,7 @@
 import csv
 from contextlib import contextmanager
 from io import StringIO
-from typing import (Iterator, Optional, Sequence, cast)
+from typing import Any, Dict, Iterator, Optional, Sequence, cast
 
 import geopandas
 import pandas
@@ -24,10 +24,12 @@ from dagster import (
     InputContext,
     OutputContext,
 )
+from psycopg2.errors import UndefinedTable
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL, Connection
 
 # TODO figure out appropriate SQL injection mechanism while allowing dynamic table/column provision
+
 
 @contextmanager
 def connect_postgresql(config, schema='public') -> Iterator[Connection]:
@@ -59,7 +61,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):
     chunksize: Optional[int] = 10000
 
     @property
-    def _config(self):
+    def _config(self) -> Dict[str, Any]:
         return self.dict()
 
     def handle_output(self, context: OutputContext, obj: pandas.DataFrame):
@@ -83,12 +85,9 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):
                 writer = csv.writer(sio, delimiter='\t')
                 writer.writerows(obj_without_index.values)
                 sio.seek(0)
-
-                with con.connection.cursor() as c:
-                    c.copy_expert(
-                        f"COPY {schema}.{table} FROM STDIN WITH (FORMAT csv, DELIMITER '\t', NULL 'nan')", sio
-                    )
-                    con.connection.commit()
+                c = con.connection.cursor()
+                c.copy_expert(f"COPY {schema}.{table} FROM STDIN WITH (FORMAT csv, DELIMITER '\t', NULL 'nan')", sio)
+                con.connection.commit()
         elif obj is None:
             self.delete_asset(context)
         else:
@@ -102,7 +101,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):
 
     def _get_partition_expr(self, context: OutputContext) -> str:
         output_context_metadata = context.metadata or {}
-        partition_expr = output_context_metadata.get("partition_expr")
+        partition_expr = output_context_metadata.get('partition_expr')
         if partition_expr is None:
             raise ValueError(
                 f"Asset '{context.asset_key}' has partitions, but no 'partition_expr'"
@@ -127,14 +126,13 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):
             raise Exception('Deletion of not-partitioned assets not yet supported.')
 
     def _delete_partition(self, schema, table, partition_col_name, partition_key, con):
-        with con.connection as connection:
-            try:
-                c = connection.cursor()
+        try:
+            c = con.connection.cursor()
             c.execute(f"DELETE FROM {schema}.{table} WHERE {partition_col_name}='{partition_key}'")
-            except UndefinedTable:
-                # TODO log debug info, asset did not exist, so nothing to
-                connection.rollback()
-                pass
+        except UndefinedTable:
+            # TODO log debug info, asset did not exist, so nothing to
+            con.connection.rollback()
+            pass
 
     def _load_input(
         self, con: Connection, table: str, schema: str, columns: Optional[Sequence[str]], context: InputContext

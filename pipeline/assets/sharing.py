@@ -66,8 +66,10 @@ in_process_job_config: dict = {'execution': {'config': {'in_process': {}}}}
 Define asset job grouping update of stations and vehicles asset.
 '''
 stations_and_vehicles_job = define_asset_job(
-    'stations_and_vehicles_job', selection=[stations, vehicles], config=in_process_job_config,
-    description='Pushes stations and vehicles from Lamassu to PostGIS'
+    'stations_and_vehicles_job',
+    selection=[stations, vehicles],
+    config=in_process_job_config,
+    description='Pushes stations and vehicles from Lamassu to PostGIS',
 )
 
 

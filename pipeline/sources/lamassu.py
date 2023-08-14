@@ -80,7 +80,7 @@ class Lamassu:
         # add feed name to do delete insert
         merged['feed_id'] = feed_id
         # filter those not installed or not renting
-        filtered = merged.loc[(merged['is_renting'] == True) & (merged['is_installed'] == True)]
+        filtered = merged.loc[(merged['is_renting'] == True) & (merged['is_installed'] == True)]  # fmt: off
 
         # Add geometry
         filtered_with_geom = gpd.GeoDataFrame(
@@ -118,7 +118,8 @@ class Lamassu:
         merged = pd.merge(free_vehicle_status_df, vehicle_types_df, on=['vehicle_type_id'])
         merged['feed_id'] = feed_id
         # filter those already reserved or disabled
-        filtered = merged.loc[(merged['is_reserved'] == False) & (merged['is_disabled'] == False)]
+        # Note: 'is False' results in boolean label can not be used without a boolean index
+        filtered = merged.loc[(merged['is_reserved'] == False) & (merged['is_disabled'] == False)]  # fmt: off
 
         # Add geometry
         filtered_with_geom = gpd.GeoDataFrame(
