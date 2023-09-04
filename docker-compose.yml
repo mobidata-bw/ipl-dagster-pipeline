@@ -58,24 +58,15 @@ services:
     networks:
       - dagster_network
 
-  # This service runs dagster-webserver, which loads your user code from the user code container.
+  # This service runs dagster-webserver (dagit), which loads your user code from the user code container.
   # Since our instance uses the QueuedRunCoordinator, any runs submitted from dagster-webserver
   # will be put on a queue and later dequeued and launched by dagster-daemon.
   dagster_dagit:
     build:
       context: .
       dockerfile: ./dagster.Dockerfile
-    entrypoint:
-      - dagster-webserver
-      - -h
-      - "0.0.0.0"
-      - -p
-      - "3000"
-      - -w
-      - workspace.yaml
+      target: dagit
     container_name: dagster_dagit
-    expose:
-      - "3000"
     ports:
       - "3000:3000"
     environment:
@@ -96,9 +87,7 @@ services:
     build:
       context: .
       dockerfile: ./dagster.Dockerfile
-    entrypoint:
-      - dagster-daemon
-      - run
+      target: daemon
     container_name: dagster_daemon
     restart: on-failure
     environment:
