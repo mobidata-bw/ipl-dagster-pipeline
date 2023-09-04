@@ -21,8 +21,22 @@ ENTRYPOINT []
 
 FROM base AS dagit
 
+LABEL org.opencontainers.image.title="data pipeline webserver"
+LABEL org.opencontainers.image.authors="Holger Bruch <hb@mfdz.de>, MobiData-BW IPL contributors <mobidata-bw@nvbw.de>"
+LABEL org.opencontainers.image.documentation="https://github.com/mobidata-bw/ipl-dagster-pipeline"
+LABEL org.opencontainers.image.source="https://github.com/mobidata-bw/ipl-dagster-pipeline"
+LABEL org.opencontainers.image.licenses="(EUPL-1.2)"
+
 EXPOSE 3000
 
 CMD ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000", "-w", "workspace.yaml"]
+
+FROM base AS daemon
+
+LABEL org.opencontainers.image.title="data pipeline daemon"
+LABEL org.opencontainers.image.authors="Holger Bruch <hb@mfdz.de>, MobiData-BW IPL contributors <mobidata-bw@nvbw.de>"
+LABEL org.opencontainers.image.documentation="https://github.com/mobidata-bw/ipl-dagster-pipeline"
+LABEL org.opencontainers.image.source="https://github.com/mobidata-bw/ipl-dagster-pipeline"
+LABEL org.opencontainers.image.licenses="(EUPL-1.2)"
 
 CMD ["dagster-daemon", "run"]

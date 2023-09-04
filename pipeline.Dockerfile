@@ -1,5 +1,11 @@
 FROM python:3.11
 
+LABEL org.opencontainers.image.title="data pipeline API"
+LABEL org.opencontainers.image.authors="Holger Bruch <hb@mfdz.de>, MobiData-BW IPL contributors <mobidata-bw@nvbw.de>"
+LABEL org.opencontainers.image.documentation="https://github.com/mobidata-bw/ipl-dagster-pipeline"
+LABEL org.opencontainers.image.source="https://github.com/mobidata-bw/ipl-dagster-pipeline"
+LABEL org.opencontainers.image.licenses="(EUPL-1.2)"
+
 WORKDIR /opt/dagster/app
 
 # Checkout and install dagster libraries needed to run the gRPC server
