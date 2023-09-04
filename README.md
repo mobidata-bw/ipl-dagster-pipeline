@@ -1,11 +1,12 @@
-# MobiData-BW DIP Pipeline
+# IPL Data Pipeline
 
-This repo represents the MobiData-BW DIP Pipeline, which retrieves and transforms 
-different datasources and publishes them either as datasets or pushes them to 
-databases form where they are served, e.g. as WMS/WFS or REST service.
+This repo represents the **data transformation pipeline of the MobiData-BW *Integrationsplatform* (IPL)**.
 
-To run this pipeline, copy `.env.EXAMPLE` to `.env` and adapt the variables, i.e. 
-choose your proper password for the DAGSTER_POSTGRES_PASSWORD.
+It uses [Dagster](https://dagster.io) to retrieve and transform several datasources. The results are either published as datasets, or written into databases and then being served (e.g. as WMS/WFS or REST service) by other IPL services.
+
+## Usage
+
+*Note:* This repo to is designed to be run as a part of the entire IPL platform, [as defined in the `ipl-orchestration` repo](https://github.com/mobidata-bw/ipl-orchestration). But you can also run it in a standalone fashion.
 
 To start this dagster project in interactive develepment mode, you should use a DAGSTER_HOME other than 
 this project directory, as a) the dagster.yml defines a postgres storage for dagster run information 
