@@ -1,0 +1,26 @@
+name: validate
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+  # make workflow "callable" by others
+  workflow_call:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+
+    - name: validate docker-compose.yml
+      run: |
+        docker compose config
+
+    - name: validate docker-compose.dev.yml
+      run: |
+        docker compose -f docker-compose.dev.yml config
