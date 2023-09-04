@@ -41,7 +41,7 @@ services:
   dagster_pipeline:
     build:
       context: .
-      dockerfile: ./Dockerfile_pipeline
+      dockerfile: ./pipeline.Dockerfile
     container_name: dagster_pipeline
     image: "${DAGSTER_CURRENT_IMAGE}"
     restart: always
@@ -64,7 +64,7 @@ services:
   dagster_dagit:
     build:
       context: .
-      dockerfile: ./Dockerfile_dagster
+      dockerfile: ./dagster.Dockerfile
     entrypoint:
       - dagster-webserver
       - -h
@@ -95,7 +95,7 @@ services:
   dagster_daemon:
     build:
       context: .
-      dockerfile: ./Dockerfile_dagster
+      dockerfile: ./dagster.Dockerfile
     entrypoint:
       - dagster-daemon
       - run
