@@ -80,7 +80,7 @@ class Lamassu:
         # add feed name to do delete insert
         merged['feed_id'] = feed_id
         # filter those not installed or not renting
-        filtered = merged.loc[(merged['is_renting'] == True) & (merged['is_installed'] == True)]  # fmt: off
+        filtered = merged.loc[(merged['is_renting'] == True) & (merged['is_installed'] == True)]  # noqa: E712
 
         # Add geometry
         filtered_with_geom = gpd.GeoDataFrame(
