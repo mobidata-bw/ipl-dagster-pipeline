@@ -106,6 +106,9 @@ class Lamassu:
             return None
 
         free_vehicle_status_df = self._load_feed_as_frame(feed['free_bike_status'], 'bikes')
+        cols_to_add = [col for col in ['lon', 'lat'] if col not in free_vehicle_status_df.columns]
+        free_vehicle_status_df.loc[:, cols_to_add] = None
+
         vehicle_types_df = self._load_feed_as_frame(feed['vehicle_types'], 'vehicle_types')
 
         if free_vehicle_status_df.empty:
@@ -119,7 +122,9 @@ class Lamassu:
         merged['feed_id'] = feed_id
         # filter those already reserved or disabled
         # Note: 'is False' results in boolean label can not be used without a boolean index
-        filtered = merged.loc[(merged['is_reserved'] == False) & (merged['is_disabled'] == False)]  # noqa: E712
+        filtered = merged.loc[
+            merged.lon.notnull() & (merged['is_reserved'] is False) & (merged['is_disabled'] is False)
+        ]  # noqa: E712
 
         # Add geometry
         filtered_with_geom = gpd.GeoDataFrame(

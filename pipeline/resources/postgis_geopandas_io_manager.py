@@ -69,8 +69,6 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
         schema, table = self._get_schema_table(context.asset_key)
 
         if isinstance(obj, pandas.DataFrame):
-            row_count = len(obj)
-            context.log.info(f'Row count: {row_count}, partion: {context.partition_key}')
             with connect_postgresql(config=self._config) as con:
                 self._create_schema_if_not_exists(schema, con)
                 # just recreate table with empty frame (obj[:0]) and load later via copy_from
@@ -87,8 +85,10 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
                 writer.writerows(obj_without_index.values)
                 sio.seek(0)
                 c = con.connection.cursor()
+                # ignore mypy attribute check, as postgres cursor has custom extension to DBAPICursor: copy_expert
                 c.copy_expert(f"COPY {schema}.{table} FROM STDIN WITH (FORMAT csv, DELIMITER '\t', NULL 'nan')", sio)  # type: ignore[attr-defined]
                 con.connection.commit()
+                context.add_output_metadata({'num_rows': len(obj), 'table_name': f'{schema}.{table}'})
         elif obj is None:
             self.delete_asset(context)
         else:
@@ -193,6 +193,7 @@ class PostGISGeoPandasIOManager(PostgreSQLPandasIOManager):  # type: ignore
 
                 self._create_schema_if_not_exists(schema, con)
                 obj.to_postgis(con=con, name=table, schema=schema, if_exists=if_exists_action, chunksize=self.chunksize)
+                context.add_output_metadata({'num_rows': len(obj), 'table_name': f'{schema}.{table}'})
         else:
             super().handle_output(context, obj)
 
