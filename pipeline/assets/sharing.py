@@ -1,3 +1,4 @@
+import pandas as pd
 from dagster import (
     DefaultScheduleStatus,
     DefaultSensorStatus,
@@ -13,50 +14,62 @@ from dagster import (
 
 from pipeline.resources import LamassuResource
 
-'''
-Define a dynamic partition gbfs_systems, which will be checked periodically by a sensor
-'''
-gbfs_system_partitions_def = DynamicPartitionsDefinition(name='gbfs_systems')
-
 
 @asset(
-    partitions_def=gbfs_system_partitions_def,
     io_manager_key='pg_gpd_io_manager',
     compute_kind='Lamassu',
     group_name='sharing',
-    metadata={'partition_expr': 'feed_id'},
 )
-def stations(context, lamassu: LamassuResource):
+def stations(context, lamassu: LamassuResource) -> pd.DataFrame:
     """
     Pushes stations published by lamassu
     to table in a postgis database.
     """
-    system_id = context.asset_partition_key_for_output()
-    feeds = lamassu.get_system_feeds(system_id)
-    return lamassu.get_stations_as_frame(feeds, system_id)
+
+    # Instead of handling each system as a partition, we iterate over all of them
+    # and insert them as one large batch.
+    # This works around dagster's inefficient job handling for many small sized, frequently updated partitions.
+    # See also this discussion in dagster slack: https://dagster.slack.com/archives/C01U954MEER/p1694188602187579
+    systems = lamassu.get_systems()
+    data_frames = []
+    for system in systems:
+        system_id = system['id']
+        feeds = lamassu.get_system_feeds(system_id)
+        stations = lamassu.get_stations_as_frame(feeds, system_id)
+        if stations:
+            data_frames.append(stations)
+    return pd.concat(data_frames)
 
 
 @asset(
-    partitions_def=gbfs_system_partitions_def,
     io_manager_key='pg_gpd_io_manager',
     compute_kind='Lamassu',
     group_name='sharing',
-    metadata={'partition_expr': 'feed_id'},
 )
-def vehicles(context, lamassu: LamassuResource):
+def vehicles(context, lamassu: LamassuResource) -> pd.DataFrame:
     """
     Pushes vehicles published by lamassu
     to table in a postgis database.
     """
-    system_id = context.asset_partition_key_for_output()
-    feeds = lamassu.get_system_feeds(system_id)
-    return lamassu.get_vehicles_as_frame(feeds, system_id)
+    # Instead of handling each system as a partition, we iterate over all of them
+    # and insert them as one large batch.
+    # This works around dagster's inefficient job handling for many small sized, frequently updated partitions.
+    # See also this discussion in dagster slack: https://dagster.slack.com/archives/C01U954MEER/p1694188602187579
+    systems = lamassu.get_systems()
+    data_frames = []
+    for system in systems:
+        system_id = system['id']
+        feeds = lamassu.get_system_feeds(system_id)
+        vehicles = lamassu.get_vehicles_as_frame(feeds, system_id)
+        if vehicles:
+            data_frames.append(vehicles)
+    return pd.concat(data_frames)
 
 
 '''
 Default execution mode (which could be overriden for the whole code location)
-is multiprocess, resulting in a new process startet for every new job execution.
-That results in a large overhead for launching aa new process, initializing db connections etc.,
+is multiprocess, resulting in a new process started for every new job execution.
+That results in a large overhead for launching a new process, initializing db connections etc.,
 so we want high frequency jobs to be execucted in process.
 Note: this config has to be provided for job definitions and for RunRequests.
 '''
@@ -76,40 +89,6 @@ stations_and_vehicles_job = define_asset_job(
 @schedule(job=stations_and_vehicles_job, cron_schedule='* * * * *', default_status=DefaultScheduleStatus.RUNNING)
 def update_stations_and_vehicles_minutely(context):
     """
-    For currently registered systems (which we treat as partition),
-    the stations_and_vehicles_job is run on the provided schedule (minutely).
+    Run stations_and_vehicles_job in process on the provided schedule (minutely).
     """
-    system_ids = gbfs_system_partitions_def.get_partition_keys(dynamic_partitions_store=context.instance)
-    return [
-        RunRequest(partition_key=system_id, run_key=system_id, run_config=in_process_job_config)
-        for system_id in system_ids
-    ]
-
-
-@sensor(job=stations_and_vehicles_job, default_status=DefaultSensorStatus.RUNNING)
-def gbfs_feeds_sensor(context, lamassu: LamassuResource):
-    current_systems = [system['id'] for system in lamassu.get_systems()]
-    new_systems = [
-        system_id
-        for system_id in current_systems
-        if not context.instance.has_dynamic_partition(gbfs_system_partitions_def.name, system_id)
-    ]
-    deleted_systems = [
-        system_id
-        for system_id in context.instance.get_dynamic_partitions(gbfs_system_partitions_def.name)
-        if system_id not in current_systems
-    ]
-    return SensorResult(
-        run_requests=[
-            # TODO is specifying a partition_key only sufficient
-            RunRequest(partition_key=system_id, run_config=in_process_job_config)
-            for system_id in new_systems
-        ]
-        # TODO append RunRequests for deleted systems
-        # RunRequest(partition_key=system_id, run_config=in_process_job_config, job_name=TODO_delete) for system_id in deleted_systems
-        ,
-        dynamic_partitions_requests=[
-            gbfs_system_partitions_def.build_add_request(new_systems),
-            gbfs_system_partitions_def.build_delete_request(deleted_systems),
-        ],
-    )
+    return [RunRequest(run_config=in_process_job_config)]
