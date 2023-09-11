@@ -119,7 +119,7 @@ class Lamassu:
         merged['feed_id'] = feed_id
         # filter those already reserved or disabled
         # Note: 'is False' results in boolean label can not be used without a boolean index
-        filtered = merged.loc[(merged['is_reserved'] == False) & (merged['is_disabled'] == False)]  # fmt: off
+        filtered = merged.loc[(merged['is_reserved'] == False) & (merged['is_disabled'] == False)]  # noqa: E712
 
         # Add geometry
         filtered_with_geom = gpd.GeoDataFrame(
