@@ -8,6 +8,10 @@ LABEL org.opencontainers.image.licenses="(EUPL-1.2)"
 
 WORKDIR /opt/dagster/app
 
+RUN apt update && apt install -y \
+	libgdal-dev \
+	&& rm -rf /var/lib/apt/lists/*
+
 # Checkout and install dagster libraries needed to run the gRPC server
 # exposing your repository to dagit and dagster-daemon, and to load the DagsterInstance
 COPY requirements.txt /opt/dagster/app
