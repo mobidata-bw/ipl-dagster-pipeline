@@ -3,7 +3,7 @@ types-urllib3==1.26.25.14
 types-psycopg2==2.9.21.11
 pandas-stubs==2.0.2.230605
 
-ruff~=0.0.282
+ruff~=0.0.292
 black~=23.7.0
 mypy~=1.4.1
 mypy-gitlab-code-quality~=0.0.15
