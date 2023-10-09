@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.12
 
 LABEL org.opencontainers.image.title="data pipeline API"
 LABEL org.opencontainers.image.authors="Holger Bruch <hb@mfdz.de>, MobiData-BW IPL contributors <mobidata-bw@nvbw.de>"
