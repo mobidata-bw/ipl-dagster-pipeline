@@ -5,5 +5,5 @@ pandas-stubs==2.0.2.230605
 
 ruff~=0.0.282
 black~=23.10.1
-mypy~=1.4.1
+mypy~=1.6.1
 mypy-gitlab-code-quality~=0.0.15
