@@ -1,4 +1,4 @@
-types-requests==2.31.0.2
+types-requests==2.31.0.10
 types-urllib3==1.26.25.14
 types-psycopg2==2.9.21.11
 pandas-stubs==2.0.2.230605
