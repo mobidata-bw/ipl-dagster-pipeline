@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - '3'
+          - '3.11' # fix to 3.11, as dagster does not support 3.12 for now
           - '3.8' # used by some NVBW infrastructure
     steps:
     - name: checkout
