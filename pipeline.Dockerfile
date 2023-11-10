@@ -14,10 +14,10 @@ RUN apt update && apt install -y \
 
 # Checkout and install dagster libraries needed to run the gRPC server
 # exposing your repository to dagit and dagster-daemon, and to load the DagsterInstance
-COPY requirements.txt /opt/dagster/app
+COPY requirements-pipeline.txt /opt/dagster/app
 
 # Install requirements
-RUN pip install -r requirements.txt
+RUN pip install -r requirements-pipeline.txt
 
 # Add repository code
 COPY pipeline/ /opt/dagster/app/pipeline/

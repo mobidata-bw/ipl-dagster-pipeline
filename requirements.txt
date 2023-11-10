@@ -1,5 +1,2 @@
-dagster
-dagster-postgres
-dagster-docker
-geopandas==0.13.2
-GeoAlchemy2==0.14.1
+-r requirements-dagster.txt
+-r requirements-pipeline.txt
