@@ -3,12 +3,8 @@
 
 FROM python:3.11 AS base
 
-RUN pip install \
-    dagster \
-    dagster-graphql \
-    dagster-webserver \
-    dagster-postgres \
-    dagster-docker
+COPY requirements-dagster.txt ./requirements-dagster.txt
+RUN pip install -r requirements-dagster.txt
 
 ARG DAGSTER_HOME=/opt/dagster/dagster_home/
 ENV DAGSTER_HOME=$DAGSTER_HOME
