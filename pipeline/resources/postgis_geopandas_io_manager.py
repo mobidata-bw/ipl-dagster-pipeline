@@ -50,7 +50,8 @@ def connect_postgresql(config, schema='public') -> Iterator[Connection]:
             conn.close()
 
 
-class PostgreSQLPandasIOManager(ConfigurableIOManager):
+# need mypy to ignore following line due to https://github.com/dagster-io/dagster/issues/17443
+class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
     """This IOManager will take in a pandas dataframe and store it in postgresql."""
 
     host: Optional[str] = 'localhost'
@@ -163,7 +164,8 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):
         return f'SELECT {col_str} FROM {schema}.{table}'
 
 
-class PostGISGeoPandasIOManager(PostgreSQLPandasIOManager):
+# need mypy to ignore following line due to https://github.com/dagster-io/dagster/issues/17443
+class PostGISGeoPandasIOManager(PostgreSQLPandasIOManager):  # type: ignore
     """This IOManager will take in a geopandas dataframe and store it in postgis."""
 
     def handle_output(self, context: OutputContext, obj: geopandas.GeoDataFrame):
