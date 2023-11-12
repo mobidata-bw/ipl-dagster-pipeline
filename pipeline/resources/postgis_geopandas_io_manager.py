@@ -86,7 +86,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):
                 writer.writerows(obj_without_index.values)
                 sio.seek(0)
                 c = con.connection.cursor()
-                c.copy_expert(f"COPY {schema}.{table} FROM STDIN WITH (FORMAT csv, DELIMITER '\t', NULL 'nan')", sio)
+                c.copy_expert(f"COPY {schema}.{table} FROM STDIN WITH (FORMAT csv, DELIMITER '\t', NULL 'nan')", sio)  # type: ignore[attr-defined]
                 con.connection.commit()
         elif obj is None:
             self.delete_asset(context)
