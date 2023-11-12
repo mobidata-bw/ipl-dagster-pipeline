@@ -28,7 +28,7 @@ jobs:
         cache: 'pip'
 
     - name: pip install
-      run: pip install -r requirements.txt -r requirements-dev.txt
+      run: pip install -r requirements-dagster.txt -r requirements-dev.txt
 
     - name: lint using ruff
       # We could also use the official GitHub Actions integration.
