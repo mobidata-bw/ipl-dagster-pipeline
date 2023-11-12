@@ -8,7 +8,8 @@ from pandas import DataFrame
 from pipeline.sources.lamassu import Lamassu
 
 
-class LamassuResource(ConfigurableResource):
+# need mypy to ignore following line due to https://github.com/dagster-io/dagster/issues/17443
+class LamassuResource(ConfigurableResource):  # type: ignore
     """
     LamassuResource is a ConfigurableResource wrapper around
     a Lamassu instance
