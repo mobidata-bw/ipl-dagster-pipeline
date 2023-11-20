@@ -4,6 +4,6 @@ types-psycopg2==2.9.21.11
 pandas-stubs==2.1.1.230928
 types-SQLAlchemy==1.4.53.38
 
-ruff~=0.1.2
+ruff~=0.1.6
 black~=23.10.1
 mypy~=1.6.1
