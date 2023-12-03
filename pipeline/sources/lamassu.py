@@ -9,6 +9,8 @@ import pandas as pd
 import requests
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL, Connection
+from urllib.parse import urljoin
+from pipeline.util.urllib import get
 
 # TODO: Fragen MobiData-BW:
 # Schema für Stationen und Fahrzeuge?
@@ -51,12 +53,14 @@ class Lamassu:
         self.lamassu_base_url = lamassu_base_url
 
     def get_systems(self) -> dict:
-        resp = requests.get(f'{self.lamassu_base_url}/gbfs', timeout=self.timeout)
+        url = urljoin(self.lamassu_base_url, f'gbfs-internal')   
+        resp = requests.get(url, timeout=self.timeout)
         resp.raise_for_status()
         return resp.json()['systems']
 
     def get_system_feeds(self, system_id: str, preferred_feed_languages: list) -> dict:
-        resp = requests.get(f'{self.lamassu_base_url}/gbfs/{system_id}/gbfs.json', timeout=self.timeout)
+        url = urljoin(self.lamassu_base_url, f'gbfs-internal/{system_id}/gbfs.json')   
+        resp = get(url, timeout=self.timeout)
         resp.raise_for_status()
 
         data = resp.json()['data']
@@ -154,7 +158,7 @@ class Lamassu:
         Loads a specific gbfs endpoint and returns the data node
         (or the data's <element> node) as a denormalized flat pandas frame.
         """
-        resp = requests.get(url, timeout=self.timeout)
+        resp = get(url, timeout=self.timeout)
         resp.raise_for_status()
 
         data = resp.json()['data'][element] if element else resp.json()['data']
