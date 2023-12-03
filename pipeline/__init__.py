@@ -15,7 +15,7 @@ assets = load_assets_from_modules([sharing, radvis, gtfs])
 
 defs = Definitions(
     assets=assets,
-    schedules=[sharing.update_stations_and_vehicles_minutely],
+    schedules=[sharing.update_sharing_station_status_and_vehicles_minutely],
     resources={
         'lamassu': LamassuResource(lamassu_base_url=EnvVar('IPL_LAMASSU_INTERNAL_BASE_URL')),
         'pg_gpd_io_manager': PostGISGeoPandasIOManager(

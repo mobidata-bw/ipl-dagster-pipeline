@@ -31,3 +31,6 @@ class LamassuResource(ConfigurableResource):  # type: ignore
 
     def get_stations_as_frame(self, feed: dict, system_id: str) -> Optional[DataFrame]:
         return self._lamassu().get_stations_as_frame(feed, system_id)
+
+    def get_station_status_by_form_factor_as_frame(self, feed: dict, system_id: str) -> Optional[DataFrame]:
+        return self._lamassu().get_station_status_by_form_factor_as_frame(feed, system_id)
