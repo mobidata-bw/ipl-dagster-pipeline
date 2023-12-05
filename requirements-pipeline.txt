@@ -1,5 +1,5 @@
-dagster==1.5.7
-dagster-postgres==0.21.7
+dagster==1.5.10
+dagster-postgres==0.21.10
 geopandas==0.14.1
 GeoAlchemy2==0.14.2
 GDAL~=3.8.1
