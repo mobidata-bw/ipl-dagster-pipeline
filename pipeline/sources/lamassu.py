@@ -5,52 +5,51 @@ from urllib.parse import urljoin
 import geopandas as gpd
 import pandas as pd
 import requests
+from geopandas.array import ExtensionDtype, GeometryDtype
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL, Connection
-from urllib.parse import urljoin
+
 from pipeline.util.urllib import get
 
-# TODO: Fragen MobiData-BW:
-# Schema für Stationen und Fahrzeuge?
-# Stationen können unterschiedliche Form-Faktoren umfassen. Als welche sollen Sie zurückgegeben werden?
-# Wenn keine Fahrzeuge verfügbar sind, anhand derer dies ermittelbar wäre, ist dies nicht beurteilbar. Vorschlag: Kreuzprodukt aus vehicle_types.form_factor?
-# num_bikes_available heißt es heute, ich würde auf num_vehicles_available umstellen
-STATION_COLUMNS = [
-    'feed_id',
-    'station_id',
-    'name',
-    'num_bikes_available',
-    'rental_uris_android',
-    'rental_uris_ios',
-    'rental_uris_web',
-    'last_reported',
-    'geometry',
-]
-VEHICLE_COLUMNS = [
-    'feed_id',
-    'vehicle_id',
-    'form_factor',
-    'name',
-    'is_reserved',
-    'propulsion_type',
-    'max_range_meters',
-    'rental_uris_android',
-    'rental_uris_ios',
-    'rental_uris_web',
-    'last_reported',
-    'geometry',
-]
+# https://pandas.pydata.org/docs/user_guide/basics.html#basics-dtypes
+STATION_COLUMNS = {
+    'feed_id': pd.StringDtype(),
+    'station_id': pd.StringDtype(),
+    'name': pd.StringDtype(),
+    'rental_uris_android': pd.StringDtype(),
+    'rental_uris_ios': pd.StringDtype(),
+    'rental_uris_web': pd.StringDtype(),
+    'last_reported': pd.DatetimeTZDtype(tz='UTC'),
+    'geometry': GeometryDtype(),
+}
 
-STATION_BY_FORM_FACTOR_COLUMNS = [
+VEHICLE_COLUMNS = {
+    'feed_id': pd.StringDtype(),
+    'vehicle_id': pd.StringDtype(),
+    'form_factor': pd.StringDtype(),
+    'name': pd.StringDtype(),
+    'is_reserved': pd.BooleanDtype(),
+    'propulsion_type': pd.StringDtype(),
+    'max_range_meters': pd.Int32Dtype(),
+    'rental_uris_android': pd.StringDtype(),
+    'rental_uris_ios': pd.StringDtype(),
+    'rental_uris_web': pd.StringDtype(),
+    'last_reported': pd.DatetimeTZDtype(tz='UTC'),
+    'geometry': GeometryDtype(),
+}
+
+STATION_BY_FORM_FACTOR_COLUMNS = {
     # 'station_id', is already part of index, don't add as column
-    'num_bicycles_available',
-    'num_cargo_bicycles_available',
-    'num_cars_available',
-    'num_scooters_seated_available',
-    'num_scooters_standing_available',
-    'num_mopeds_available',
-    'num_others_available',
-]
+    'num_bicycles_available': pd.Int32Dtype(),
+    'num_cargo_bicycles_available': pd.Int32Dtype(),
+    'num_cars_available': pd.Int32Dtype(),
+    'num_scooters_seated_available': pd.Int32Dtype(),
+    'num_scooters_standing_available': pd.Int32Dtype(),
+    'num_mopeds_available': pd.Int32Dtype(),
+    'num_others_available': pd.Int32Dtype(),
+    'last_reported': pd.DatetimeTZDtype(tz='UTC'),
+}
+
 
 class Lamassu:
     # Feed ids of feeds, whose scooters are scooter_seated.
@@ -64,13 +63,13 @@ class Lamassu:
         self.scooter_seated_feeds = scooter_seated_feeds if scooter_seated_feeds else []
 
     def get_systems(self) -> dict:
-        url = urljoin(self.lamassu_base_url, f'gbfs-internal')   
+        url = urljoin(self.lamassu_base_url, 'gbfs-internal')
         resp = requests.get(url, timeout=self.timeout)
         resp.raise_for_status()
         return resp.json()['systems']
 
     def get_system_feeds(self, system_id: str, preferred_feed_languages: list) -> dict:
-        url = urljoin(self.lamassu_base_url, f'gbfs-internal/{system_id}/gbfs.json')   
+        url = urljoin(self.lamassu_base_url, f'gbfs-internal/{system_id}/gbfs.json')
         resp = get(url, timeout=self.timeout)
         resp.raise_for_status()
 
@@ -84,8 +83,16 @@ class Lamassu:
 
     def _group_and_pivot(self, dataframe, index, columns, values):
         # unpack index/columns if they are lists, not just single column names
-        group_cols = [*(index if type(index)==list else [index]), *(columns if type(columns)==list else [columns])]
+        group_cols = [
+            *(index if isinstance(index, list) else [index]),
+            *(columns if isinstance(columns, list) else [columns]),
+        ]
         grouped_sums_df = dataframe.groupby(group_cols).sum(numeric_only=True).reset_index()
+        # convert int64 to Int32, which is sufficiently large and can represent NA,
+        # which avoids they are converted to float by pivot
+        for column_name in grouped_sums_df.columns:
+            if grouped_sums_df[column_name].dtype.name == 'int64':
+                grouped_sums_df[column_name] = grouped_sums_df[column_name].astype('Int32')
         return grouped_sums_df.pivot(index=index, columns=columns, values=values)
 
     def _availability_col_name_for_form_factor(self, feed_id: str, form_factor: str) -> str:
@@ -117,7 +124,7 @@ class Lamassu:
             [],
         )
         vehicle_types_df = self._load_feed_as_frame(feed['vehicle_types'], 'vehicle_types')
-        
+
         if vehicle_types_df.empty or stations_status_df.empty:
             return None
 
@@ -140,25 +147,26 @@ class Lamassu:
         stations_availabilities_by_form_factor_df = stations_availabilities_by_form_factor_df.rename(columns=renamings)
         # add feed name
         stations_availabilities_by_form_factor_df['feed_id'] = feed_id
-        
-        return self._enforce_columns(stations_availabilities_by_form_factor_df, STATION_BY_FORM_FACTOR_COLUMNS)
 
+        return self._enforce_columns(stations_availabilities_by_form_factor_df, STATION_BY_FORM_FACTOR_COLUMNS)
 
     def get_stations_as_frame(self, feed: dict, feed_id: str) -> Optional[pd.DataFrame]:
         if 'station_information' not in feed:
             return None
 
         stations_infos_df = self._load_feed_as_frame(feed['station_information'], 'stations')
-        
+
         if stations_infos_df.empty:
             return None
 
         # add feed name to do delete insert
         stations_infos_df['feed_id'] = feed_id
-        
+
         # Add geometry
         stations_infos_df_with_geom = gpd.GeoDataFrame(
-            stations_infos_df, geometry=gpd.points_from_xy(stations_infos_df.lon, stations_infos_df.lat), crs='EPSG:4326'
+            stations_infos_df,
+            geometry=gpd.points_from_xy(stations_infos_df.lon, stations_infos_df.lat),
+            crs='EPSG:4326',
         )
 
         return self._enforce_columns(stations_infos_df_with_geom, STATION_COLUMNS)
@@ -206,19 +214,19 @@ class Lamassu:
 
         return self._enforce_columns(filtered_with_geom, VEHICLE_COLUMNS)
 
-    def _enforce_columns(self, df: pd.DataFrame, column_names: list) -> pd.DataFrame:
+    def _enforce_columns(self, df: pd.DataFrame, column_names: dict[str, ExtensionDtype]) -> pd.DataFrame:
         """
         Make sure all intended columns exist in data frame.
         Unwanted colums are discarded. Intended, but not yet
         existing are created with value "None".
         """
-        #
-        for column in column_names:
+        # Create missing columns with their appropriate dtype
+        for column, dtype in column_names.items():
             if column not in df:
-                df[column] = None
+                df[column] = pd.Series(dtype=dtype) if dtype else None
 
         # restrict to essentiel columns or provide defaults
-        return df[column_names]
+        return df[column_names.keys()]
 
     def _load_feed_as_frame(
         self,

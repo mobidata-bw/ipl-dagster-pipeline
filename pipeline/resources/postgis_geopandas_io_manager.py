@@ -79,14 +79,13 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
                     schema=schema,
                     if_exists='replace',
                 )
-                obj_without_index = obj.reset_index()
+                obj.reset_index()
                 sio = StringIO()
-                writer = csv.writer(sio, delimiter='\t')
-                writer.writerows(obj_without_index.values)
+                obj.to_csv(sio, sep='\t', na_rep='', header=False)
                 sio.seek(0)
                 c = con.connection.cursor()
                 # ignore mypy attribute check, as postgres cursor has custom extension to DBAPICursor: copy_expert
-                c.copy_expert(f"COPY {schema}.{table} FROM STDIN WITH (FORMAT csv, DELIMITER '\t', NULL 'nan')", sio)  # type: ignore[attr-defined]
+                c.copy_expert(f"COPY {schema}.{table} FROM STDIN WITH (FORMAT csv, DELIMITER '\t')", sio)  # type: ignore[attr-defined]
                 con.connection.commit()
                 context.add_output_metadata({'num_rows': len(obj), 'table_name': f'{schema}.{table}'})
         elif obj is None:
