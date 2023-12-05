@@ -3,6 +3,7 @@ from dagster import (
     DefaultScheduleStatus,
     DefaultSensorStatus,
     DynamicPartitionsDefinition,
+    FreshnessPolicy,
     RunRequest,
     ScheduleDefinition,
     SensorResult,
@@ -19,6 +20,7 @@ from pipeline.resources import LamassuResource
     io_manager_key='pg_gpd_io_manager',
     compute_kind='Lamassu',
     group_name='sharing',
+    freshness_policy=FreshnessPolicy(maximum_lag_minutes=1),
 )
 def sharing_stations(context, lamassu: LamassuResource) -> pd.DataFrame:
     """
