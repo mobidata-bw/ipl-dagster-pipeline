@@ -7,11 +7,11 @@ from dagster import (
     load_assets_from_modules,
 )
 
-from .assets import radvis, sharing
+from .assets import gtfs, radvis, sharing
 from .resources import LamassuResource, PostGISGeoPandasIOManager
 from .resources.gdal import Ogr2OgrResource
 
-assets = load_assets_from_modules([sharing, radvis])
+assets = load_assets_from_modules([sharing, radvis, gtfs])
 
 defs = Definitions(
     assets=assets,
