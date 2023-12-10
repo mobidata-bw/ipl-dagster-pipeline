@@ -55,8 +55,26 @@ services:
       - IPL_POSTGRES_PASSWORD
       - IPL_POSTGRES_DB
       - IPL_POSTGRES_PORT
+      # Variables required for GTFS-Import
+      - GTFS_DOWNLOAD_URL
+      - GTFS_DOWNLOAD_USER_AGENT
+      - IPL_GTFS_IMPORTER_IMAGE
+      - IPL_GTFS_DB_POSTGRES_USER
+      - IPL_GTFS_DB_POSTGRES_PASSWORD
+      - IPL_GTFS_DB_POSTGRES_DB
+      - IPL_GTFS_DB_POSTGRES_DB_PREFIX
+      - IPL_GTFS_DB_POSTGREST_USER
+      - IPL_GTFS_DB_POSTGREST_PASSWORD
+      # Required to mount volumes for docker-in-docker executions
+      - IPL_ROOT_DIR
     networks:
       - dagster_network
+    healthcheck:
+      test: "CMD printf 'GET / HTTP/1.1\n\n' > /dev/tcp/127.0.0.1/4000"
+      timeout: 1s
+      interval: 1s
+      start_period: 2s
+      retries: 5
 
   # This service runs dagster-webserver (dagit), which loads your user code from the user code container.
   # Since our instance uses the QueuedRunCoordinator, any runs submitted from dagster-webserver
@@ -78,8 +96,10 @@ services:
     networks:
       - dagster_network
     depends_on:
-      - dagster_postgresql
-      - dagster_pipeline
+      dagster_postgresql:
+        condition: service_healthy
+      dagster_pipeline:
+        condition: service_healthy
 
   # This service runs the dagster-daemon process, which is responsible for taking runs
   # off of the queue and launching them, as well as creating runs from schedules or sensors.
@@ -99,8 +119,10 @@ services:
     networks:
       - dagster_network
     depends_on:
-      - dagster_postgresql
-      - dagster_pipeline
+      dagster_postgresql:
+        condition: service_healthy
+      dagster_pipeline:
+        condition: service_healthy
 
 networks:
   dagster_network:
