@@ -69,6 +69,12 @@ services:
       - IPL_ROOT_DIR
     networks:
       - dagster_network
+    volumes:
+      - /tmp/io_manager_storage:/tmp/io_manager_storage
+      - ./var/www/:/var/www
+      - ./var/dagster/storage:/opt/dagster/dagster_home/storage
+      # Make docker client accessible so we can start containers in jobs
+      - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
       test: "CMD printf 'GET / HTTP/1.1\n\n' > /dev/tcp/127.0.0.1/4000"
       timeout: 1s
@@ -93,6 +99,7 @@ services:
       - DAGSTER_POSTGRES_DB
     volumes:
       - /tmp/io_manager_storage:/tmp/io_manager_storage
+      - ./var/dagster/storage:/opt/dagster/dagster_home/storage
     networks:
       - dagster_network
     depends_on:
@@ -116,6 +123,7 @@ services:
       - DAGSTER_POSTGRES_DB
     volumes:
       - /tmp/io_manager_storage:/tmp/io_manager_storage
+      - ./var/dagster/storage:/opt/dagster/dagster_home/storage
     networks:
       - dagster_network
     depends_on:
