@@ -10,6 +10,8 @@ services:
       POSTGRES_USER: "${DAGSTER_POSTGRES_USER}"
       POSTGRES_PASSWORD: "${DAGSTER_POSTGRES_PASSWORD}"
       POSTGRES_DB: "${DAGSTER_POSTGRES_DB}"
+    healthcheck:
+      test: "PGPASSWORD=${DAGSTER_POSTGRES_PASSWORD} pg_isready -h 127.0.0.1 -U ${DAGSTER_POSTGRES_USER} -d ${DAGSTER_POSTGRES_DB}"
     networks:
       - dagster_network
 
@@ -25,6 +27,9 @@ services:
     restart: on-failure
     healthcheck:
       test: "PGPASSWORD=${IPL_POSTGRES_PASSWORD} pg_isready -h 127.0.0.1 -U ${IPL_POSTGRES_USER} -d ${IPL_POSTGRES_DB}"
+      interval: 5s
+      timeout: 3s
+      retries: 12
     environment:
       POSTGRES_USER: "${IPL_POSTGRES_USER}"
       POSTGRES_PASSWORD: "${IPL_POSTGRES_PASSWORD}"
@@ -79,12 +84,12 @@ services:
       # Make docker client accessible so we can start containers in jobs
       - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
-      test: "CMD printf 'GET / HTTP/1.1\n\n' > /dev/tcp/127.0.0.1/4000"
+      test: ["CMD-SHELL", "/bin/bash", "printf", "'GET / HTTP/1.1\n\n'", ">/dev/tcp/127.0.0.1/4000"]
       timeout: 1s
-      interval: 1s
+      interval: 3s
       start_period: 2s
-      retries: 5
-
+      retries: 15
+   
   # This service runs dagster-webserver (dagit), which loads your user code from the user code container.
   # Since our instance uses the QueuedRunCoordinator, any runs submitted from dagster-webserver
   # will be put on a queue and later dequeued and launched by dagster-daemon.
