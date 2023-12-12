@@ -8,3 +8,6 @@ run_coordinator:
     max_concurrent_runs: 15
     dequeue_use_threads: true
     dequeue_interval_seconds: 1
+
+auto_materialize:
+  enabled: True
