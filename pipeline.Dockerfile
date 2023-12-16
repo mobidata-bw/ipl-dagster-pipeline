@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:1
 # Note: Image version should match GDAL version in requirements-pipeline.txt
 # for current versions, see https://github.com/OSGeo/gdal/pkgs/container/gdal,
-# sha256:c7d5058385 corresponds to 3.8.1
-FROM ghcr.io/osgeo/gdal:ubuntu-small-latest@sha256:c7d5058385b0726379f241ebd0fa4754bba789dd6c9d0ae34b1e53bb373a1647
+# sha256:ed45c3d21e6af8fe60 corresponds to > 3.8.1
+FROM ghcr.io/osgeo/gdal:ubuntu-small-latest@sha256:ed45c3d21e6af8fe60edad665c7ae5aa95bd6665619778e867ac698a960078e0
 
 LABEL org.opencontainers.image.title="MobiData-BW Data Pipeline API"
 LABEL org.opencontainers.image.authors="Holger Bruch <hb@mfdz.de>, MobiData-BW IPL contributors <mobidata-bw@nvbw.de>"
