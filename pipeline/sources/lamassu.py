@@ -1,5 +1,5 @@
 import traceback
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 from urllib.parse import urljoin
 
 import geopandas as gpd
@@ -39,7 +39,8 @@ VEHICLE_COLUMNS = {
 }
 
 STATION_BY_FORM_FACTOR_COLUMNS = {
-    # 'station_id', is already part of index, don't add as column
+    'feed_id': pd.StringDtype(),
+    'station_id': pd.StringDtype(),
     'num_bicycles_available': pd.Int32Dtype(),
     'num_cargo_bicycles_available': pd.Int32Dtype(),
     'num_cars_available': pd.Int32Dtype(),
@@ -54,6 +55,7 @@ STATION_BY_FORM_FACTOR_COLUMNS = {
 class Lamassu:
     # Feed ids of feeds, whose scooters are scooter_seated.
     scooter_seated_feeds: List[str] = []
+    # Base URL to a lamassu instance.
     lamassu_base_url: str
     # Timeout used for lamassu requests
     timeout: int = 2
@@ -81,20 +83,6 @@ class Lamassu:
 
         return {}
 
-    def _group_and_pivot(self, dataframe, index, columns, values):
-        # unpack index/columns if they are lists, not just single column names
-        group_cols = [
-            *(index if isinstance(index, list) else [index]),
-            *(columns if isinstance(columns, list) else [columns]),
-        ]
-        grouped_sums_df = dataframe.groupby(group_cols).sum(numeric_only=True).reset_index()
-        # convert int64 to Int32, which is sufficiently large and can represent NA,
-        # which avoids they are converted to float by pivot
-        for column_name in grouped_sums_df.columns:
-            if grouped_sums_df[column_name].dtype.name == 'int64':
-                grouped_sums_df[column_name] = grouped_sums_df[column_name].astype('Int32')
-        return grouped_sums_df.pivot(index=index, columns=columns, values=values)
-
     def _availability_col_name_for_form_factor(self, feed_id: str, form_factor: str) -> str:
         """
         Maps form_factor to corresponding `num_<form_factors>_available` column names.
@@ -110,7 +98,6 @@ class Lamassu:
                 return 'num_scooters_seating_available'
             return 'num_scooters_standing_available'
         return 'num_' + form_factor + 's_available'
-    
 
     def get_station_status_by_form_factor_as_frame(self, feed: dict, feed_id: str) -> Optional[pd.DataFrame]:
         if 'station_status' not in feed or 'vehicle_types' not in feed:
@@ -120,7 +107,8 @@ class Lamassu:
             feed['station_status'],
             'stations',
             'vehicle_types_available',
-            ['station_id', 'num_bikes_available', 'is_renting', 'is_installed'],
+            # Note: in gbfs 2.3, num_bikes_available means num_vehicles_available, will be renamed in v3
+            ['station_id', 'num_bikes_available', 'is_renting', 'is_installed', 'last_reported'],
             [],
         )
         vehicle_types_df = self._load_feed_as_frame(feed['vehicle_types'], 'vehicle_types')
@@ -137,7 +125,7 @@ class Lamassu:
         # convert stations_status into a dataframe, one row per station, a column per form_factor
         # reflecting the number of available vehicles of this form_factor
         stations_availabilities_by_form_factor_df = self._group_and_pivot(
-            filtered, ['station_id', 'num_vehicles_available'], 'form_factor', 'count'
+            filtered, ['station_id', 'num_vehicles_available', 'last_reported'], 'form_factor', 'count'
         )
         # rename form_factor cols to num_<form_factor>s_available
         renamings = {
@@ -145,10 +133,9 @@ class Lamassu:
             for c in stations_availabilities_by_form_factor_df.columns
         }
         stations_availabilities_by_form_factor_df = stations_availabilities_by_form_factor_df.rename(columns=renamings)
-        # add feed name
-        stations_availabilities_by_form_factor_df['feed_id'] = feed_id
-
-        return self._enforce_columns(stations_availabilities_by_form_factor_df, STATION_BY_FORM_FACTOR_COLUMNS)
+        return self._postprocess_columns_and_types(
+            stations_availabilities_by_form_factor_df, feed_id, STATION_BY_FORM_FACTOR_COLUMNS, 'station_id'
+        )
 
     def get_stations_as_frame(self, feed: dict, feed_id: str) -> Optional[pd.DataFrame]:
         if 'station_information' not in feed:
@@ -159,9 +146,6 @@ class Lamassu:
         if stations_infos_df.empty:
             return None
 
-        # add feed name to do delete insert
-        stations_infos_df['feed_id'] = feed_id
-
         # Add geometry
         stations_infos_df_with_geom = gpd.GeoDataFrame(
             stations_infos_df,
@@ -169,10 +153,7 @@ class Lamassu:
             crs='EPSG:4326',
         )
 
-        return self._enforce_columns(stations_infos_df_with_geom, STATION_COLUMNS)
-
-        # TODO add operator
-        # TODO schema sharing
+        return self._postprocess_columns_and_types(stations_infos_df_with_geom, feed_id, STATION_COLUMNS, 'station_id')
 
     def get_vehicles_as_frame(self, feed: dict, feed_id: str) -> Optional[pd.DataFrame]:
         """
@@ -199,33 +180,17 @@ class Lamassu:
 
         # Join vehicles and their type informatoin
         merged = pd.merge(free_vehicle_status_df, vehicle_types_df, on=['vehicle_type_id'])
-        merged['feed_id'] = feed_id
         # filter those already reserved or disabled
         # Note: 'is False' results in boolean label can not be used without a boolean index
         filtered = merged.loc[
-            merged.lon.notnull() & (merged['is_reserved'] == False) & (merged['is_disabled'] == False) # noqa: E712
+            merged.lon.notnull() & (merged['is_reserved'] == False) & (merged['is_disabled'] == False)  # noqa: E712
         ]
 
         # Add geometry
         filtered_with_geom = gpd.GeoDataFrame(
             filtered, geometry=gpd.points_from_xy(filtered.lon, filtered.lat), crs='EPSG:4326'
         )
-
-        return self._enforce_columns(filtered_with_geom, VEHICLE_COLUMNS)
-
-    def _enforce_columns(self, df: pd.DataFrame, column_names: dict[str, ExtensionDtype]) -> pd.DataFrame:
-        """
-        Make sure all intended columns exist in data frame.
-        Unwanted colums are discarded. Intended, but not yet
-        existing are created with value "None".
-        """
-        # Create missing columns with their appropriate dtype
-        for column, dtype in column_names.items():
-            if column not in df:
-                df[column] = pd.Series(dtype=dtype) if dtype else None
-
-        # restrict to essentiel columns or provide defaults
-        return df[column_names.keys()]
+        return self._postprocess_columns_and_types(filtered_with_geom, feed_id, VEHICLE_COLUMNS, 'vehicle_id')
 
     def _load_feed_as_frame(
         self,
@@ -248,3 +213,63 @@ class Lamassu:
                 if record_path not in record:
                     record[record_path] = default_record_path
         return pd.json_normalize(data, record_path, meta, sep='_')
+
+    @staticmethod
+    def _coerce_int64_to_int32(dataframe: pd.DataFrame) -> None:
+        """
+        convert int64 to Int32, which can represent NA, and is
+        sufficiently large to represent expected values.
+        """
+        for column_name in dataframe.columns:
+            if dataframe[column_name].dtype.name == 'int64':
+                dataframe[column_name] = dataframe[column_name].astype('Int32')
+
+    @staticmethod
+    def _group_and_pivot(
+        dataframe: pd.DataFrame, index: Union[list, str], columns: Union[list, str], values: Union[list, str]
+    ) -> pd.DataFrame:
+        """
+        Groups the dataframe by index and columns, summing up the value columns and returning them pivoted.
+        """
+        # unpack index/columns if they are lists, not just single column names
+        group_cols = [
+            *(index if isinstance(index, list) else [index]),
+            *(columns if isinstance(columns, list) else [columns]),
+        ]
+        grouped_sums_df = dataframe.groupby(group_cols).sum(numeric_only=True).reset_index()
+        Lamassu._coerce_int64_to_int32(grouped_sums_df)
+        return grouped_sums_df.pivot(index=index, columns=columns, values=values)
+
+    @staticmethod
+    def _postprocess_columns_and_types(
+        df: pd.DataFrame, feed_id: str, enforced_columns: Dict[str, ExtensionDtype], index: str
+    ) -> pd.DataFrame:
+        """
+        Performs some datafram post-processsing common to all feature frames:
+        * adds the given feed_id as column
+        * sets the given index column as new index
+        * converts last_reported from epoch to datetime column
+        * assures that the returned dataframe has excactly the enforced_columns. Columns not contained in enforced_columns
+          will be dropped, not yet existing columns created with their aassigned type, existing coerced to the given type
+        """
+        df = df.reset_index()
+        df['feed_id'] = feed_id
+        # convert seconds since epoch into datetime
+        df['last_reported'] = pd.to_datetime(df['last_reported'], unit='s', utc=True)
+        df_with_enforced_columns = Lamassu._enforce_columns(df, enforced_columns)
+        return df_with_enforced_columns.set_index(index)
+
+    @staticmethod
+    def _enforce_columns(df: pd.DataFrame, column_names: dict[str, ExtensionDtype]) -> pd.DataFrame:
+        """
+        Make sure all intended columns exist in data frame.
+        Unwanted colums are discarded. Intended, but not yet
+        existing are created with value "None".
+        """
+        # Create missing columns with their appropriate dtype
+        for column, dtype in column_names.items():
+            if column not in df:
+                df[column] = pd.Series(dtype=dtype) if dtype else None
+
+        # restrict to essentiel columns or provide defaults
+        return df[column_names.keys()]
