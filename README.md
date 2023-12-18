@@ -22,7 +22,7 @@ dependencies for the different dagster services. `pipeline.Dockerfile` and `dags
 In addition, you need a postgres database into which the datasets are loaded. 
 This database can be started via 
 
-`docker compose up -f docker-compose.dev.yml`
+`docker compose -f docker-compose.dev.yml up`
 
 ### Running 
 

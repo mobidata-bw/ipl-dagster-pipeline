@@ -4,10 +4,18 @@ import shutil
 import tempfile
 from datetime import datetime
 from email.utils import parsedate_to_datetime
+from typing import Union
 
 import requests
 
 user_agent = 'IPL (MobiData-BW) +https://github.com/mobidata-bw/ipl-dagster-pipeline'
+
+
+def get(url: str, timeout: int, headers: Union[dict[str, str], None] = None, stream: bool = False):
+    if headers is None:
+        headers = {}
+    headers['User-Agent'] = user_agent
+    return requests.get(url, headers=headers, timeout=timeout, stream=stream)
 
 
 def download(
@@ -40,7 +48,7 @@ def download(
             pre_existing_file_last_modified = datetime.utcfromtimestamp(os.path.getmtime(finalfilename))
             headers['If-Modified-Since'] = pre_existing_file_last_modified.strftime('%a, %d %b %Y %H:%M:%S GMT')
 
-        response = requests.get(source, headers=headers, stream=True, timeout=timeout)
+        response = get(source, timeout=timeout, headers=headers, stream=True)
         if response.status_code == 304:
             # File not modified since last download
             return
