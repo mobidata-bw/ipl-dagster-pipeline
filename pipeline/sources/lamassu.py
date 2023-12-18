@@ -254,8 +254,9 @@ class Lamassu:
         """
         df = df.reset_index()
         df['feed_id'] = feed_id
-        # convert seconds since epoch into datetime
-        df['last_reported'] = pd.to_datetime(df['last_reported'], unit='s', utc=True)
+        # convert seconds since epoch into datetime, if available (for vehicles, it's optional)
+        if 'last_reported' in df.columns:
+            df['last_reported'] = pd.to_datetime(df['last_reported'], unit='s', utc=True, errors='coerce')
         df_with_enforced_columns = Lamassu._enforce_columns(df, enforced_columns)
         return df_with_enforced_columns.set_index(index)
 
