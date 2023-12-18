@@ -204,8 +204,8 @@ class Lamassu:
         # filter those already reserved or disabled
         # Note: 'is False' results in boolean label can not be used without a boolean index
         filtered = merged.loc[
-            merged.lon.notnull() & (merged['is_reserved'] is False) & (merged['is_disabled'] is False)
-        ]  # noqa: E712
+            merged.lon.notnull() & (merged['is_reserved'] == False) & (merged['is_disabled'] == False) # noqa: E712
+        ]
 
         # Add geometry
         filtered_with_geom = gpd.GeoDataFrame(
