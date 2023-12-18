@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 from dagster import (
     DefaultScheduleStatus,
@@ -35,11 +37,14 @@ def sharing_stations(context, lamassu: LamassuResource) -> pd.DataFrame:
     systems = lamassu.get_systems()
     data_frames = []
     for system in systems:
-        system_id = system['id']
-        feeds = lamassu.get_system_feeds(system_id)
-        stations = lamassu.get_stations_as_frame(feeds, system_id)
-        if stations is not None:
-            data_frames.append(stations)
+        try:
+            system_id = system['id']
+            feeds = lamassu.get_system_feeds(system_id)
+            stations = lamassu.get_stations_as_frame(feeds, system_id)
+            if stations is not None:
+                data_frames.append(stations)
+        except Exception:
+            logging.exception(f'Error retrieving stations for system {system}')
     return pd.concat(data_frames)
 
 
@@ -61,11 +66,15 @@ def sharing_station_status(context, lamassu: LamassuResource) -> pd.DataFrame:
     systems = lamassu.get_systems()
     data_frames = []
     for system in systems:
-        system_id = system['id']
-        feeds = lamassu.get_system_feeds(system_id)
-        station_status = lamassu.get_station_status_by_form_factor_as_frame(feeds, system_id)
-        if station_status is not None:
-            data_frames.append(station_status)
+        try:
+            system_id = system['id']
+            feeds = lamassu.get_system_feeds(system_id)
+            station_status = lamassu.get_station_status_by_form_factor_as_frame(feeds, system_id)
+            if station_status is not None:
+                data_frames.append(station_status)
+        except Exception:
+            logging.exception(f'Error retrieving sharing_station_status for system {system}')
+
     return pd.concat(data_frames)
 
 
@@ -86,11 +95,14 @@ def vehicles(context, lamassu: LamassuResource) -> pd.DataFrame:
     systems = lamassu.get_systems()
     data_frames = []
     for system in systems:
-        system_id = system['id']
-        feeds = lamassu.get_system_feeds(system_id)
-        vehicles = lamassu.get_vehicles_as_frame(feeds, system_id)
-        if vehicles is not None:
-            data_frames.append(vehicles)
+        try:
+            system_id = system['id']
+            feeds = lamassu.get_system_feeds(system_id)
+            vehicles = lamassu.get_vehicles_as_frame(feeds, system_id)
+            if vehicles is not None:
+                data_frames.append(vehicles)
+        except Exception:
+            logging.exception(f'Error retrieving vehicles for system {system}')
     return pd.concat(data_frames)
 
 
