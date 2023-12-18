@@ -187,15 +187,13 @@ class Lamassu:
             return None
 
         free_vehicle_status_df = self._load_feed_as_frame(feed['free_bike_status'], 'bikes')
+        if free_vehicle_status_df.empty:
+            return None
         cols_to_add = [col for col in ['lon', 'lat'] if col not in free_vehicle_status_df.columns]
         free_vehicle_status_df.loc[:, cols_to_add] = None
         free_vehicle_status_df = free_vehicle_status_df.rename(columns={'bike_id': 'vehicle_id'})
 
         vehicle_types_df = self._load_feed_as_frame(feed['vehicle_types'], 'vehicle_types')
-
-        if free_vehicle_status_df.empty:
-            return None
-
         # Fix issues with duplicate vehicle_type_ids
         vehicle_types_df = vehicle_types_df.drop_duplicates(subset=['vehicle_type_id'], keep='last')
 
