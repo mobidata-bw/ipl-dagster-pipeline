@@ -1,13 +1,16 @@
 # mypy: disable-error-code="operator,arg-type"
 # We ignore operator and arg-type warnings, as failing if env vars are unset is explicitly intended
+import logging
 import os
 import os.path
 import warnings
 
+import docker
 from dagster import (
     AutoMaterializePolicy,
     FreshnessPolicy,
     graph_asset,
+    op,
 )
 from dagster_docker import docker_container_op
 
@@ -40,6 +43,24 @@ import_op = docker_container_op.configured(
 )
 
 
+@op
+def reload_pgbouncer_databases(import_op):
+    client = docker.from_env()
+    # Temporarilly return ipl-pgbouncer-1 as default container name if not configured otherwise
+    container_name = os.getenv('IPL_GTFS_PGBOUNCER_CONTAINER', 'ipl-pgbouncer-1')
+    # TODO check for existanc and log warning if not
+    # if container_name == None:
+    #    logging.warn('Will not reload pgbouncer databases, as IPL_GTFS_PGBOUNCER_CONTAINER is unset')
+    #    return
+    container = client.containers.get(container_name)
+    if container:
+        container.exec_run('/reload-pgbouncer-databases.sh')
+    else:
+        logging.warn(
+            f'Will not reload pgbouncer databases, as IPL_GTFS_PGBOUNCER_CONTAINER {container_name} is not found'
+        )
+
+
 @graph_asset(
     group_name='gtfs',
     auto_materialize_policy=AutoMaterializePolicy.eager(),
@@ -49,4 +70,4 @@ def gtfs():
     """
     Downloads, cleans, and imports the gtfs data
     """
-    return import_op()
+    return reload_pgbouncer_databases(import_op())
