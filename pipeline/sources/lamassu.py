@@ -28,8 +28,9 @@ VEHICLE_COLUMNS = {
     'vehicle_id': pd.StringDtype(),
     'form_factor': pd.StringDtype(),
     'name': pd.StringDtype(),
-    'is_reserved': pd.BooleanDtype(),
     'propulsion_type': pd.StringDtype(),
+    'current_fuel_percent': pd.Float32Dtype(),
+    'current_range_meters': pd.Int32Dtype(),
     'max_range_meters': pd.Int32Dtype(),
     'rental_uris_android': pd.StringDtype(),
     'rental_uris_ios': pd.StringDtype(),
@@ -254,8 +255,9 @@ class Lamassu:
         """
         df = df.reset_index()
         df['feed_id'] = feed_id
-        # convert seconds since epoch into datetime
-        df['last_reported'] = pd.to_datetime(df['last_reported'], unit='s', utc=True)
+        # convert seconds since epoch into datetime, if available (for vehicles, it's optional)
+        if 'last_reported' in df.columns:
+            df['last_reported'] = pd.to_datetime(df['last_reported'], unit='s', utc=True, errors='coerce')
         df_with_enforced_columns = Lamassu._enforce_columns(df, enforced_columns)
         return df_with_enforced_columns.set_index(index)
 
