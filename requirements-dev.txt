@@ -3,6 +3,8 @@ types-urllib3==1.26.25.14
 types-psycopg2==2.9.21.19
 pandas-stubs==2.1.1.230928
 types-SQLAlchemy==1.4.53.38
+# for docker currently no official stubs exist, see https://github.com/docker/docker-py/issues/2796
+docker-stubs @ git+https://github.com/rdozier-work/docker-stubs@9de7906804ae912f1d644c97b617ac77e784fca8
 
 ruff~=0.1.6
 black~=23.10.1
