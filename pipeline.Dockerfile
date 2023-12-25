@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:1
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 LABEL org.opencontainers.image.title="MobiData-BW Data Pipeline API"
 LABEL org.opencontainers.image.authors="Holger Bruch <hb@mfdz.de>, MobiData-BW IPL contributors <mobidata-bw@nvbw.de>"
