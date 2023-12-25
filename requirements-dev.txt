@@ -8,4 +8,4 @@ docker-stubs @ git+https://github.com/rdozier-work/docker-stubs@9de7906804ae912f
 
 ruff~=0.1.6
 black~=23.10.1
-mypy~=1.6.1
+mypy~=1.8.0
