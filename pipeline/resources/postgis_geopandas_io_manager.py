@@ -71,14 +71,21 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
         if isinstance(obj, pandas.DataFrame):
             with connect_postgresql(config=self._config) as con:
                 self._create_schema_if_not_exists(schema, con)
-                # just recreate table with empty frame (obj[:0]) and load later via copy_from
-                obj[:0].to_sql(
-                    con=con,
-                    name=table,
-                    index=True,
-                    schema=schema,
-                    if_exists='replace',
-                )
+                table_exists = self._has_table(con, schema, table)
+                if table_exists:
+                    self._truncate_table(schema, table, con)
+                else:
+                    # create table with empty frame (obj[:0]) and load later via copy_from
+                    obj[:0].to_sql(
+                        con=con,
+                        name=table,
+                        index=True,
+                        schema=schema,
+                        if_exists='replace',
+                    )
+                    # table was just created, create primary key (to_postgis doesn't create these,
+                    # though index=True suggests this)
+                    self._create_primary_key(schema, table, obj.index.names, con)
                 obj.reset_index()
                 sio = StringIO()
                 obj.to_csv(sio, sep='\t', na_rep='', header=False)
@@ -134,6 +141,19 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
             con.connection.rollback()
             pass
 
+    def _truncate_table(self, schema, table, con):
+        try:
+            c = con.connection.cursor()
+            c.execute(f'TRUNCATE TABLE {schema}.{table}')
+        except UndefinedTable:
+            # TODO log debug info, asset did not exist, so nothing to
+            con.connection.rollback()
+            pass
+
+    def _create_primary_key(self, schema, table, keys, con):
+        with con.connection.cursor() as c:
+            c.execute(f'ALTER TABLE {schema}.{table} ADD PRIMARY KEY ({",".join(keys)})')
+
     def _load_input(
         self, con: Connection, table: str, schema: str, columns: Optional[Sequence[str]], context: InputContext
     ) -> pandas.DataFrame:
@@ -162,6 +182,15 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
         col_str = ', '.join(columns) if columns else '*'
         return f'SELECT {col_str} FROM {schema}.{table}'
 
+    def _has_table(self, con, schema, table):
+        with con.connection.cursor() as c:
+            c.execute(
+                f"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{schema}' AND table_name = '{table}'"
+            )
+            if c.fetchone()[0] == 1:
+                return True
+            return False
+
 
 # need mypy to ignore following line due to https://github.com/dagster-io/dagster/issues/17443
 class PostGISGeoPandasIOManager(PostgreSQLPandasIOManager):  # type: ignore
@@ -173,25 +202,32 @@ class PostGISGeoPandasIOManager(PostgreSQLPandasIOManager):  # type: ignore
         if isinstance(obj, geopandas.GeoDataFrame):
             with connect_postgresql(config=self._config) as con:
                 self._create_schema_if_not_exists(schema, con)
-                if context.has_partition_key:
-                    # add additional column (name? for now just partition)
-                    # to the frame and initialize with partition_name
-                    # (name could become part of metadata, ob may be contained already)
-                    partition_col_name = self._get_partition_expr(context)
-                    partition_key = context.partition_key
-                    obj[partition_col_name] = partition_key
+                table_exists = self._has_table(con, schema, table)
+                if table_exists:
+                    if context.has_partition_key:
+                        # add additional column (name? for now just partition)
+                        # to the frame and initialize with partition_name
+                        # (name could become part of metadata, ob may be contained already)
+                        partition_col_name = self._get_partition_expr(context)
+                        partition_key = context.partition_key
+                        obj[partition_col_name] = partition_key
 
-                    # We leave other partions untouched, but need to delete data from this
-                    # partition before we append again.
-                    if_exists_action = 'append'
-                    self._delete_partition(schema, table, partition_col_name, partition_key, con)
-                else:
-                    # All data can be replaced (e.g. deleted before insertion).
-                    # geopandas will take care of this.
-                    if_exists_action = 'replace'
+                        # We leave other partitions untouched, but need to delete data from this
+                        # partition before we append again.
+                        self._delete_partition(schema, table, partition_col_name, partition_key, con)
+                    else:
+                        # All data can be replaced (i.e. truncated before insertion).
+                        # geopandas will take care of this.
+                        self._truncate_table(schema, table, con)
+
                 obj.to_postgis(
-                    con=con, name=table, index=True, schema=schema, if_exists=if_exists_action, chunksize=self.chunksize
+                    con=con, name=table, index=True, schema=schema, if_exists='append', chunksize=self.chunksize
                 )
+                if not table_exists:
+                    # table was just created, create primary key (to_postgis doesn't create these,
+                    # though index=True suggests this)
+                    self._create_primary_key(schema, table, obj.index.names, con)
+                con.connection.commit()
                 context.add_output_metadata({'num_rows': len(obj), 'table_name': f'{schema}.{table}'})
         else:
             super().handle_output(context, obj)
