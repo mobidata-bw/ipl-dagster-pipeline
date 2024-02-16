@@ -33,6 +33,8 @@ import_op = docker_container_op.configured(
         ],
         'container_kwargs': {
             #   "auto_remove": True # auto_remove currently results in error
+            # > Remove the container when it has finished running. Default: False.
+            'remove': True,
             'volumes': [
                 os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR'), ':/var/gtfs/:rw'),
                 os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR'), ':/etc/gtfs'),
