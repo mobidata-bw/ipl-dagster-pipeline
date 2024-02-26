@@ -75,6 +75,8 @@ services:
       # Required to mount volumes for docker-in-docker executions
       - IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR=${PWD}/etc/gtfs/
       - IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR=${PWD}/var/gtfs/
+      - RADVIS_WFS_USER
+      - RADVIS_WFS_PASSWORD
     networks:
       - dagster_network
     volumes:
