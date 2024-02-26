@@ -15,7 +15,12 @@ from pipeline.util.urllib import download
 warnings.filterwarnings('ignore', category=ExperimentalWarning)
 
 WEB_ROOT = os.getenv('WWW_ROOT_DIR', './tmp/www')
-RADVIS_DOWNLOAD_URL = 'https://data.mfdz.de/vm/radvis/Wegweisung.gpkg'
+RADVIS_WFS_USER = os.getenv('RADVIS_WFS_USER')
+RADVIS_WFS_PASSWORD = os.getenv('RADVIS_WFS_PASSWORD')
+RADVIS_DOWNLOAD_URL = os.getenv(
+    'RADVIS_WFS_DOWNLOAD_URL',
+    'https://radvis.landbw.de/api/geoserver/basicauth/balm/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=balm:Wegweisung,balm:Route,balm:Streckenabschnitt,balm:Knoten&outputFormat=application/x-gpkg&format_options=filename:balm.gpkg',
+)
 RADVIS_OUT_FILENAME = 'radnetz_bw.gpkg'
 
 
@@ -30,7 +35,15 @@ def radnetz_bw_download() -> None:
     """
     category = 'radvis'
     destination_folder = os.path.join(WEB_ROOT, category)
-    download(RADVIS_DOWNLOAD_URL, destination_folder, RADVIS_OUT_FILENAME, create_precompressed=True)
+    download(
+        RADVIS_DOWNLOAD_URL,
+        destination_folder,
+        RADVIS_OUT_FILENAME,
+        timeout=120,
+        create_precompressed=True,
+        basic_auth_user=RADVIS_WFS_USER,
+        basic_auth_password=RADVIS_WFS_PASSWORD,
+    )
 
 
 @asset(
