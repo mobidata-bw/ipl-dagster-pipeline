@@ -28,6 +28,7 @@ RADVIS_OUT_FILENAME = 'radnetz_bw.gpkg'
     compute_kind='Geopackage',
     group_name='radvis',
     freshness_policy=FreshnessPolicy(maximum_lag_minutes=60 * 24, cron_schedule='0 1 * * *'),
+    auto_materialize_policy=AutoMaterializePolicy.eager(),
 )
 def radnetz_bw_download() -> None:
     """
