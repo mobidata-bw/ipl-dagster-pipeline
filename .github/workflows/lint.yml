@@ -17,7 +17,7 @@ jobs:
       matrix:
         python-version:
           - '3.11' # fix to 3.11, as dagster does not support 3.12 for now
-          - '3.9' # minimum version for geopandas 0.14
+          - '3.10' # minimum version we intend to support
     steps:
     - name: checkout
       uses: actions/checkout@v4
