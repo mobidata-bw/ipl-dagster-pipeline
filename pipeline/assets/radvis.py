@@ -36,14 +36,19 @@ def radnetz_bw_download() -> None:
     """
     category = 'radvis'
     destination_folder = os.path.join(WEB_ROOT, category)
+    auth = (
+        (RADVIS_WFS_USER, RADVIS_WFS_PASSWORD)
+        if RADVIS_WFS_USER is not None and RADVIS_WFS_PASSWORD is not None
+        else None
+    )
+
     download(
         RADVIS_DOWNLOAD_URL,
         destination_folder,
         RADVIS_OUT_FILENAME,
         timeout=120,
         create_precompressed=True,
-        basic_auth_user=RADVIS_WFS_USER,
-        basic_auth_password=RADVIS_WFS_PASSWORD,
+        auth=auth,
     )
 
 
