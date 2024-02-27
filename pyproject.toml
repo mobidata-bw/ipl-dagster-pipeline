@@ -69,5 +69,5 @@ docstring-quotes = "double"
 
 [[tool.mypy.overrides]]
 # See https://github.com/HBNetwork/python-decouple/issues/122
-module = ["dagster_docker", "geopandas", "geopandas.array", "osgeo", "osgeo_utils.samples"]
+module = ["dagster_docker", "geopandas", "geopandas.array", "osgeo", "osgeo_utils.samples", "defusedxml", "defusedxml.ElementTree"]
 ignore_missing_imports = true

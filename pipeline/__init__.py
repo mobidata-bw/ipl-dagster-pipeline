@@ -7,11 +7,11 @@ from dagster import (
     load_assets_from_modules,
 )
 
-from .assets import gtfs, radvis, sharing
-from .resources import LamassuResource, PostGISGeoPandasIOManager
+from .assets import gtfs, radvis, sharing, traffic_incidents
+from .resources import JsonWebAssetIOManager, LamassuResource, PostGISGeoPandasIOManager
 from .resources.gdal import Ogr2OgrResource
 
-assets = load_assets_from_modules([sharing, radvis, gtfs])
+assets = load_assets_from_modules([sharing, radvis, gtfs, traffic_incidents])
 
 defs = Definitions(
     assets=assets,
@@ -24,6 +24,9 @@ defs = Definitions(
             port=EnvVar.int('IPL_POSTGRES_PORT'),
             password=EnvVar('IPL_POSTGRES_PASSWORD'),
             database=EnvVar('IPL_POSTGRES_DB'),
+        ),
+        'json_webasset_io_manager': JsonWebAssetIOManager(
+            destination_directory=EnvVar('WWW_ROOT_DIR'),
         ),
         'ogr2ogr': Ogr2OgrResource(
             host=EnvVar('IPL_POSTGRES_HOST'),
