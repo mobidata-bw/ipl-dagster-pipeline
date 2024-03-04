@@ -1,4 +1,4 @@
-dagster==1.5.10
+dagster==1.6.8
 dagster-postgres==0.21.10
 dagster-docker==0.21.10
 geopandas==0.14.1
