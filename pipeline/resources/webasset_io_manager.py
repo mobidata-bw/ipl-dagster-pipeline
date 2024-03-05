@@ -49,7 +49,7 @@ class JsonWebAssetIOManager(ConfigurableIOManager):  # type: ignore[misc]
 
         return path, filename
 
-    def handle_output(self, context: OutputContext, obj: str):
+    def handle_output(self, context: OutputContext, json_dict: dict):
         (destination_path, filename) = self._path_and_filename(context)
 
         tmpfilename = os.path.join(destination_path, filename + '.tmp')
@@ -59,7 +59,7 @@ class JsonWebAssetIOManager(ConfigurableIOManager):  # type: ignore[misc]
             os.makedirs(destination_path)
 
         with open(tmpfilename, 'w') as file:
-            json.dump(obj, file)
+            json.dump(json_dict, file)
 
         if self.create_precompressed:
             with open(tmpfilename, 'rb') as f_in, gzip.open(tmpfilename + '.gz', 'wb') as f_out:
@@ -68,7 +68,7 @@ class JsonWebAssetIOManager(ConfigurableIOManager):  # type: ignore[misc]
 
         os.replace(tmpfilename, finalfilename)
 
-    def load_input(self, context: InputContext) -> str:
+    def load_input(self, context: InputContext) -> dict:
         (source_path, filename) = self._path_and_filename(context)
         with open(os.path.join(source_path, filename), 'r') as source:
             return json.load(source)
