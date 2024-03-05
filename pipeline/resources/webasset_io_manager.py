@@ -65,9 +65,11 @@ class JsonWebAssetIOManager(ConfigurableIOManager):  # type: ignore[misc]
         if self.create_precompressed:
             with open(tmpfilename, 'rb') as f_in, gzip.open(tmpfilename + '.gz', 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
-                os.replace(tmpfilename + '.gz', finalfilename + '.gz')
 
+        # move temporary files to destination files
         os.replace(tmpfilename, finalfilename)
+        if self.create_precompressed:
+            os.replace(tmpfilename + '.gz', finalfilename + '.gz')
 
     def load_input(self, context: InputContext) -> dict:
         (source_path, filename) = self._path_and_filename(context)
