@@ -38,6 +38,7 @@ class JsonWebAssetIOManager(ConfigurableIOManager):  # type: ignore[misc]
 
     destination_directory: str = ''
     create_precompressed: bool = True
+    file_suffix: str = '.json'
 
     @property
     def _config(self) -> dict[str, Any]:
@@ -45,7 +46,7 @@ class JsonWebAssetIOManager(ConfigurableIOManager):  # type: ignore[misc]
 
     def _path_and_filename(self, context: Union[InputContext, OutputContext]):
         path = os.path.join(self.destination_directory, *context.asset_key.path[:-1])
-        filename = f'{context.asset_key.path[-1]}.json'
+        filename = f'{context.asset_key.path[-1]}{self.file_suffix}'
 
         return path, filename
 
