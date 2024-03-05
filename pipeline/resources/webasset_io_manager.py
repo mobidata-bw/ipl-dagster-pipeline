@@ -52,22 +52,21 @@ class JsonWebAssetIOManager(ConfigurableIOManager):  # type: ignore[misc]
     def handle_output(self, context: OutputContext, obj: str):
         (destination_path, filename) = self._path_and_filename(context)
 
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            tmpfilename = os.path.join(tmpdirname, filename)
-            finalfilename = os.path.join(destination_path, filename)
+        tmpfilename = os.path.join(destination_path, filename + '.tmp')
+        finalfilename = os.path.join(destination_path, filename)
 
-            if not os.path.exists(destination_path):
-                os.makedirs(destination_path)
+        if not os.path.exists(destination_path):
+            os.makedirs(destination_path)
 
-            with open(tmpfilename, 'w') as file:
-                json.dump(obj, file)
+        with open(tmpfilename, 'w') as file:
+            json.dump(obj, file)
 
-            if self.create_precompressed:
-                with open(tmpfilename, 'rb') as f_in, gzip.open(tmpfilename + '.gz', 'wb') as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-                    os.replace(tmpfilename + '.gz', finalfilename + '.gz')
+        if self.create_precompressed:
+            with open(tmpfilename, 'rb') as f_in, gzip.open(tmpfilename + '.gz', 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+                os.replace(tmpfilename + '.gz', finalfilename + '.gz')
 
-            os.replace(tmpfilename, finalfilename)
+        os.replace(tmpfilename, finalfilename)
 
     def load_input(self, context: InputContext) -> str:
         (source_path, filename) = self._path_and_filename(context)
