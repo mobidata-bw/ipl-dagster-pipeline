@@ -17,14 +17,16 @@ import json
 import os
 import shutil
 import tempfile
-from typing import Any, Optional, Union
 from pathlib import Path
+from typing import Any, Optional, Union
 
 from dagster import (
     ConfigurableIOManager,
     InputContext,
     OutputContext,
 )
+
+from pipeline.util.urllib import store_with_tmp_and_gzipped
 
 
 # in followinng line, ignore mypy Metaclass conflict, see https://github.com/dagster-io/dagster/issues/17443
@@ -46,35 +48,20 @@ class JsonWebAssetIOManager(ConfigurableIOManager):  # type: ignore[misc]
         return self.dict()
 
     def _path_and_filename(self, context: Union[InputContext, OutputContext]):
-        path = Path(self.destination_directory).joinpath(*context.asset_key.path[:-1])
-        filename = f'{context.asset_key.path[-1]}{self.file_suffix}'
-
-        return path, filename
+        return Path(self.destination_directory).joinpath(*context.asset_key.path).with_suffix(self.file_suffix)
 
     def handle_output(self, context: OutputContext, json_dict: dict):
-        (destination_path, filename) = self._path_and_filename(context)
+        final_filename = self._path_and_filename(context)
 
-        final_filename = destination_path / filename
-        tmp_filename = final_filename.parent / (final_filename.name + '.tmp')
-        
-        if not final_filename.parent.exists():
-            final_filename.parent(final_filename)
+        def store_json(tmp_filename):
+            with tmp_filename.open('w') as file:
+                json.dump(json_dict, file)
 
-        with tmp_filename.open('w') as file:
-            json.dump(json_dict, file)
+            return True
 
-        gzip_tmp_filename = tmp_filename.parent / (tmp_filename.name + '.gz')  
-        gzip_final_filename =  final_filename.parent / (final_filename.name + '.gz')
-        if self.create_precompressed:
-            with tmp_filename.open('rb') as f_in, gzip.open(gzip_tmp_filename, 'wb') as f_out:
-                shutil.copyfileobj(f_in, f_out)
-
-        # move temporary files to destination files
-        tmp_filename.replace(final_filename)
-        if self.create_precompressed:
-            gzip_tmp_filename.replace(gzip_final_filename)
+        store_with_tmp_and_gzipped(final_filename, store_json, self.create_precompressed)
 
     def load_input(self, context: InputContext) -> dict:
-        (source_path, filename) = self._path_and_filename(context)
-        with (source_path / filename).open('r') as source:
+        filename = self._path_and_filename(context)
+        with filename.open('r') as source:
             return json.load(source)
