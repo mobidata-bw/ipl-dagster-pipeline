@@ -4,6 +4,7 @@ import shutil
 import tempfile
 from datetime import datetime
 from email.utils import parsedate_to_datetime
+from pathlib import Path
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -38,15 +39,15 @@ def download(
     Note: timestamps of remote files are not retained.
     """
 
-    tmpfilename = os.path.join(destination_path, filename + '.tmp')
-    finalfilename = os.path.join(destination_path, filename)
+    final_filename = Path(destination_path) / filename
+    tmp_filename = final_filename.parent / (final_filename.name + '.tmp')
 
-    if not os.path.exists(destination_path):
-        os.makedirs(destination_path)
+    if not final_filename.parent.exists():
+        final_filename.parent.mkdir(parents=True)
 
     headers = {'User-Agent': user_agent}
-    if not force and os.path.exists(finalfilename):
-        pre_existing_file_last_modified = datetime.utcfromtimestamp(os.path.getmtime(finalfilename))
+    if not force and final_filename.exists():
+        pre_existing_file_last_modified = datetime.utcfromtimestamp(final_filename.stat().st_mtime)
         headers['If-Modified-Since'] = pre_existing_file_last_modified.strftime('%a, %d %b %Y %H:%M:%S GMT')
 
     response = get(
@@ -60,7 +61,7 @@ def download(
         # File not modified since last download
         return
 
-    with open(tmpfilename, 'wb') as file:
+    with tmp_filename.open('wb') as file:
         for chunk in response.iter_content(chunk_size=1024 * 1024):
             if chunk:
                 file.write(chunk)
@@ -69,13 +70,16 @@ def download(
     last_modified_str = response.headers.get('Last-Modified')
     if last_modified_str:
         last_modified = parsedate_to_datetime(last_modified_str)
-        os.utime(tmpfilename, (last_modified.timestamp(), last_modified.timestamp()))
+        os.utime(tmp_filename, (last_modified.timestamp(), last_modified.timestamp()))
 
     if gzip:
-        with open(tmpfilename, 'rb') as f_in, gzip.open(tmpfilename + '.gz', 'wb') as f_out:
+        tmp_gzip_filename = tmp_filename.parent / (tmp_filename.name + '.gz')
+        final_gzip_filename = final_filename.parent / (final_filename.name + '.gz')
+
+        with tmp_filename.open('rb') as f_in, gzip.open(tmp_gzip_filename, 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
             if last_modified:
-                os.utime(tmpfilename + '.gz', (last_modified.timestamp(), last_modified.timestamp()))
-            os.replace(tmpfilename + '.gz', finalfilename + '.gz')
+                os.utime(tmp_gzip_filename, (last_modified.timestamp(), last_modified.timestamp()))
+            tmp_gzip_filename.replace(final_gzip_filename)
 
-    os.replace(tmpfilename, finalfilename)
+    tmp_filename.replace(final_filename)
