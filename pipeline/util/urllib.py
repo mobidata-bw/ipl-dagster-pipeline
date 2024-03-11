@@ -61,7 +61,7 @@ def download(
         return
 
     with open(tmpfilename, 'wb') as file:
-        for chunk in response.iter_content(chunk_size=1024):
+        for chunk in response.iter_content(chunk_size=1024 * 1024):
             if chunk:
                 file.write(chunk)
 
