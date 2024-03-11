@@ -18,6 +18,7 @@ import os
 import shutil
 import tempfile
 from typing import Any, Optional, Union
+from pathlib import Path
 
 from dagster import (
     ConfigurableIOManager,
@@ -45,7 +46,7 @@ class JsonWebAssetIOManager(ConfigurableIOManager):  # type: ignore[misc]
         return self.dict()
 
     def _path_and_filename(self, context: Union[InputContext, OutputContext]):
-        path = os.path.join(self.destination_directory, *context.asset_key.path[:-1])
+        path = Path(self.destination_directory).joinpath(*context.asset_key.path[:-1])
         filename = f'{context.asset_key.path[-1]}{self.file_suffix}'
 
         return path, filename
@@ -53,25 +54,27 @@ class JsonWebAssetIOManager(ConfigurableIOManager):  # type: ignore[misc]
     def handle_output(self, context: OutputContext, json_dict: dict):
         (destination_path, filename) = self._path_and_filename(context)
 
-        tmpfilename = os.path.join(destination_path, filename + '.tmp')
-        finalfilename = os.path.join(destination_path, filename)
+        final_filename = destination_path / filename
+        tmp_filename = final_filename.parent / (final_filename.name + '.tmp')
+        
+        if not final_filename.parent.exists():
+            final_filename.parent(final_filename)
 
-        if not os.path.exists(destination_path):
-            os.makedirs(destination_path)
-
-        with open(tmpfilename, 'w') as file:
+        with tmp_filename.open('w') as file:
             json.dump(json_dict, file)
 
+        gzip_tmp_filename = tmp_filename.parent / (tmp_filename.name + '.gz')  
+        gzip_final_filename =  final_filename.parent / (final_filename.name + '.gz')
         if self.create_precompressed:
-            with open(tmpfilename, 'rb') as f_in, gzip.open(tmpfilename + '.gz', 'wb') as f_out:
+            with tmp_filename.open('rb') as f_in, gzip.open(gzip_tmp_filename, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
 
         # move temporary files to destination files
-        os.replace(tmpfilename, finalfilename)
+        tmp_filename.replace(final_filename)
         if self.create_precompressed:
-            os.replace(tmpfilename + '.gz', finalfilename + '.gz')
+            gzip_tmp_filename.replace(gzip_final_filename)
 
     def load_input(self, context: InputContext) -> dict:
         (source_path, filename) = self._path_and_filename(context)
-        with open(os.path.join(source_path, filename), 'r') as source:
+        with (source_path / filename).open('r') as source:
             return json.load(source)
