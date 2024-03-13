@@ -2,4 +2,4 @@ dagster==1.6.8
 dagster-graphql==1.6.8
 dagster-webserver==1.6.8
 dagster-postgres==0.22.8
-dagster-docker==0.22.8
+dagster-docker==0.22.9
