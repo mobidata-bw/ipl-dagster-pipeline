@@ -48,7 +48,7 @@ def download(
     headers = {'User-Agent': user_agent}
     if not force and final_filename.exists():
         pre_existing_file_last_modified = datetime.utcfromtimestamp(final_filename.stat().st_mtime)
-        headers['If-Modified-Since'] = pre_existing_file_last_modified.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        headers['If-Modified-Since'] = pre_existing_file_last_modified.strftime('%a, %d %b %Y %H:%M:%S UTC')
 
     response = get(
         source,
