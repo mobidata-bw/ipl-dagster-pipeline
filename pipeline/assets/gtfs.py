@@ -32,13 +32,12 @@ import_op = docker_container_op.configured(
             'POSTGREST_PASSWORD=' + os.getenv('IPL_GTFS_DB_POSTGREST_PASSWORD'),
         ],
         'container_kwargs': {
-            #   "auto_remove": True # auto_remove currently results in error
             # > Remove the container when it has finished running. Default: False.
-            'remove': True,
+            'auto_remove': True,
             'volumes': [
                 os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR'), ':/var/gtfs/:rw'),
                 os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR'), ':/etc/gtfs'),
-            ]
+            ],
         },
     },
     name='import_op',
