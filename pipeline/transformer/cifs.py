@@ -229,7 +229,7 @@ class DatexII2CifsTransformer:
                     'subtype': self._incident_subtype(situationRecord),
                     'starttime': starttime,
                     'endtime': endtime,
-                    'description': self._roadworks_name(overallSituation),
+                    'description': self._roadworks_name(situationRecord) or self._roadworks_name(overallSituation),
                     'reference': self.reference,
                 }
 
