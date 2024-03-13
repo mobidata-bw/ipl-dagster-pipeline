@@ -5,6 +5,7 @@ import tempfile
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 from pathlib import Path
+from typing import Callable
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -40,46 +41,61 @@ def download(
     """
 
     final_filename = Path(destination_path) / filename
+
+    def download_and_store(tmp_filename):
+        headers = {'User-Agent': user_agent}
+        if not force and final_filename.exists():
+            pre_existing_file_last_modified = datetime.utcfromtimestamp(final_filename.stat().st_mtime)
+            headers['If-Modified-Since'] = pre_existing_file_last_modified.strftime('%a, %d %b %Y %H:%M:%S UTC')
+
+        response = get(
+            source,
+            timeout=timeout,
+            headers=headers,
+            stream=True,
+            auth=auth,
+        )
+        if response.status_code == 304:
+            # File not modified since last download
+            return False
+
+        with tmp_filename.open('wb') as file:
+            for chunk in response.iter_content(chunk_size=1024 * 1024):
+                if chunk:
+                    file.write(chunk)
+
+        last_modified = None
+        last_modified_str = response.headers.get('Last-Modified')
+        if last_modified_str:
+            last_modified = parsedate_to_datetime(last_modified_str)
+            os.utime(tmp_filename, (last_modified.timestamp(), last_modified.timestamp()))
+
+        return True
+
+    store_with_tmp_and_gzipped(final_filename, download_and_store)
+
+
+def store_with_tmp_and_gzipped(
+    final_filename: Path, store_function: Callable[[Path], bool], precompressed: bool = True
+):
     tmp_filename = final_filename.parent / (final_filename.name + '.tmp')
 
     if not final_filename.parent.exists():
-        final_filename.parent.mkdir(parents=True)
+        final_filename.parent.mkdir()
 
-    headers = {'User-Agent': user_agent}
-    if not force and final_filename.exists():
-        pre_existing_file_last_modified = datetime.utcfromtimestamp(final_filename.stat().st_mtime)
-        headers['If-Modified-Since'] = pre_existing_file_last_modified.strftime('%a, %d %b %Y %H:%M:%S UTC')
+    store_successful = store_function(tmp_filename)
 
-    response = get(
-        source,
-        timeout=timeout,
-        headers=headers,
-        stream=True,
-        auth=auth,
-    )
-    if response.status_code == 304:
-        # File not modified since last download
-        return
+    if store_successful:
+        gzip_tmp_filename = tmp_filename.parent / (tmp_filename.name + '.gz')
+        gzip_final_filename = final_filename.parent / (final_filename.name + '.gz')
+        if precompressed:
+            with tmp_filename.open('rb') as f_in, gzip.open(gzip_tmp_filename, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+                # set timestamp of gzipped file to same time as source file
+                last_modified = tmp_filename.stat().st_mtime
+                os.utime(gzip_tmp_filename, (last_modified, last_modified))
 
-    with tmp_filename.open('wb') as file:
-        for chunk in response.iter_content(chunk_size=1024 * 1024):
-            if chunk:
-                file.write(chunk)
-
-    last_modified = None
-    last_modified_str = response.headers.get('Last-Modified')
-    if last_modified_str:
-        last_modified = parsedate_to_datetime(last_modified_str)
-        os.utime(tmp_filename, (last_modified.timestamp(), last_modified.timestamp()))
-
-    if gzip:
-        tmp_gzip_filename = tmp_filename.parent / (tmp_filename.name + '.gz')
-        final_gzip_filename = final_filename.parent / (final_filename.name + '.gz')
-
-        with tmp_filename.open('rb') as f_in, gzip.open(tmp_gzip_filename, 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)
-            if last_modified:
-                os.utime(tmp_gzip_filename, (last_modified.timestamp(), last_modified.timestamp()))
-            tmp_gzip_filename.replace(final_gzip_filename)
-
-    tmp_filename.replace(final_filename)
+        # move temporary files to destination files
+        tmp_filename.replace(final_filename)
+        if precompressed:
+            gzip_tmp_filename.replace(gzip_final_filename)
