@@ -1,6 +1,6 @@
 dagster==1.6.9
 dagster-postgres==0.22.9
-dagster-docker==0.22.9
+dagster-docker==0.22.10
 geopandas==0.14.3
 GeoAlchemy2==0.14.4
 # Because a specific version of the PyPi GDAL package depends on specific OS library versions, and because Ubuntu (LTS) currently only provides *older* versions of them, we ping GDAL to v3.6 here.
