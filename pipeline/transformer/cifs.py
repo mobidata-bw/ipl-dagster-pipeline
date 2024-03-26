@@ -2,6 +2,8 @@ import argparse
 import datetime
 import json
 import logging
+import re
+from typing import Optional
 
 import defusedxml.ElementTree as ET
 import requests
@@ -130,19 +132,62 @@ class DatexII2CifsTransformer:
 
         return False
 
+    def _laneStatusCoded(self, situationRecord) -> Optional[str]:
+        """
+        <situationRecord id="xxx">
+            <impact>
+                <impactExtension>
+                    <impactExtended>
+                        <laneStatusCoded>o2xx</laneStatusCoded>
+                        <laneRestriction>
+                            <lane>allLanesCompleteCarriageway</lane>
+                        </laneRestriction>
+                    </impactExtended>
+                </impactExtension>
+            </impact>
+        </situationRecord>
+        """
+        lsElement = situationRecord.find('d:impact/d:impactExtension/d:impactExtended/d:laneStatusCoded', ns)
+        return lsElement.text if lsElement is not None else None
+
+    @staticmethod
+    def _is_opposite_direction_concerned(lanestatus: str) -> bool:
+        # lanes can be single carriageways (encoded by centre line '1', or dual carriagways (encoded by '2'))
+        # we split at both.
+        lanesPerDirection = lanestatus.replace('2', '1').split('1')
+
+        leftLanes = lanesPerDirection[0]
+        rightLanes = lanesPerDirection[1]
+
+        # if leftLanes include more than unnrestricted lane, should, shoulder separatore, or
+        # some lanes of opposite directions are switched to the right lines, opposite direction is concerned
+        return len(re.sub('[usl]', '', leftLanes)) > 0 < len(leftLanes) or len(re.sub('[^uiw]', '', rightLanes)) > 0
+
     def _detect_direction(self, situation, situationRecord):
         """
         For BIS/BEMaS generated DATEX, a road closure has also an opposite direction,
         if for a situationRecord with id suffix -sperrung a situation with
         id suffix '-gegen-sperrung' exists.
+        For constructions, we rely on existance of laneStatusCoded to deduce if
+        any lane left of the centre line is blocked or dedicated to traffic
+        in this record's direction.
         """
+
         situationRecordId = situationRecord.get('id')
-        inverse_direction_id = situationRecordId.replace('-sperrung', '-gegen-sperrung')
-        return (
-            'BOTH_DIRECTIONS'
-            if situation.find("d:situationRecord[@id='{}']".format(inverse_direction_id), ns)
-            else 'ONE_DIRECTION'
-        )
+        if situationRecordId.endswith('-sperrung'):
+            inverse_direction_id = situationRecordId.replace('-sperrung', '-gegen-sperrung')
+            return (
+                'BOTH_DIRECTIONS'
+                if situation.find("d:situationRecord[@id='{}']".format(inverse_direction_id), ns)
+                else 'ONE_DIRECTION'
+            )
+
+        laneStatusCoded = self._laneStatusCoded(situationRecord)
+        if laneStatusCoded is not None:
+            return 'BOTH_DIRECTIONS' if self._is_opposite_direction_concerned(laneStatusCoded) else 'ONE_DIRECTION'
+
+        # be defensive, if we don't know, be assume both are concerned
+        return 'BOTH_DIRECTIONS'
 
     def _get_start_end_time(self, situationRecord):
         """
