@@ -26,7 +26,7 @@ class DatexII2CifsTransformer:
         self.reference = reference
         self.should_skip_roadworks_in_past = should_skip_roadworks_in_past
 
-    def _roadworks_name(self, situationRecord):
+    def _roadworks_name(self, situationRecord: ET) -> str | None:
         """
         Extracts roadworks name from generalPublicComment with commentType2 equal to roadworksName.
 
@@ -52,7 +52,7 @@ class DatexII2CifsTransformer:
                 return generalPublicComment.find('d:comment/d:values/d:value', ns).text
         return None
 
-    def _road_name(self, situationRecord):
+    def _road_name(self, situationRecord: ET) -> str:
         """
         Extracts road name from linearElement within groupOfLocations:
 
@@ -80,7 +80,7 @@ class DatexII2CifsTransformer:
         roadnumber = roadNumberElement.text if roadNumberElement is not None else ''
         return f'{roadnumber} {roadname}'.strip()
 
-    def _incident_type(self, situationRecord):
+    def _incident_type(self, situationRecord: ET) -> str:
         roadworkType = situationRecord.find('d:roadOrCarriagewayOrLaneManagementType', ns)
         if roadworkType is None:
             roadworkType = situationRecord.find('d:roadMaintenanceType', ns)
@@ -91,7 +91,7 @@ class DatexII2CifsTransformer:
 
         return type
 
-    def _incident_subtype(self, situationRecord):
+    def _incident_subtype(self, situationRecord: ET) -> str:
         """
         Returns ROAD_CLOSED_CONSTRUCTION in case the road is incident_type is ROAD_CLOSED
         """
@@ -105,7 +105,7 @@ class DatexII2CifsTransformer:
 
         return managedCause is not None
 
-    def _should_skip(self, situation, situationRecord):
+    def _should_skip(self, situation: ET, situationRecord: ET) -> bool:
         """
         Skips a situationRecord if one of the following criteris is met:
         * suffix ends on '-gegen' (BEMaS/BIS specific encoding of opposite direction, which will be handled by setting direction as BOTH_DIRECTIONS)
@@ -132,8 +132,12 @@ class DatexII2CifsTransformer:
 
         return False
 
-    def _laneStatusCoded(self, situationRecord) -> Optional[str]:
+    def _laneStatusCoded(self, situationRecord: ET) -> Optional[str]:
         """
+        Extracts the laneStatusCoded value of the given situationoRecord or None, if not available.
+
+        Example: for the following examplary, partial situationRecord, `o2xx` would be returned:
+
         <situationRecord id="xxx">
             <impact>
                 <impactExtension>
@@ -163,7 +167,7 @@ class DatexII2CifsTransformer:
         # some lanes of opposite directions are switched to the right lines, opposite direction is concerned
         return len(re.sub('[usl]', '', leftLanes)) > 0 < len(leftLanes) or len(re.sub('[^uiw]', '', rightLanes)) > 0
 
-    def _detect_direction(self, situation, situationRecord):
+    def _detect_direction(self, situation: ET, situationRecord: ET) -> str:
         """
         For BIS/BEMaS generated DATEX, a road closure has also an opposite direction,
         if for a situationRecord with id suffix -sperrung a situation with
@@ -189,7 +193,7 @@ class DatexII2CifsTransformer:
         # be defensive, if we don't know, be assume both are concerned
         return 'BOTH_DIRECTIONS'
 
-    def _get_start_end_time(self, situationRecord):
+    def _get_start_end_time(self, situationRecord: ET) -> tuple[str, str]:
         """
         Extracts daate/time intervaal from validityTimeSpecification.
         """
@@ -199,7 +203,7 @@ class DatexII2CifsTransformer:
 
         return (starttime, endtime)
 
-    def _parse(self, datex2file):
+    def _parse(self, datex2file: str) -> ET:
         if datex2file.startswith('http'):
             r = requests.get(datex2file, timeout=10)
             r.encoding = 'UTF-8'
