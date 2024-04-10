@@ -1,8 +1,8 @@
 import argparse
-import datetime
 import json
 import logging
 import re
+from datetime import datetime
 from typing import Optional
 
 import defusedxml.ElementTree as ET
@@ -22,9 +22,10 @@ ns = {'d': 'http://datex2.eu/schema/2/2_0'}
 class DatexII2CifsTransformer:
     should_skip_roadworks_in_past = True
 
-    def __init__(self, reference, should_skip_roadworks_in_past: bool = True):
+    def __init__(self, reference, should_skip_roadworks_in_past: bool = True, current_time: datetime = datetime.now()):
         self.reference = reference
         self.should_skip_roadworks_in_past = should_skip_roadworks_in_past
+        self.current_time = current_time
 
     def _roadworks_name(self, situationRecord: ET) -> str | None:
         """
@@ -122,7 +123,7 @@ class DatexII2CifsTransformer:
 
         if self.should_skip_roadworks_in_past:
             (starttime, endtime) = self._get_start_end_time(situationRecord)
-            if datetime.datetime.now().astimezone() > datetime.datetime.fromisoformat(endtime):
+            if self.current_time.astimezone() > datetime.fromisoformat(endtime):
                 logging.debug('skip situationRecord %s as it is in the past', situationRecord.get('id'))
                 return True
 
@@ -295,7 +296,7 @@ class DatexII2CifsTransformer:
             geojson = {'type': 'FeatureCollection', 'features': features}
             json_result = geojson
         else:
-            incidents = {'incidents': closures, 'timestamp': datetime.datetime.now().isoformat()}
+            incidents = {'incidents': closures, 'timestamp': self.current_time.isoformat()}
             json_result = incidents
 
         return json_result
