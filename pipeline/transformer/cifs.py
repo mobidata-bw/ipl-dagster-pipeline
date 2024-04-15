@@ -135,7 +135,7 @@ class DatexII2CifsTransformer:
 
     def _laneStatusCoded(self, situationRecord: ET) -> Optional[str]:
         """
-        Extracts the laneStatusCoded value of the given situationoRecord or None, if not available.
+        Extracts the laneStatusCoded value of the given situationRecord or None, if not available.
 
         Example: for the following examplary, partial situationRecord, `o2xx` would be returned:
 
@@ -157,7 +157,7 @@ class DatexII2CifsTransformer:
 
     @staticmethod
     def _is_opposite_direction_concerned(lanestatus: str) -> bool:
-        # lanes can be single carriageways (encoded by centre line '1', or dual carriagways (encoded by '2'))
+        # lanes can be single carriageways (encoded by a centre line indicated by '1', or dual carriageways (encoded by separating centreline indicated '2'))
         # we split at both.
         lanesPerDirection = lanestatus.replace('2', '1').split('1')
 
