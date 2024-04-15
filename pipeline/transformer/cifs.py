@@ -180,7 +180,14 @@ class DatexII2CifsTransformer:
 
         # if leftLanes include more than unnrestricted lane, should, shoulder separatore, or
         # some lanes of opposite directions are switched to the right lines, opposite direction is concerned
-        return len(re.sub('[usl]', '', leftLanes)) > 0 < len(leftLanes) or len(re.sub('[^uiw]', '', rightLanes)) > 0
+        hasAnyLaneLeftToCentreLine = 0 < len(leftLanes)
+        hasLeftLanesOtherThanUnrestrictedAndSideLanes = len(re.sub('[usl]', '', leftLanes)) > 0
+        hasOppositeLanesRightToCentreLine = len(re.sub('[^uiw]', '', rightLanes)) > 0
+        return (
+            hasAnyLaneLeftToCentreLine
+            and hasLeftLanesOtherThanUnrestrictedAndSideLanes
+            or hasOppositeLanesRightToCentreLine
+        )
 
     def _detect_direction(self, situation: ET, situationRecord: ET) -> str:
         """
