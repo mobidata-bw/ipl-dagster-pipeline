@@ -20,6 +20,9 @@ ns = {'d': 'http://datex2.eu/schema/2/2_0'}
 
 
 class DatexII2CifsTransformer:
+    # Pattern to validate lanestatus encoding. For expected values, see https://www.mdm-portal.de/wp-content/uploads/2019/03/mdm_datenmodell_baustellen_04-00-00.zip
+    LANE_STATUS_PATTERN = re.compile('^([sxui]*l?)?[suioewx]*(1|2)[suioewx]*(r?[xsoe]*)?$')
+
     should_skip_roadworks_in_past = True
 
     def __init__(self, reference, should_skip_roadworks_in_past: bool = True, current_time: datetime = datetime.now()):
@@ -153,7 +156,18 @@ class DatexII2CifsTransformer:
         </situationRecord>
         """
         lsElement = situationRecord.find('d:impact/d:impactExtension/d:impactExtended/d:laneStatusCoded', ns)
-        return lsElement.text if lsElement is not None else None
+
+        if lsElement is None:
+            return None
+        if self.LANE_STATUS_PATTERN.match(lsElement.text):
+            return lsElement.text
+
+        logging.warn(
+            'ignore laneStatus %s for situatinoRecord %s as it has unexpected encoding',
+            lsElement.text,
+            situationRecord.get('id'),
+        )
+        return None
 
     @staticmethod
     def _is_opposite_direction_concerned(lanestatus: str) -> bool:
