@@ -1,0 +1,623 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<d2LogicalModel modelBaseVersion="2" xmlns="http://datex2.eu/schema/2/2_0">
+    <exchange>
+        <supplierIdentification>
+            <country>de</country>
+            <nationalIdentifier>DE-MDM-Straßenbauverwaltung Baden-Württemberg - Landesstelle für Straßentechnik</nationalIdentifier>
+        </supplierIdentification>
+    </exchange>
+    <payloadPublication xsi:type="SituationPublication" lang="DE" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <publicationTime>2024-02-26T15:30:32.364+01:00</publicationTime>
+        <publicationCreator>
+            <country>de</country>
+            <nationalIdentifier>DE-MDM-Straßenbauverwaltung Baden-Württemberg - Landesstelle für Straßentechnik</nationalIdentifier>
+        </publicationCreator>
+        <situation id="1487640" version="22">
+            <overallSeverity>low</overallSeverity>
+            <situationVersionTime>2023-12-28T15:43:25.121+01:00</situationVersionTime>
+            <headerInformation>
+                <confidentiality>noRestriction</confidentiality>
+                <informationStatus>real</informationStatus>
+            </headerInformation>
+            <situationRecord xsi:type="MaintenanceWorks" id="1487640-1487641-1487644-3508083" version="22">
+                <situationRecordCreationTime>2020-07-30T08:55:03.702+02:00</situationRecordCreationTime>
+                <situationRecordVersionTime>2023-12-28T15:43:25.121+01:00</situationRecordVersionTime>
+                <probabilityOfOccurrence>certain</probabilityOfOccurrence>
+                <validity>
+                    <validityStatus>definedByValidityTimeSpec</validityStatus>
+                    <validityTimeSpecification>
+                        <overallStartTime>2015-06-01T00:00:00.000+02:00</overallStartTime>
+                        <overallEndTime>2030-12-31T23:59:00.000+01:00</overallEndTime>
+                    </validityTimeSpecification>
+                </validity>
+                <impact>
+                    <capacityRemaining>0.0</capacityRemaining>
+                    <numberOfLanesRestricted>1</numberOfLanesRestricted>
+                    <originalNumberOfLanes>1</originalNumberOfLanes>
+                    <impactExtension>
+                        <impactExtended>
+                            <laneStatusCoded>x2x</laneStatusCoded>
+                            <laneRestriction>
+                                <lane>allLanesCompleteCarriageway</lane>
+                            </laneRestriction>
+                        </impactExtended>
+                    </impactExtension>
+                </impact>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE">Bauphase</value>
+                        </values>
+                    </comment>
+                    <commentExtension>
+                        <commentExtended>
+                            <commentType2>roadworksName</commentType2>
+                        </commentExtended>
+                    </commentExtension>
+                </generalPublicComment>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE">Sonstiges</value>
+                        </values>
+                    </comment>
+                    <commentExtension>
+                        <commentExtended>
+                            <commentType2>roadworksType</commentType2>
+                        </commentExtended>
+                    </commentExtension>
+                </generalPublicComment>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE">Sankt Blasier Straße - Alemannenstraße - Etzwihler Straße - Tiefensteiner Straße - L 154</value>
+                        </values>
+                    </comment>
+                    <commentExtension>
+                        <commentExtended>
+                            <commentType2>routeRecommendation</commentType2>
+                        </commentExtended>
+                    </commentExtension>
+                </generalPublicComment>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE">L 153 - K 6547 - Hauptstraße - Alte Landstraße K6544</value>
+                        </values>
+                    </comment>
+                    <commentExtension>
+                        <commentExtended>
+                            <commentType2>routeRecommendation</commentType2>
+                        </commentExtended>
+                    </commentExtension>
+                </generalPublicComment>
+                <groupOfLocations xsi:type="Linear">
+                    <locationForDisplay>
+                        <latitude>47.60628</latitude>
+                        <longitude>8.110688</longitude>
+                    </locationForDisplay>
+                    <supplementaryPositionalDescription>
+                        <affectedCarriagewayAndLanes>
+                            <carriageway>mainCarriageway</carriageway>
+                            <lengthAffected>2784.9624</lengthAffected>
+                        </affectedCarriagewayAndLanes>
+                    </supplementaryPositionalDescription>
+                    <linearWithinLinearElement>
+                        <directionRelativeOnLinearSection>aligned</directionRelativeOnLinearSection>
+                        <linearElement>
+                            <roadName>
+                                <values>
+                                    <value lang="de">Albbruck-St. Blasien</value>
+                                </values>
+                            </roadName>
+                            <roadNumber>L154</roadNumber>
+                        </linearElement>
+                        <fromPoint xsi:type="DistanceFromLinearElementReferent">
+                            <distanceAlong>6.0</distanceAlong>
+                            <fromReferent>
+                                <referentIdentifier>8314034O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </fromReferent>
+                            <towardsReferent>
+                                <referentIdentifier>8314008O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </towardsReferent>
+                        </fromPoint>
+                        <toPoint xsi:type="DistanceFromLinearElementReferent">
+                            <distanceAlong>2794.0</distanceAlong>
+                            <fromReferent>
+                                <referentIdentifier>8314034O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </fromReferent>
+                            <towardsReferent>
+                                <referentIdentifier>8314008O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </towardsReferent>
+                        </toPoint>
+                    </linearWithinLinearElement>
+                    <linearExtension>
+                        <linearExtended>
+                            <gmlLineString>
+                                <srsName>WGS84 EPSG 4326</srsName>
+                                <posList>47.606283 8.110689 47.606468 8.110374 47.606637 8.110172 47.606692 8.110150 47.606796 8.110108 47.607086 8.110048 47.607187 8.109977 47.607217 8.109938 47.607290 8.109842 47.607533 8.109389 47.607753 8.109004 47.607838 8.108914 47.608030 8.108504 47.608290 8.107951 47.608551 8.107395 47.608644 8.107136 47.608667 8.106410 47.608656 8.106065 47.608620 8.105900 47.608547 8.105609 47.608536 8.105177 47.608547 8.104701 47.608598 8.104447 47.608636 8.104329 47.608995 8.103931 47.609283 8.103594 47.609330 8.103425 47.609323 8.103263 47.609269 8.103081 47.609102 8.102645 47.609120 8.102462 47.609157 8.102344 47.609271 8.102253 47.609453 8.102220 47.609760 8.102089 47.610038 8.101981 47.610230 8.102032 47.610333 8.102049 47.610469 8.102073 47.610593 8.102019 47.610774 8.101854 47.611077 8.101520 47.611623 8.100767 47.611847 8.100491 47.612089 8.100322 47.612258 8.100204 47.612372 8.100018 47.612443 8.099745 47.612520 8.099434 47.612589 8.099215 47.612694 8.099043 47.612936 8.098726 47.613164 8.097983 47.613238 8.097588 47.613295 8.097139 47.613313 8.096970 47.613430 8.096501 47.613697 8.096028 47.613770 8.095741 47.613855 8.094779 47.613898 8.094262 47.613949 8.093921 47.614042 8.093678 47.614291 8.093516 47.614638 8.093463 47.615551 8.092768 47.615791 8.092653 47.616336 8.092691 47.616980 8.092766 47.617489 8.092581 47.618041 8.092041 47.618368 8.091484 47.618813 8.090742 47.618959 8.090551 47.619057 8.090449 47.619160 8.090348 47.619266 8.090280 47.619400 8.090232 47.619521 8.090204 47.619629 8.090195 47.619771 8.090200 47.619931 8.090231 47.620087 8.090260 47.620305 8.090297 47.620483 8.090313 47.620629 8.090317 47.620750 8.090311 47.620858 8.090304 47.620976 8.090296 47.621118 8.090280 47.621238 8.090262 47.621368 8.090223 47.621462 8.090176 47.621572 8.090112 47.621702 8.090023 47.621829 8.089931 47.621945 8.089822 47.622049 8.089709 47.622145 8.089607 47.622300 8.089400 47.622390 8.089258 47.622449 8.089138</posList>
+                                <roadInformation>
+                                    <roadNumber>L154</roadNumber>
+                                </roadInformation>
+                            </gmlLineString>
+                        </linearExtended>
+                    </linearExtension>
+                </groupOfLocations>
+                <situationRecordExtension>
+                    <situationRecordExtended>
+                        <extendedLaneStatusCoded>x2x</extendedLaneStatusCoded>
+                    </situationRecordExtended>
+                </situationRecordExtension>
+                <actionPlanIdentifier>S1</actionPlanIdentifier>
+                <operatorActionStatus>requested</operatorActionStatus>
+                <roadworksDuration>longTerm</roadworksDuration>
+                <mobility>
+                    <mobilityType>stationary</mobilityType>
+                </mobility>
+                <roadworksExtension>
+                    <roadworksExtended>
+                        <roadworksLayout>B I / 17</roadworksLayout>
+                    </roadworksExtended>
+                </roadworksExtension>
+                <roadMaintenanceType>other</roadMaintenanceType>
+            </situationRecord>
+            <situationRecord xsi:type="RoadOrCarriagewayOrLaneManagement" id="1487640-1487641-1487644-3508083-sperrung" version="22">
+                <situationRecordCreationTime>2020-07-30T08:55:03.702+02:00</situationRecordCreationTime>
+                <situationRecordVersionTime>2023-12-28T15:43:25.121+01:00</situationRecordVersionTime>
+                <probabilityOfOccurrence>certain</probabilityOfOccurrence>
+                <validity>
+                    <validityStatus>definedByValidityTimeSpec</validityStatus>
+                    <validityTimeSpecification>
+                        <overallStartTime>2015-06-01T00:00:00.000+02:00</overallStartTime>
+                        <overallEndTime>2024-12-31T23:59:00.000+01:00</overallEndTime>
+                    </validityTimeSpecification>
+                </validity>
+                <cause xsi:type="ManagedCause">
+                    <managedCause targetClass="SituationRecord" id="1487640-1487641-1487644-3508083" version="22"/>
+                </cause>
+                <groupOfLocations xsi:type="Linear">
+                    <locationForDisplay>
+                        <latitude>47.60628</latitude>
+                        <longitude>8.110688</longitude>
+                    </locationForDisplay>
+                    <supplementaryPositionalDescription>
+                        <affectedCarriagewayAndLanes>
+                            <carriageway>mainCarriageway</carriageway>
+                            <lengthAffected>2784.9624</lengthAffected>
+                        </affectedCarriagewayAndLanes>
+                    </supplementaryPositionalDescription>
+                    <linearWithinLinearElement>
+                        <directionRelativeOnLinearSection>aligned</directionRelativeOnLinearSection>
+                        <linearElement>
+                            <roadName>
+                                <values>
+                                    <value lang="de">Albbruck-St. Blasien</value>
+                                </values>
+                            </roadName>
+                            <roadNumber>L154</roadNumber>
+                        </linearElement>
+                        <fromPoint xsi:type="DistanceFromLinearElementReferent">
+                            <distanceAlong>6.0</distanceAlong>
+                            <fromReferent>
+                                <referentIdentifier>8314034O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </fromReferent>
+                            <towardsReferent>
+                                <referentIdentifier>8314008O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </towardsReferent>
+                        </fromPoint>
+                        <toPoint xsi:type="DistanceFromLinearElementReferent">
+                            <distanceAlong>2794.0</distanceAlong>
+                            <fromReferent>
+                                <referentIdentifier>8314034O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </fromReferent>
+                            <towardsReferent>
+                                <referentIdentifier>8314008O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </towardsReferent>
+                        </toPoint>
+                    </linearWithinLinearElement>
+                    <linearExtension>
+                        <linearExtended>
+                            <gmlLineString>
+                                <srsName>WGS84 EPSG 4326</srsName>
+                                <posList>47.606283 8.110689 47.606468 8.110374 47.606637 8.110172 47.606692 8.110150 47.606796 8.110108 47.607086 8.110048 47.607187 8.109977 47.607217 8.109938 47.607290 8.109842 47.607533 8.109389 47.607753 8.109004 47.607838 8.108914 47.608030 8.108504 47.608290 8.107951 47.608551 8.107395 47.608644 8.107136 47.608667 8.106410 47.608656 8.106065 47.608620 8.105900 47.608547 8.105609 47.608536 8.105177 47.608547 8.104701 47.608598 8.104447 47.608636 8.104329 47.608995 8.103931 47.609283 8.103594 47.609330 8.103425 47.609323 8.103263 47.609269 8.103081 47.609102 8.102645 47.609120 8.102462 47.609157 8.102344 47.609271 8.102253 47.609453 8.102220 47.609760 8.102089 47.610038 8.101981 47.610230 8.102032 47.610333 8.102049 47.610469 8.102073 47.610593 8.102019 47.610774 8.101854 47.611077 8.101520 47.611623 8.100767 47.611847 8.100491 47.612089 8.100322 47.612258 8.100204 47.612372 8.100018 47.612443 8.099745 47.612520 8.099434 47.612589 8.099215 47.612694 8.099043 47.612936 8.098726 47.613164 8.097983 47.613238 8.097588 47.613295 8.097139 47.613313 8.096970 47.613430 8.096501 47.613697 8.096028 47.613770 8.095741 47.613855 8.094779 47.613898 8.094262 47.613949 8.093921 47.614042 8.093678 47.614291 8.093516 47.614638 8.093463 47.615551 8.092768 47.615791 8.092653 47.616336 8.092691 47.616980 8.092766 47.617489 8.092581 47.618041 8.092041 47.618368 8.091484 47.618813 8.090742 47.618959 8.090551 47.619057 8.090449 47.619160 8.090348 47.619266 8.090280 47.619400 8.090232 47.619521 8.090204 47.619629 8.090195 47.619771 8.090200 47.619931 8.090231 47.620087 8.090260 47.620305 8.090297 47.620483 8.090313 47.620629 8.090317 47.620750 8.090311 47.620858 8.090304 47.620976 8.090296 47.621118 8.090280 47.621238 8.090262 47.621368 8.090223 47.621462 8.090176 47.621572 8.090112 47.621702 8.090023 47.621829 8.089931 47.621945 8.089822 47.622049 8.089709 47.622145 8.089607 47.622300 8.089400 47.622390 8.089258 47.622449 8.089138</posList>
+                                <roadInformation>
+                                    <roadNumber>L154</roadNumber>
+                                </roadInformation>
+                            </gmlLineString>
+                        </linearExtended>
+                    </linearExtension>
+                </groupOfLocations>
+                <actionPlanIdentifier>SP1</actionPlanIdentifier>
+                <operatorActionStatus>requested</operatorActionStatus>
+                <complianceOption>mandatory</complianceOption>
+                <roadOrCarriagewayOrLaneManagementType>roadClosed</roadOrCarriagewayOrLaneManagementType>
+            </situationRecord>
+            <situationRecord xsi:type="MaintenanceWorks" id="1487640-1487641-1487644-3508083-gegen" version="22">
+                <situationRecordCreationTime>2020-07-30T08:55:03.702+02:00</situationRecordCreationTime>
+                <situationRecordVersionTime>2023-12-28T15:43:25.121+01:00</situationRecordVersionTime>
+                <probabilityOfOccurrence>certain</probabilityOfOccurrence>
+                <validity>
+                    <validityStatus>definedByValidityTimeSpec</validityStatus>
+                    <validityTimeSpecification>
+                        <overallStartTime>2015-06-01T00:00:00.000+02:00</overallStartTime>
+                        <overallEndTime>2024-12-31T23:59:00.000+01:00</overallEndTime>
+                    </validityTimeSpecification>
+                </validity>
+                <impact>
+                    <capacityRemaining>0.0</capacityRemaining>
+                    <numberOfLanesRestricted>1</numberOfLanesRestricted>
+                    <originalNumberOfLanes>1</originalNumberOfLanes>
+                    <impactExtension>
+                        <impactExtended>
+                            <laneStatusCoded>uux2x</laneStatusCoded>
+                            <laneRestriction>
+                                <lane>allLanesCompleteCarriageway</lane>
+                            </laneRestriction>
+                        </impactExtended>
+                    </impactExtension>
+                </impact>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE">Bauphase</value>
+                        </values>
+                    </comment>
+                    <commentExtension>
+                        <commentExtended>
+                            <commentType2>roadworksName</commentType2>
+                        </commentExtended>
+                    </commentExtension>
+                </generalPublicComment>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE">Sonstiges</value>
+                        </values>
+                    </comment>
+                    <commentExtension>
+                        <commentExtended>
+                            <commentType2>roadworksType</commentType2>
+                        </commentExtended>
+                    </commentExtension>
+                </generalPublicComment>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE">Sankt Blasier Straße - Alemannenstraße - Etzwihler Straße - Tiefensteiner Straße - L 154</value>
+                        </values>
+                    </comment>
+                    <commentExtension>
+                        <commentExtended>
+                            <commentType2>routeRecommendation</commentType2>
+                        </commentExtended>
+                    </commentExtension>
+                </generalPublicComment>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE">L 153 - K 6547 - Hauptstraße - Alte Landstraße K6544</value>
+                        </values>
+                    </comment>
+                    <commentExtension>
+                        <commentExtended>
+                            <commentType2>routeRecommendation</commentType2>
+                        </commentExtended>
+                    </commentExtension>
+                </generalPublicComment>
+                <groupOfLocations xsi:type="Linear">
+                    <locationForDisplay>
+                        <latitude>47.622448</latitude>
+                        <longitude>8.089138</longitude>
+                    </locationForDisplay>
+                    <supplementaryPositionalDescription>
+                        <affectedCarriagewayAndLanes>
+                            <carriageway>mainCarriageway</carriageway>
+                            <lengthAffected>2784.602</lengthAffected>
+                        </affectedCarriagewayAndLanes>
+                    </supplementaryPositionalDescription>
+                    <linearWithinLinearElement>
+                        <directionRelativeOnLinearSection>aligned</directionRelativeOnLinearSection>
+                        <linearElement>
+                            <roadName>
+                                <values>
+                                    <value lang="de">St. Blasien-Albbruck</value>
+                                </values>
+                            </roadName>
+                            <roadNumber>L154</roadNumber>
+                        </linearElement>
+                        <fromPoint xsi:type="DistanceFromLinearElementReferent">
+                            <distanceAlong>2794.0</distanceAlong>
+                            <fromReferent>
+                                <referentIdentifier>8314034O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </fromReferent>
+                            <towardsReferent>
+                                <referentIdentifier>8314008O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </towardsReferent>
+                        </fromPoint>
+                        <toPoint xsi:type="DistanceFromLinearElementReferent">
+                            <distanceAlong>6.0</distanceAlong>
+                            <fromReferent>
+                                <referentIdentifier>8314034O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </fromReferent>
+                            <towardsReferent>
+                                <referentIdentifier>8314008O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </towardsReferent>
+                        </toPoint>
+                    </linearWithinLinearElement>
+                    <linearExtension>
+                        <linearExtended>
+                            <gmlLineString>
+                                <srsName>WGS84 EPSG 4326</srsName>
+                                <posList>47.622449 8.089138 47.622390 8.089258 47.622300 8.089400 47.622145 8.089607 47.622049 8.089709 47.621945 8.089822 47.621829 8.089931 47.621702 8.090023 47.621572 8.090112 47.621462 8.090176 47.621368 8.090223 47.621238 8.090262 47.621118 8.090280 47.620976 8.090296 47.620858 8.090304 47.620750 8.090311 47.620629 8.090317 47.620483 8.090313 47.620305 8.090297 47.620087 8.090260 47.619931 8.090231 47.619771 8.090200 47.619629 8.090195 47.619521 8.090204 47.619400 8.090232 47.619266 8.090280 47.619160 8.090348 47.619057 8.090449 47.618959 8.090551 47.618813 8.090742 47.618368 8.091484 47.618041 8.092041 47.617489 8.092581 47.616980 8.092766 47.616336 8.092691 47.615791 8.092653 47.615551 8.092768 47.614638 8.093463 47.614291 8.093516 47.614042 8.093678 47.613949 8.093921 47.613898 8.094262 47.613855 8.094779 47.613770 8.095741 47.613697 8.096028 47.613430 8.096501 47.613295 8.097139 47.613238 8.097588 47.613164 8.097983 47.612936 8.098726 47.612694 8.099043 47.612589 8.099215 47.612520 8.099434 47.612443 8.099745 47.612372 8.100018 47.612258 8.100204 47.612089 8.100322 47.611847 8.100491 47.611623 8.100767 47.611077 8.101520 47.610774 8.101854 47.610593 8.102019 47.610469 8.102073 47.610333 8.102049 47.610230 8.102032 47.610038 8.101981 47.609760 8.102089 47.609271 8.102253 47.609157 8.102344 47.609120 8.102462 47.609102 8.102645 47.609269 8.103081 47.609323 8.103263 47.609330 8.103425 47.609283 8.103594 47.608636 8.104329 47.608598 8.104447 47.608547 8.104701 47.608536 8.105177 47.608547 8.105609 47.608620 8.105900 47.608656 8.106065 47.608667 8.106410 47.608644 8.107136 47.608551 8.107395 47.608290 8.107951 47.608030 8.108504 47.607838 8.108914 47.607753 8.109004 47.607533 8.109389 47.607290 8.109842 47.607217 8.109938 47.607187 8.109977 47.607086 8.110048 47.606796 8.110108 47.606692 8.110150 47.606637 8.110172 47.606468 8.110374 47.606283 8.110689</posList>
+                                <roadInformation>
+                                    <roadNumber>L154</roadNumber>
+                                </roadInformation>
+                            </gmlLineString>
+                        </linearExtended>
+                    </linearExtension>
+                </groupOfLocations>
+                <situationRecordExtension>
+                    <situationRecordExtended>
+                        <extendedLaneStatusCoded>uux2x</extendedLaneStatusCoded>
+                    </situationRecordExtended>
+                </situationRecordExtension>
+                <actionPlanIdentifier>S1</actionPlanIdentifier>
+                <operatorActionStatus>requested</operatorActionStatus>
+                <roadworksDuration>longTerm</roadworksDuration>
+                <mobility>
+                    <mobilityType>stationary</mobilityType>
+                </mobility>
+                <roadworksExtension>
+                    <roadworksExtended>
+                        <roadworksLayout>B I / 17</roadworksLayout>
+                    </roadworksExtended>
+                </roadworksExtension>
+                <roadMaintenanceType>other</roadMaintenanceType>
+            </situationRecord>
+            <situationRecord xsi:type="RoadOrCarriagewayOrLaneManagement" id="1487640-1487641-1487644-3508083-gegen-sperrung" version="22">
+                <situationRecordCreationTime>2020-07-30T08:55:03.702+02:00</situationRecordCreationTime>
+                <situationRecordVersionTime>2023-12-28T15:43:25.121+01:00</situationRecordVersionTime>
+                <probabilityOfOccurrence>certain</probabilityOfOccurrence>
+                <validity>
+                    <validityStatus>definedByValidityTimeSpec</validityStatus>
+                    <validityTimeSpecification>
+                        <overallStartTime>2015-06-01T00:00:00.000+02:00</overallStartTime>
+                        <overallEndTime>2024-12-31T23:59:00.000+01:00</overallEndTime>
+                    </validityTimeSpecification>
+                </validity>
+                <cause xsi:type="ManagedCause">
+                    <managedCause targetClass="SituationRecord" id="1487640-1487641-1487644-3508083-gegen" version="22"/>
+                </cause>
+                <groupOfLocations xsi:type="Linear">
+                    <locationForDisplay>
+                        <latitude>47.622448</latitude>
+                        <longitude>8.089138</longitude>
+                    </locationForDisplay>
+                    <supplementaryPositionalDescription>
+                        <affectedCarriagewayAndLanes>
+                            <carriageway>mainCarriageway</carriageway>
+                            <lengthAffected>2784.602</lengthAffected>
+                        </affectedCarriagewayAndLanes>
+                    </supplementaryPositionalDescription>
+                    <linearWithinLinearElement>
+                        <directionRelativeOnLinearSection>aligned</directionRelativeOnLinearSection>
+                        <linearElement>
+                            <roadName>
+                                <values>
+                                    <value lang="de">St. Blasien-Albbruck</value>
+                                </values>
+                            </roadName>
+                            <roadNumber>L154</roadNumber>
+                        </linearElement>
+                        <fromPoint xsi:type="DistanceFromLinearElementReferent">
+                            <distanceAlong>2794.0</distanceAlong>
+                            <fromReferent>
+                                <referentIdentifier>8314034O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </fromReferent>
+                            <towardsReferent>
+                                <referentIdentifier>8314008O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </towardsReferent>
+                        </fromPoint>
+                        <toPoint xsi:type="DistanceFromLinearElementReferent">
+                            <distanceAlong>6.0</distanceAlong>
+                            <fromReferent>
+                                <referentIdentifier>8314034O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </fromReferent>
+                            <towardsReferent>
+                                <referentIdentifier>8314008O</referentIdentifier>
+                                <referentType>referenceMarker</referentType>
+                            </towardsReferent>
+                        </toPoint>
+                    </linearWithinLinearElement>
+                    <linearExtension>
+                        <linearExtended>
+                            <gmlLineString>
+                                <srsName>WGS84 EPSG 4326</srsName>
+                                <posList>47.622449 8.089138 47.622390 8.089258 47.622300 8.089400 47.622145 8.089607 47.622049 8.089709 47.621945 8.089822 47.621829 8.089931 47.621702 8.090023 47.621572 8.090112 47.621462 8.090176 47.621368 8.090223 47.621238 8.090262 47.621118 8.090280 47.620976 8.090296 47.620858 8.090304 47.620750 8.090311 47.620629 8.090317 47.620483 8.090313 47.620305 8.090297 47.620087 8.090260 47.619931 8.090231 47.619771 8.090200 47.619629 8.090195 47.619521 8.090204 47.619400 8.090232 47.619266 8.090280 47.619160 8.090348 47.619057 8.090449 47.618959 8.090551 47.618813 8.090742 47.618368 8.091484 47.618041 8.092041 47.617489 8.092581 47.616980 8.092766 47.616336 8.092691 47.615791 8.092653 47.615551 8.092768 47.614638 8.093463 47.614291 8.093516 47.614042 8.093678 47.613949 8.093921 47.613898 8.094262 47.613855 8.094779 47.613770 8.095741 47.613697 8.096028 47.613430 8.096501 47.613295 8.097139 47.613238 8.097588 47.613164 8.097983 47.612936 8.098726 47.612694 8.099043 47.612589 8.099215 47.612520 8.099434 47.612443 8.099745 47.612372 8.100018 47.612258 8.100204 47.612089 8.100322 47.611847 8.100491 47.611623 8.100767 47.611077 8.101520 47.610774 8.101854 47.610593 8.102019 47.610469 8.102073 47.610333 8.102049 47.610230 8.102032 47.610038 8.101981 47.609760 8.102089 47.609271 8.102253 47.609157 8.102344 47.609120 8.102462 47.609102 8.102645 47.609269 8.103081 47.609323 8.103263 47.609330 8.103425 47.609283 8.103594 47.608636 8.104329 47.608598 8.104447 47.608547 8.104701 47.608536 8.105177 47.608547 8.105609 47.608620 8.105900 47.608656 8.106065 47.608667 8.106410 47.608644 8.107136 47.608551 8.107395 47.608290 8.107951 47.608030 8.108504 47.607838 8.108914 47.607753 8.109004 47.607533 8.109389 47.607290 8.109842 47.607217 8.109938 47.607187 8.109977 47.607086 8.110048 47.606796 8.110108 47.606692 8.110150 47.606637 8.110172 47.606468 8.110374 47.606283 8.110689</posList>
+                                <roadInformation>
+                                    <roadNumber>L154</roadNumber>
+                                </roadInformation>
+                            </gmlLineString>
+                        </linearExtended>
+                    </linearExtension>
+                </groupOfLocations>
+                <actionPlanIdentifier>SP1</actionPlanIdentifier>
+                <operatorActionStatus>requested</operatorActionStatus>
+                <complianceOption>mandatory</complianceOption>
+                <roadOrCarriagewayOrLaneManagementType>roadClosed</roadOrCarriagewayOrLaneManagementType>
+            </situationRecord>
+            <situationExtension>
+                <situationExtended>
+                    <overallSituation xsi:type="MaintenanceWorks" id="1487640-gesamt" version="22">
+                        <situationRecordCreationTime>2020-07-30T08:55:03.701+02:00</situationRecordCreationTime>
+                        <situationRecordVersionTime>2023-12-28T15:43:25.121+01:00</situationRecordVersionTime>
+                        <probabilityOfOccurrence>certain</probabilityOfOccurrence>
+                        <validity>
+                            <validityStatus>definedByValidityTimeSpec</validityStatus>
+                            <validityTimeSpecification>
+                                <overallStartTime>2015-06-01T00:00:00.000+02:00</overallStartTime>
+                                <overallEndTime>2024-12-31T23:59:00.000+01:00</overallEndTime>
+                            </validityTimeSpecification>
+                        </validity>
+                        <generalPublicComment>
+                            <comment>
+                                <values>
+                                    <value lang="DE">Sonstiges</value>
+                                </values>
+                            </comment>
+                            <commentExtension>
+                                <commentExtended>
+                                    <commentType2>roadworksType</commentType2>
+                                </commentExtended>
+                            </commentExtension>
+                        </generalPublicComment>
+                        <generalPublicComment>
+                            <comment>
+                                <values>
+                                    <value lang="DE">L154 Albtalsperrung</value>
+                                </values>
+                            </comment>
+                            <commentExtension>
+                                <commentExtended>
+                                    <commentType2>roadworksName</commentType2>
+                                </commentExtended>
+                            </commentExtension>
+                        </generalPublicComment>
+                        <groupOfLocations xsi:type="NonOrderedLocationGroupByList">
+                            <locationContainedInGroup xsi:type="Linear">
+                                <locationForDisplay>
+                                    <latitude>47.60628</latitude>
+                                    <longitude>8.110688</longitude>
+                                </locationForDisplay>
+                                <supplementaryPositionalDescription>
+                                    <affectedCarriagewayAndLanes>
+                                        <carriageway>mainCarriageway</carriageway>
+                                        <lengthAffected>2784.9624</lengthAffected>
+                                    </affectedCarriagewayAndLanes>
+                                </supplementaryPositionalDescription>
+                                <linearWithinLinearElement>
+                                    <directionRelativeOnLinearSection>aligned</directionRelativeOnLinearSection>
+                                    <linearElement>
+                                        <roadName>
+                                            <values>
+                                                <value lang="de">Albbruck-St. Blasien</value>
+                                            </values>
+                                        </roadName>
+                                        <roadNumber>L154</roadNumber>
+                                    </linearElement>
+                                    <fromPoint xsi:type="DistanceFromLinearElementReferent">
+                                        <distanceAlong>6.0</distanceAlong>
+                                        <fromReferent>
+                                            <referentIdentifier>8314034O</referentIdentifier>
+                                            <referentType>referenceMarker</referentType>
+                                        </fromReferent>
+                                        <towardsReferent>
+                                            <referentIdentifier>8314008O</referentIdentifier>
+                                            <referentType>referenceMarker</referentType>
+                                        </towardsReferent>
+                                    </fromPoint>
+                                    <toPoint xsi:type="DistanceFromLinearElementReferent">
+                                        <distanceAlong>2794.0</distanceAlong>
+                                        <fromReferent>
+                                            <referentIdentifier>8314034O</referentIdentifier>
+                                            <referentType>referenceMarker</referentType>
+                                        </fromReferent>
+                                        <towardsReferent>
+                                            <referentIdentifier>8314008O</referentIdentifier>
+                                            <referentType>referenceMarker</referentType>
+                                        </towardsReferent>
+                                    </toPoint>
+                                </linearWithinLinearElement>
+                                <linearExtension>
+                                    <linearExtended>
+                                        <gmlLineString>
+                                            <srsName>WGS84 EPSG 4326</srsName>
+                                            <posList>47.606283 8.110689 47.606468 8.110374 47.606637 8.110172 47.606692 8.110150 47.606796 8.110108 47.607086 8.110048 47.607187 8.109977 47.607217 8.109938 47.607290 8.109842 47.607533 8.109389 47.607753 8.109004 47.607838 8.108914 47.608030 8.108504 47.608290 8.107951 47.608551 8.107395 47.608644 8.107136 47.608667 8.106410 47.608656 8.106065 47.608620 8.105900 47.608547 8.105609 47.608536 8.105177 47.608547 8.104701 47.608598 8.104447 47.608636 8.104329 47.608995 8.103931 47.609283 8.103594 47.609330 8.103425 47.609323 8.103263 47.609269 8.103081 47.609102 8.102645 47.609120 8.102462 47.609157 8.102344 47.609271 8.102253 47.609453 8.102220 47.609760 8.102089 47.610038 8.101981 47.610230 8.102032 47.610333 8.102049 47.610469 8.102073 47.610593 8.102019 47.610774 8.101854 47.611077 8.101520 47.611623 8.100767 47.611847 8.100491 47.612089 8.100322 47.612258 8.100204 47.612372 8.100018 47.612443 8.099745 47.612520 8.099434 47.612589 8.099215 47.612694 8.099043 47.612936 8.098726 47.613164 8.097983 47.613238 8.097588 47.613295 8.097139 47.613313 8.096970 47.613430 8.096501 47.613697 8.096028 47.613770 8.095741 47.613855 8.094779 47.613898 8.094262 47.613949 8.093921 47.614042 8.093678 47.614291 8.093516 47.614638 8.093463 47.615551 8.092768 47.615791 8.092653 47.616336 8.092691 47.616980 8.092766 47.617489 8.092581 47.618041 8.092041 47.618368 8.091484 47.618813 8.090742 47.618959 8.090551 47.619057 8.090449 47.619160 8.090348 47.619266 8.090280 47.619400 8.090232 47.619521 8.090204 47.619629 8.090195 47.619771 8.090200 47.619931 8.090231 47.620087 8.090260 47.620305 8.090297 47.620483 8.090313 47.620629 8.090317 47.620750 8.090311 47.620858 8.090304 47.620976 8.090296 47.621118 8.090280 47.621238 8.090262 47.621368 8.090223 47.621462 8.090176 47.621572 8.090112 47.621702 8.090023 47.621829 8.089931 47.621945 8.089822 47.622049 8.089709 47.622145 8.089607 47.622300 8.089400 47.622390 8.089258 47.622449 8.089138</posList>
+                                            <roadInformation>
+                                                <roadNumber>L154</roadNumber>
+                                            </roadInformation>
+                                        </gmlLineString>
+                                    </linearExtended>
+                                </linearExtension>
+                            </locationContainedInGroup>
+                            <locationContainedInGroup xsi:type="Linear">
+                                <locationForDisplay>
+                                    <latitude>47.622448</latitude>
+                                    <longitude>8.089138</longitude>
+                                </locationForDisplay>
+                                <supplementaryPositionalDescription>
+                                    <affectedCarriagewayAndLanes>
+                                        <carriageway>mainCarriageway</carriageway>
+                                        <lengthAffected>2784.602</lengthAffected>
+                                    </affectedCarriagewayAndLanes>
+                                </supplementaryPositionalDescription>
+                                <linearWithinLinearElement>
+                                    <directionRelativeOnLinearSection>aligned</directionRelativeOnLinearSection>
+                                    <linearElement>
+                                        <roadName>
+                                            <values>
+                                                <value lang="de">St. Blasien-Albbruck</value>
+                                            </values>
+                                        </roadName>
+                                        <roadNumber>L154</roadNumber>
+                                    </linearElement>
+                                    <fromPoint xsi:type="DistanceFromLinearElementReferent">
+                                        <distanceAlong>2794.0</distanceAlong>
+                                        <fromReferent>
+                                            <referentIdentifier>8314034O</referentIdentifier>
+                                            <referentType>referenceMarker</referentType>
+                                        </fromReferent>
+                                        <towardsReferent>
+                                            <referentIdentifier>8314008O</referentIdentifier>
+                                            <referentType>referenceMarker</referentType>
+                                        </towardsReferent>
+                                    </fromPoint>
+                                    <toPoint xsi:type="DistanceFromLinearElementReferent">
+                                        <distanceAlong>6.0</distanceAlong>
+                                        <fromReferent>
+                                            <referentIdentifier>8314034O</referentIdentifier>
+                                            <referentType>referenceMarker</referentType>
+                                        </fromReferent>
+                                        <towardsReferent>
+                                            <referentIdentifier>8314008O</referentIdentifier>
+                                            <referentType>referenceMarker</referentType>
+                                        </towardsReferent>
+                                    </toPoint>
+                                </linearWithinLinearElement>
+                                <linearExtension>
+                                    <linearExtended>
+                                        <gmlLineString>
+                                            <srsName>WGS84 EPSG 4326</srsName>
+                                            <posList>47.622449 8.089138 47.622390 8.089258 47.622300 8.089400 47.622145 8.089607 47.622049 8.089709 47.621945 8.089822 47.621829 8.089931 47.621702 8.090023 47.621572 8.090112 47.621462 8.090176 47.621368 8.090223 47.621238 8.090262 47.621118 8.090280 47.620976 8.090296 47.620858 8.090304 47.620750 8.090311 47.620629 8.090317 47.620483 8.090313 47.620305 8.090297 47.620087 8.090260 47.619931 8.090231 47.619771 8.090200 47.619629 8.090195 47.619521 8.090204 47.619400 8.090232 47.619266 8.090280 47.619160 8.090348 47.619057 8.090449 47.618959 8.090551 47.618813 8.090742 47.618368 8.091484 47.618041 8.092041 47.617489 8.092581 47.616980 8.092766 47.616336 8.092691 47.615791 8.092653 47.615551 8.092768 47.614638 8.093463 47.614291 8.093516 47.614042 8.093678 47.613949 8.093921 47.613898 8.094262 47.613855 8.094779 47.613770 8.095741 47.613697 8.096028 47.613430 8.096501 47.613295 8.097139 47.613238 8.097588 47.613164 8.097983 47.612936 8.098726 47.612694 8.099043 47.612589 8.099215 47.612520 8.099434 47.612443 8.099745 47.612372 8.100018 47.612258 8.100204 47.612089 8.100322 47.611847 8.100491 47.611623 8.100767 47.611077 8.101520 47.610774 8.101854 47.610593 8.102019 47.610469 8.102073 47.610333 8.102049 47.610230 8.102032 47.610038 8.101981 47.609760 8.102089 47.609271 8.102253 47.609157 8.102344 47.609120 8.102462 47.609102 8.102645 47.609269 8.103081 47.609323 8.103263 47.609330 8.103425 47.609283 8.103594 47.608636 8.104329 47.608598 8.104447 47.608547 8.104701 47.608536 8.105177 47.608547 8.105609 47.608620 8.105900 47.608656 8.106065 47.608667 8.106410 47.608644 8.107136 47.608551 8.107395 47.608290 8.107951 47.608030 8.108504 47.607838 8.108914 47.607753 8.109004 47.607533 8.109389 47.607290 8.109842 47.607217 8.109938 47.607187 8.109977 47.607086 8.110048 47.606796 8.110108 47.606692 8.110150 47.606637 8.110172 47.606468 8.110374 47.606283 8.110689</posList>
+                                            <roadInformation>
+                                                <roadNumber>L154</roadNumber>
+                                            </roadInformation>
+                                        </gmlLineString>
+                                    </linearExtended>
+                                </linearExtension>
+                            </locationContainedInGroup>
+                        </groupOfLocations>
+                        <actionPlanIdentifier>S1</actionPlanIdentifier>
+                        <roadworksDuration>longTerm</roadworksDuration>
+                        <roadMaintenanceType>other</roadMaintenanceType>
+                    </overallSituation>
+                </situationExtended>
+            </situationExtension>
+        </situation>
+    </payloadPublication>
+</d2LogicalModel>
