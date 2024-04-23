@@ -33,6 +33,10 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
 
+    - name: set date-based tag
+      run: |
+        echo "DATE_TIME_TAG=$(date '+%Y-%m-%dT%H-%M')" >> $GITHUB_ENV
+
     - name: build and push dagster-pipeline Docker image
       uses: docker/build-push-action@v5
       with:
@@ -40,6 +44,7 @@ jobs:
         push: true
         tags: |
           ghcr.io/${{ github.repository_owner }}/dagster-pipeline:latest
+          ghcr.io/${{ github.repository_owner }}/dagster-pipeline:${{ env.DATE_TIME_TAG }}
         platforms: linux/amd64,linux/arm64
         # https://docs.docker.com/build/ci/github-actions/cache/#cache-backend-api
         cache-from: type=gha
@@ -53,6 +58,7 @@ jobs:
         push: true
         tags: |
           ghcr.io/${{ github.repository_owner }}/dagster-daemon:latest
+          ghcr.io/${{ github.repository_owner }}/dagster-daemon:${{ env.DATE_TIME_TAG }}
         platforms: linux/amd64,linux/arm64
         # https://docs.docker.com/build/ci/github-actions/cache/#cache-backend-api
         cache-from: type=gha
@@ -66,6 +72,7 @@ jobs:
         push: true
         tags: |
           ghcr.io/${{ github.repository_owner }}/dagster-dagit:latest
+          ghcr.io/${{ github.repository_owner }}/dagster-dagit:${{ env.DATE_TIME_TAG }}
         platforms: linux/amd64,linux/arm64
         # https://docs.docker.com/build/ci/github-actions/cache/#cache-backend-api
         cache-from: type=gha
