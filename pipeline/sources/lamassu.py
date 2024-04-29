@@ -16,6 +16,7 @@ STATION_COLUMNS = {
     'feed_id': pd.StringDtype(),
     'station_id': pd.StringDtype(),
     'name': pd.StringDtype(),
+    'capacity': pd.Int32Dtype(),
     'rental_uris_android': pd.StringDtype(),
     'rental_uris_ios': pd.StringDtype(),
     'rental_uris_web': pd.StringDtype(),
