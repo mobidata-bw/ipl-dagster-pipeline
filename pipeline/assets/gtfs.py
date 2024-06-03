@@ -38,6 +38,10 @@ import_op = docker_container_op.configured(
                 os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR'), ':/var/gtfs/:rw'),
                 os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR'), ':/etc/gtfs'),
             ],
+            # > CPU shares (relative weight).
+            # from https://docs.docker.com/config/containers/resource_constraints/#configure-the-default-cfs-scheduler:
+            # > --cpu-shares – Set this flag to a value greater or less than the default of 1024 to increase or reduce the container's weight, and give it access to a greater or lesser proportion of the host machine's CPU cycles. This is only enforced when CPU cycles are constrained. When plenty of CPU cycles are available, all containers use as much CPU as they need. In that way, this is a soft limit. --cpu-shares doesn't prevent containers from being scheduled in Swarm mode. It prioritizes container CPU resources for the available CPU cycles. It doesn't guarantee or reserve any specific CPU access.
+            'cpu_shares': 512,
         },
     },
     name='import_op',
