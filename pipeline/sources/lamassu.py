@@ -101,7 +101,13 @@ class Lamassu:
             return 'num_scooters_standing_available'
         return 'num_' + form_factor + 's_available'
 
-    def _get_default_vehicle_type(self, vehicle_types_df):
+    def _get_default_vehicle_type(self, vehicle_types_df: pd.DataFrame) -> list[dict]:
+        """
+        In case all given vehicle types are of the same form factor,
+        this function will return a minimal available_vehicles array including
+        an arbitrary vehicle_type (which will by it's form factor define the station's
+        form_factor).
+        """
         vt_grouped_by_form_factor = vehicle_types_df.groupby('form_factor')
         if len(vt_grouped_by_form_factor) == 1:
             # as all vehicle_types have the same form_factor,
@@ -230,7 +236,7 @@ class Lamassu:
             for record in data:
                 # if record has no record_path property, or it's an empty collection, we replace by the default
                 if record_path not in record or (
-                    hasattr(record[record_path], '__len__') and len(record[record_path]) == 0
+                    isinstance(record[record_path], list) and len(record[record_path]) == 0
                 ):
                     record[record_path] = default_record_path
         return pd.json_normalize(data, record_path, meta, sep='_')
