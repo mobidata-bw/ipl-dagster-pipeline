@@ -1,3 +1,4 @@
+import logging
 import traceback
 from typing import Dict, List, Optional, Union
 from urllib.parse import urljoin
@@ -31,8 +32,8 @@ VEHICLE_COLUMNS = {
     'name': pd.StringDtype(),
     'propulsion_type': pd.StringDtype(),
     'current_fuel_percent': pd.Float32Dtype(),
-    'current_range_meters': pd.Int32Dtype(),
-    'max_range_meters': pd.Int32Dtype(),
+    'current_range_meters': pd.Float32Dtype(),
+    'max_range_meters': pd.Float32Dtype(),
     'rental_uris_android': pd.StringDtype(),
     'rental_uris_ios': pd.StringDtype(),
     'rental_uris_web': pd.StringDtype(),
@@ -298,6 +299,15 @@ class Lamassu:
         for column, dtype in column_names.items():
             if column not in df:
                 df[column] = pd.Series(dtype=dtype) if dtype else None
+            elif df[column].dtype != dtype:
+                try:
+                    # Coerce to intended dtype. This is needed as e.g. for
+                    # columns with NA values, the column type
+                    # otherwise would be created with float64.
+                    df[column] = df[column].astype(dtype)
+                except Exception:
+                    logging.error(f'Error enforcing type {dtype} for column {column}')
+                    raise
 
         # restrict to essentiel columns or provide defaults
         return df[column_names.keys()]
