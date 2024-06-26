@@ -1,3 +1,4 @@
+import logging
 import traceback
 from typing import Dict, List, Optional, Union
 from urllib.parse import urljoin
@@ -31,8 +32,8 @@ VEHICLE_COLUMNS = {
     'name': pd.StringDtype(),
     'propulsion_type': pd.StringDtype(),
     'current_fuel_percent': pd.Float32Dtype(),
-    'current_range_meters': pd.Int32Dtype(),
-    'max_range_meters': pd.Int32Dtype(),
+    'current_range_meters': pd.Float32Dtype(),
+    'max_range_meters': pd.Float32Dtype(),
     'rental_uris_android': pd.StringDtype(),
     'rental_uris_ios': pd.StringDtype(),
     'rental_uris_web': pd.StringDtype(),
@@ -101,9 +102,32 @@ class Lamassu:
             return 'num_scooters_standing_available'
         return 'num_' + form_factor + 's_available'
 
+    def _get_default_vehicle_type(self, vehicle_types_df: pd.DataFrame) -> list[dict]:
+        """
+        In case all given vehicle types are of the same form factor,
+        this function will return a minimal available_vehicles array including
+        an arbitrary vehicle_type (which will by it's form factor define the station's
+        form_factor).
+        """
+        vt_grouped_by_form_factor = vehicle_types_df.groupby('form_factor')
+        if len(vt_grouped_by_form_factor) == 1:
+            # as all vehicle_types have the same form_factor,
+            # we assign an arbitrary vehicle_type
+            return [{'vehicle_type_id': vehicle_types_df.loc[0]['vehicle_type_id'], 'count': 0}]
+        # no form_factor or not unique. In this case, we don't assign any vehicle_type as default
+        return []
+
     def get_station_status_by_form_factor_as_frame(self, feed: dict, feed_id: str) -> Optional[pd.DataFrame]:
         if 'station_status' not in feed or 'vehicle_types' not in feed:
             return None
+
+        vehicle_types_df = self._load_feed_as_frame(feed['vehicle_types'], 'vehicle_types')
+        if vehicle_types_df.empty:
+            return None
+
+        # Load station_status and return it as dataframe, one row per vehicle_types_available.
+        # If vehicle_type_available is empty for a station_status, we assume
+        # default_vehicles_types_availability.
 
         stations_status_df = self._load_feed_as_frame(
             feed['station_status'],
@@ -111,11 +135,10 @@ class Lamassu:
             'vehicle_types_available',
             # Note: in gbfs 2.3, num_bikes_available means num_vehicles_available, will be renamed in v3
             ['station_id', 'num_bikes_available', 'is_renting', 'is_installed', 'last_reported'],
-            [],
+            self._get_default_vehicle_type(vehicle_types_df),
         )
-        vehicle_types_df = self._load_feed_as_frame(feed['vehicle_types'], 'vehicle_types')
 
-        if vehicle_types_df.empty or stations_status_df.empty:
+        if stations_status_df.empty:
             return None
 
         # merge station_status and vehicle_type, so we know form_factor for vehicle_types_available
@@ -212,7 +235,10 @@ class Lamassu:
         data = resp.json()['data'][element] if element else resp.json()['data']
         if isinstance(record_path, str):
             for record in data:
-                if record_path not in record:
+                # if record has no record_path property, or it's an empty collection, we replace by the default
+                if record_path not in record or (
+                    isinstance(record[record_path], list) and len(record[record_path]) == 0
+                ):
                     record[record_path] = default_record_path
         return pd.json_normalize(data, record_path, meta, sep='_')
 
@@ -273,6 +299,15 @@ class Lamassu:
         for column, dtype in column_names.items():
             if column not in df:
                 df[column] = pd.Series(dtype=dtype) if dtype else None
+            elif df[column].dtype != dtype:
+                try:
+                    # Coerce to intended dtype. This is needed as e.g. for
+                    # columns with NA values, the column type
+                    # otherwise would be created with float64.
+                    df[column] = df[column].astype(dtype)
+                except Exception:
+                    logging.error(f'Error enforcing type {dtype} for column {column}')
+                    raise
 
         # restrict to essentiel columns or provide defaults
         return df[column_names.keys()]
