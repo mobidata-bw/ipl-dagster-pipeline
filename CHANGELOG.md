@@ -2,8 +2,9 @@
 
 The changelog lists most feature changes between each release. 
 
-## Unreleased
-- change: bump dagster to v1.7.12 and dagster-docker to v0.23.12
+## 2024-07-05
+- change: reduce CPU shares of GTFS import to 512 (#140)
+- change: bump dagster to v1.7.12 and dagster-docker to v0.23.12 (#160)
 
 ## 2024-06-26
 - change: `sharing_station.capacity` is changed to an integer field, `vehicle.max_range_meters` and `vehicle.current_range_meters`, according to the [GBFS spec](https://github.com/MobilityData/gbfs/blob/cd75662c25180f68f76237f88a861d82e940cf3b/gbfs.md?plain=1#L1044), to float.
