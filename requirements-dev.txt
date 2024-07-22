@@ -5,7 +5,7 @@ pandas-stubs==2.2.1.240316
 types-SQLAlchemy==1.4.53.38
 # for docker currently no official stubs exist, see https://github.com/docker/docker-py/issues/2796
 docker-stubs @ git+https://github.com/rdozier-work/docker-stubs@9de7906804ae912f1d644c97b617ac77e784fca8
-pytest==7.4.3
+pytest==8.3.1
 pytest-env==1.1.3
 
 ruff~=0.1.6
