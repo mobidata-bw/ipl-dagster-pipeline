@@ -2,6 +2,9 @@
 
 The changelog lists most feature changes between each release. 
 
+## 2024-09-06
+- addition: `sharing_vehicle` table now also contains a `station_id`
+
 ## 2024-07-05
 - change: reduce CPU shares of GTFS import to 512 (#140)
 - change: bump dagster to v1.7.12 and dagster-docker to v0.23.12 (#160)
