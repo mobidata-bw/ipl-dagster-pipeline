@@ -27,6 +27,7 @@ STATION_COLUMNS = {
 
 VEHICLE_COLUMNS = {
     'feed_id': pd.StringDtype(),
+    'station_id': pd.StringDtype(),
     'vehicle_id': pd.StringDtype(),
     'form_factor': pd.StringDtype(),
     'name': pd.StringDtype(),
