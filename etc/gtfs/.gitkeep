@@ -1,0 +1,1 @@
+We need this directory because we mount it (e.g. in `docker-compose), in order to use it in pipeline/assets/gtfs.py.

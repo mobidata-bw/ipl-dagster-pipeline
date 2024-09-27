@@ -16,10 +16,12 @@ from dagster_docker import docker_container_op
 
 import_op = docker_container_op.configured(
     {
+        # Note: We mirror ipl-orchestration's docker-compose.yaml here, the env vars & mounts should be kept in sync with it.
         'image': {'env': 'IPL_GTFS_IMPORTER_IMAGE'},
         'networks': [os.getenv('IPL_GTFS_IMPORTER_NETWORK')],
         'env_vars': [
             'PGHOST=' + os.getenv('IPL_GTFS_DB_POSTGRES_HOST'),
+            'PGPORT=5432',
             'PGUSER=' + os.getenv('IPL_GTFS_DB_POSTGRES_USER'),
             'PGPASSWORD=' + os.getenv('IPL_GTFS_DB_POSTGRES_PASSWORD'),
             'PGDATABASE=' + os.getenv('IPL_GTFS_DB_POSTGRES_DB'),
@@ -30,6 +32,7 @@ import_op = docker_container_op.configured(
             'GTFS_TMP_DIR=/var/gtfs',
             'POSTGREST_USER=' + os.getenv('IPL_GTFS_DB_POSTGREST_USER'),
             'POSTGREST_PASSWORD=' + os.getenv('IPL_GTFS_DB_POSTGREST_PASSWORD'),
+            'GTFS_IMPORTER_SCHEMA=' + os.getenv('IPL_GTFS_IMPORTER_SCHEMA'),
         ],
         'container_kwargs': {
             # > Remove the container when it has finished running. Default: False.
@@ -50,6 +53,7 @@ import_op = docker_container_op.configured(
 
 @op
 def reload_pgbouncer_databases(import_op):
+    # Note: We mirror ipl-orchestration's `import-new-gtfs` Make target here.
     client = docker.from_env()
     # Temporarilly return ipl-pgbouncer-1 as default container name if not configured otherwise
     container_name = os.getenv('IPL_GTFS_PGBOUNCER_CONTAINER', 'ipl-pgbouncer-1')
