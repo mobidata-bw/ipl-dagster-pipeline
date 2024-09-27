@@ -33,6 +33,7 @@ import_op = docker_container_op.configured(
             'POSTGREST_USER=' + os.getenv('IPL_GTFS_DB_POSTGREST_USER'),
             'POSTGREST_PASSWORD=' + os.getenv('IPL_GTFS_DB_POSTGREST_PASSWORD'),
             'GTFS_IMPORTER_SCHEMA=' + os.getenv('IPL_GTFS_IMPORTER_SCHEMA'),
+            'GTFSTIDY_REMOVE_REDUNDANT_STOPS=false',
         ],
         'container_kwargs': {
             # > Remove the container when it has finished running. Default: False.
