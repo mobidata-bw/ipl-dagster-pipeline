@@ -12,6 +12,7 @@ WORKDIR /opt/dagster/app
 RUN apt update && apt install -y \
 	build-essential \
 	libgdal-dev \
+	lftp \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Checkout and install dagster libraries needed to run the gRPC server
@@ -24,6 +25,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Add repository code
 COPY pipeline/ /opt/dagster/app/pipeline/
+COPY scripts/ /opt/dagster/app/scripts
 
 # Run dagster gRPC server on port 4000
 
