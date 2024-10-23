@@ -1,15 +1,17 @@
 import os
 import random
 import warnings
+from typing import Sequence
 
 from dagster import (
     AssetExecutionContext,
     AutoMaterializePolicy,
     ExperimentalWarning,
     FreshnessPolicy,
+    PipesExecutionResult,
+    PipesSubprocessClient,
     asset,
 )
-from dagster_shell import execute_shell_command
 
 SCRIPT_DIR = os.getenv('SCRIPT_DIR', './scripts/')
 
@@ -20,13 +22,13 @@ SCRIPT_DIR = os.getenv('SCRIPT_DIR', './scripts/')
     freshness_policy=FreshnessPolicy(maximum_lag_minutes=2, cron_schedule='* * * * *'),
     auto_materialize_policy=AutoMaterializePolicy.eager(),
 )
-def webcam_images(context: AssetExecutionContext) -> None:
+def webcam_images(
+    context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient
+) -> Sequence['PipesExecutionResult']:
     """
     Downloads webcam images via lftp.
     """
-    (logs, exit_code) = execute_shell_command(
-        'bash download_webcams.sh', cwd=SCRIPT_DIR, output_logging='STREAM', log=context.log
-    )
 
-    if exit_code != 0:
-        raise RuntimeError(f'Downloading webcam images failed with error code {exit_code}')
+    return pipes_subprocess_client.run(
+        command=['bash', 'download_webcams.sh'], context=context, cwd=SCRIPT_DIR
+    ).get_results()

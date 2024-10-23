@@ -2,6 +2,7 @@ from dagster import (
     DefaultScheduleStatus,
     Definitions,
     EnvVar,
+    PipesSubprocessClient,
     ScheduleDefinition,
     define_asset_job,
     load_assets_from_modules,
@@ -25,6 +26,7 @@ defs = Definitions(
             password=EnvVar('IPL_POSTGRES_PASSWORD'),
             database=EnvVar('IPL_POSTGRES_DB'),
         ),
+        'pipes_subprocess_client': PipesSubprocessClient(),
         'json_webasset_io_manager': JsonWebAssetIOManager(
             destination_directory=EnvVar('WWW_ROOT_DIR'),
         ),

@@ -3,4 +3,3 @@ dagster-graphql==1.7.12
 dagster-webserver==1.7.12
 dagster-postgres==0.23.12
 dagster-docker==0.23.12
-dagster-shell==0.23.12
