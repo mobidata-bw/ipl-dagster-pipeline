@@ -1,14 +1,12 @@
 import os
 import random
 import warnings
-from typing import Sequence
 
 from dagster import (
     AssetExecutionContext,
     AutoMaterializePolicy,
     ExperimentalWarning,
     FreshnessPolicy,
-    PipesExecutionResult,
     PipesSubprocessClient,
     asset,
 )
@@ -22,9 +20,8 @@ SCRIPT_DIR = os.getenv('SCRIPT_DIR', './scripts/')
     freshness_policy=FreshnessPolicy(maximum_lag_minutes=2, cron_schedule='* * * * *'),
     auto_materialize_policy=AutoMaterializePolicy.eager(),
 )
-def webcam_images(
-    context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient
-) -> Sequence['PipesExecutionResult']:
+# explicitly no typing '-> Sequence[PipesExecutionResult]' due to https://github.com/dagster-io/dagster/issues/25490
+def webcam_images(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
     """
     Downloads webcam images via lftp.
     """
