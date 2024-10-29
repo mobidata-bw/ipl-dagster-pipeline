@@ -12,7 +12,13 @@ from .assets import gtfs, radvis, sharing, traffic_incidents, webcams
 from .resources import JsonWebAssetIOManager, LamassuResource, PostGISGeoPandasIOManager
 from .resources.gdal import Ogr2OgrResource
 
-assets = load_assets_from_modules([sharing, radvis, gtfs, traffic_incidents, webcams])
+assets = load_assets_from_modules([
+    sharing,
+    radvis,
+    gtfs,
+    traffic_incidents,
+    webcams,
+])
 
 defs = Definitions(
     assets=assets,
