@@ -39,8 +39,8 @@ import_op = docker_container_op.configured(
             # > Remove the container when it has finished running. Default: False.
             'auto_remove': True,
             'volumes': [
-                os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR'), ':/var/gtfs/:rw'),
-                os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR'), ':/etc/gtfs'),
+                os.getenv('IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR') + ':/var/gtfs/:rw',
+                os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR') + ':/etc/gtfs',
                 os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR'), 'download.sh')
                 + ':/importer/download.sh',
             ],
