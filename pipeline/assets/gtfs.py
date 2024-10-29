@@ -41,6 +41,8 @@ import_op = docker_container_op.configured(
             'volumes': [
                 os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR'), ':/var/gtfs/:rw'),
                 os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR'), ':/etc/gtfs'),
+                os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR'), 'download.sh')
+                + ':/importer/download.sh',
             ],
             # > CPU shares (relative weight).
             # from https://docs.docker.com/config/containers/resource_constraints/#configure-the-default-cfs-scheduler:
