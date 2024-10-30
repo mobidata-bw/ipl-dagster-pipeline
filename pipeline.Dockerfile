@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Add repository code
 COPY pipeline/ /opt/dagster/app/pipeline/
-COPY scripts/ /opt/dagster/app/scripts
+COPY scripts/ /opt/dagster/app/scripts/
 
 # Run dagster gRPC server on port 4000
 
