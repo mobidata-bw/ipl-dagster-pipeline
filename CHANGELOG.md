@@ -5,13 +5,13 @@ The changelog lists most feature changes between each release.
 ## 2024-10-29
 
 - GTFS import: Mount local (modified) `download.sh` into `postgis-gtfs-importer` container.
-	- ⚠️ `$IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR` must contain a `download.sh`, so if it doesn't, this is a breaking change!
-	- This is the `ipl-dagster-pipeline` equivalent to [`ipl-orchestration#fd42328`](https://github.com/mobidata-bw/ipl-orchestration/commit/fd423288ac8d1a1902ebfed60339f1fe120ce508).
+    - ⚠️ `$IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR` must contain a `download.sh`, so if it doesn't, this is a breaking change!
+    - This is the `ipl-dagster-pipeline` equivalent to [`ipl-orchestration#fd42328`](https://github.com/mobidata-bw/ipl-orchestration/commit/fd423288ac8d1a1902ebfed60339f1fe120ce508).
 
 ## 2024-10-01
 
 - GTFS import: adapt to [`postgis-gtfs-importer:v4-2024-09-24T15.06.43-9a66d7d` image](https://github.com/mobidata-bw/postgis-gtfs-importer/pkgs/container/postgis-gtfs-importer/278891924?tag=v4-2024-09-24T15.06.43-9a66d7d) (21449e7)
-	- This is the `ipl-dagster-pipeline` equivalent to [`ipl-orchestration#726e765`](https://github.com/mobidata-bw/ipl-orchestration/commit/726e7650820adf848cd79787946340ee7c4cf02f).
+    - This is the `ipl-dagster-pipeline` equivalent to [`ipl-orchestration#726e765`](https://github.com/mobidata-bw/ipl-orchestration/commit/726e7650820adf848cd79787946340ee7c4cf02f).
 - GTFS import: don't remove redundant stops (6a46a63)
 
 ## 2024-09-06
