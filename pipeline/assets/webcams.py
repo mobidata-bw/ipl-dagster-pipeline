@@ -36,7 +36,15 @@ def webcam_images(context: AssetExecutionContext, pipes_subprocess_client: Pipes
     """
     Downloads webcam images via lftp.
     """
-    env = _env_vars_map(['IPL_WEBCAM_USER', 'IPL_WEBCAM_PASSWORD', 'IPL_WEBCAM_SERVER', 'WEBCAM_KEEP_DAYS'])
+    env = _env_vars_map(
+        [
+            'IPL_WEBCAM_USER',
+            'IPL_WEBCAM_PASSWORD',
+            'IPL_WEBCAM_SERVER',
+            'IPL_WEBCAM_KEEP_DAYS',
+            'IPL_WEBCAM_WORKER',
+        ],
+    )
     return pipes_subprocess_client.run(
         command=['bash', 'download_webcams.sh'], context=context, cwd=SCRIPT_DIR, env=env
     ).get_results()
