@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import csv
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from io import StringIO
 from typing import Any, Dict, Iterator, Optional, Sequence, cast
 
@@ -90,10 +90,10 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
                 sio = StringIO()
                 obj.to_csv(sio, sep='\t', na_rep='', header=False)
                 sio.seek(0)
-                c = con.connection.cursor()
-                # ignore mypy attribute check, as postgres cursor has custom extension to DBAPICursor: copy_expert
-                c.copy_expert(f"COPY {schema}.{table} FROM STDIN WITH (FORMAT csv, DELIMITER '\t')", sio)  # type: ignore[attr-defined]
-                con.connection.commit()
+                with closing(con.connection.cursor()) as c:
+                    # ignore mypy attribute check, as postgres cursor has custom extension to DBAPICursor: copy_expert
+                    c.copy_expert(f"COPY {schema}.{table} FROM STDIN WITH (FORMAT csv, DELIMITER '\t')", sio)  # type: ignore[attr-defined]
+                    con.connection.commit()
                 context.add_output_metadata({'num_rows': len(obj), 'table_name': f'{schema}.{table}'})
         elif obj is None:
             self.delete_asset(context)
@@ -132,26 +132,24 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
         else:
             raise Exception('Deletion of not-partitioned assets not yet supported.')
 
-    def _delete_partition(self, schema, table, partition_col_name, partition_key, con):
+    def _delete_partition(self, schema: str, table: str, partition_col_name: str, partition_key: str, con: Connection):
         try:
-            c = con.connection.cursor()
-            c.execute(f"DELETE FROM {schema}.{table} WHERE {partition_col_name}='{partition_key}'")
+            with closing(con.connection.cursor()) as c:
+                c.execute(f"DELETE FROM {schema}.{table} WHERE {partition_col_name}='{partition_key}'")
         except UndefinedTable:
             # TODO log debug info, asset did not exist, so nothing to
-            con.connection.rollback()
             pass
 
-    def _truncate_table(self, schema, table, con):
+    def _truncate_table(self, schema: str, table: str, con: Connection):
         try:
-            c = con.connection.cursor()
-            c.execute(f'TRUNCATE TABLE {schema}.{table}')
+            with closing(con.connection.cursor()) as c:
+                c.execute(f'TRUNCATE TABLE {schema}.{table}')
         except UndefinedTable:
             # TODO log debug info, asset did not exist, so nothing to
-            con.connection.rollback()
             pass
 
-    def _create_primary_key(self, schema, table, keys, con):
-        with con.connection.cursor() as c:
+    def _create_primary_key(self, schema: str, table: str, keys: list[str], con: Connection):
+        with closing(con.connection.cursor()) as c:
             c.execute(f'ALTER TABLE {schema}.{table} ADD PRIMARY KEY ({",".join(keys)})')
 
     def _load_input(
@@ -166,8 +164,8 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
             con=con,
         )
 
-    def _create_schema_if_not_exists(self, schema, con):
-        with con.connection.cursor() as c:
+    def _create_schema_if_not_exists(self, schema: str, con: Connection):
+        with closing(con.connection.cursor()) as c:
             c.execute(f'CREATE SCHEMA IF NOT EXISTS {schema}')
 
     def _get_schema_table(self, asset_key):
@@ -182,12 +180,13 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
         col_str = ', '.join(columns) if columns else '*'
         return f'SELECT {col_str} FROM {schema}.{table}'
 
-    def _has_table(self, con, schema, table):
-        with con.connection.cursor() as c:
+    def _has_table(self, con: Connection, schema: str, table: str):
+        with closing(con.connection.cursor()) as c:
             c.execute(
                 f"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{schema}' AND table_name = '{table}'"
             )
-            if c.fetchone()[0] == 1:
+            fetch_result = c.fetchone()
+            if fetch_result and fetch_result[0] == 1:
                 return True
             return False
 
