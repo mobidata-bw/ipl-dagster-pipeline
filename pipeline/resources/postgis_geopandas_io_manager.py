@@ -232,7 +232,10 @@ class PostGISGeoPandasIOManager(PostgreSQLPandasIOManager):  # type: ignore
                         # All data can be replaced (i.e. truncated before insertion).
                         # geopandas will take care of this.
                         self._truncate_table(schema, table, con)
-
+                # while writing standard pandas.DataFrames to sql tables is database agnostic and performed
+                # internally via SQLAlchemy, writing a GeoDataFrame requires explicitly using to_postgis. See
+                # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_sql.html and
+                # https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_postgis.html
                 obj.to_postgis(
                     con=con, name=table, index=True, schema=schema, if_exists='append', chunksize=self.chunksize
                 )
