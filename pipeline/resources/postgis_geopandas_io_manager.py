@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import csv
+import re
 from contextlib import closing, contextmanager
 from io import StringIO
 from typing import Any, Dict, Iterator, Optional, Sequence, cast
@@ -27,8 +28,6 @@ from dagster import (
 from psycopg2.errors import UndefinedTable
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL, Connection
-
-# TODO figure out appropriate SQL injection mechanism while allowing dynamic table/column provision
 
 
 @contextmanager
@@ -65,6 +64,15 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
     def _config(self) -> Dict[str, Any]:
         return self.dict()
 
+    def _assert_sql_safety(self, *expressions: str) -> None:
+        r"""
+        Raises a ValueError in case an expression contains characters other than
+        word or number chars or is of lenght 0 (^[\w\d]+$).
+        """
+        for expression in expressions:
+            if not re.match(r'^[\w\d]+$', expression):
+                raise ValueError(f'Unexpected sql identifier {expression}')
+
     def handle_output(self, context: OutputContext, obj: pandas.DataFrame):
         schema, table = self._get_schema_table(context.asset_key)
 
@@ -83,7 +91,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
                         schema=schema,
                         if_exists='replace',
                     )
-                    # table was just created, create primary key (to_postgis doesn't create these,
+                    # table was just created, create primary key (to_sql doesn't create these,
                     # though index=True suggests this)
                     self._create_primary_key(schema, table, obj.index.names, con)
                 obj.reset_index()
@@ -134,6 +142,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
 
     def _delete_partition(self, schema: str, table: str, partition_col_name: str, partition_key: str, con: Connection):
         try:
+            self._assert_sql_safety(schema, table, partition_col_name, partition_key)
             with closing(con.connection.cursor()) as c:
                 c.execute(f"DELETE FROM {schema}.{table} WHERE {partition_col_name}='{partition_key}'")
         except UndefinedTable:
@@ -142,6 +151,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
 
     def _truncate_table(self, schema: str, table: str, con: Connection):
         try:
+            self._assert_sql_safety(schema, table)
             with closing(con.connection.cursor()) as c:
                 c.execute(f'TRUNCATE TABLE {schema}.{table}')
         except UndefinedTable:
@@ -150,6 +160,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
 
     def _create_primary_key(self, schema: str, table: str, keys: list[str], con: Connection):
         with closing(con.connection.cursor()) as c:
+            self._assert_sql_safety(schema, table, **keys)
             c.execute(f'ALTER TABLE {schema}.{table} ADD PRIMARY KEY ({",".join(keys)})')
 
     def _load_input(
@@ -166,6 +177,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
 
     def _create_schema_if_not_exists(self, schema: str, con: Connection):
         with closing(con.connection.cursor()) as c:
+            self._assert_sql_safety(schema)
             c.execute(f'CREATE SCHEMA IF NOT EXISTS {schema}')
 
     def _get_schema_table(self, asset_key):
@@ -177,11 +189,13 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
         schema: str,
         columns: Optional[Sequence[str]],
     ):
+        self._assert_sql_safety(schema, table, **columns)
         col_str = ', '.join(columns) if columns else '*'
         return f'SELECT {col_str} FROM {schema}.{table}'
 
     def _has_table(self, con: Connection, schema: str, table: str):
         with closing(con.connection.cursor()) as c:
+            self._assert_sql_safety(schema, table)
             c.execute(
                 f"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{schema}' AND table_name = '{table}'"
             )
