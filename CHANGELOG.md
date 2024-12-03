@@ -2,6 +2,16 @@
 
 The changelog lists most feature changes between each release. 
 
+## Unreleased
+
+- Fix [webcam cleanup](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/180)
+
+
+## 2024-11-04
+
+- addition: Add the ability to [download webcam images](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/177)
+  with [configurable worker count](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/179)
+
 ## 2024-10-29
 
 - GTFS import: Mount local (modified) `download.sh` into `postgis-gtfs-importer` container.
