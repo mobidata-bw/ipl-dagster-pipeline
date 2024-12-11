@@ -2,7 +2,7 @@
 
 The changelog lists most feature changes between each release. 
 
-## Unreleased
+## 2024-12-03
 
 - Fix [webcam cleanup](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/180)
 
