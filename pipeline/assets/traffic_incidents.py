@@ -5,13 +5,12 @@ import geopandas as gpd
 import pandas as pd
 from dagster import (
     AutomationCondition,
-    EnvVar,
     ExperimentalWarning,
     asset,
 )
 
 from pipeline.transformer.cifs import DatexII2CifsTransformer
-from pipeline.util.urllib import download, get
+from pipeline.util.urllib import download
 
 WEB_ROOT = os.getenv('WWW_ROOT_DIR', './tmp/www')
 ROADWORKS_DATEX2_DOWNLOAD_URL = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL', '')
