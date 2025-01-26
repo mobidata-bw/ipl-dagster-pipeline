@@ -4,9 +4,8 @@ import warnings
 
 from dagster import (
     AssetExecutionContext,
-    AutoMaterializePolicy,
+    AutomationCondition,
     ExperimentalWarning,
-    FreshnessPolicy,
     PipesSubprocessClient,
     asset,
 )
@@ -28,8 +27,7 @@ def _env_vars_map(env_vars: list[str]) -> dict[str, str]:
 @asset(
     compute_kind='shell',
     group_name='webcams',
-    freshness_policy=FreshnessPolicy(maximum_lag_minutes=2, cron_schedule='* * * * *'),
-    auto_materialize_policy=AutoMaterializePolicy.eager(),
+    automation_condition=AutomationCondition.on_cron('* * * * *') & ~AutomationCondition.in_progress(),
 )
 # explicitly no typing '-> Sequence[PipesExecutionResult]' due to https://github.com/dagster-io/dagster/issues/25490
 def webcam_images(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):

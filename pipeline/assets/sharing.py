@@ -2,11 +2,10 @@ import logging
 
 import pandas as pd
 from dagster import (
-    AutoMaterializePolicy,
+    AutomationCondition,
     DefaultScheduleStatus,
     DefaultSensorStatus,
     DynamicPartitionsDefinition,
-    FreshnessPolicy,
     RunRequest,
     ScheduleDefinition,
     SensorResult,
@@ -23,8 +22,7 @@ from pipeline.resources import LamassuResource
     io_manager_key='pg_gpd_io_manager',
     compute_kind='Lamassu',
     group_name='sharing',
-    freshness_policy=FreshnessPolicy(maximum_lag_minutes=60),
-    auto_materialize_policy=AutoMaterializePolicy.eager(),
+    automation_condition=(AutomationCondition.on_cron('0 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()),
 )
 def sharing_stations(context, lamassu: LamassuResource) -> pd.DataFrame:
     """

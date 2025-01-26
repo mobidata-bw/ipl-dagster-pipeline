@@ -2,10 +2,9 @@ import os
 import warnings
 
 from dagster import (
-    AutoMaterializePolicy,
+    AutomationCondition,
     EnvVar,
     ExperimentalWarning,
-    FreshnessPolicy,
     asset,
 )
 
@@ -27,8 +26,7 @@ RADVIS_OUT_FILENAME = 'radnetz_bw.gpkg'
 @asset(
     compute_kind='Geopackage',
     group_name='radvis',
-    freshness_policy=FreshnessPolicy(maximum_lag_minutes=60 * 24, cron_schedule='0 1 * * *'),
-    auto_materialize_policy=AutoMaterializePolicy.eager(),
+    automation_condition=(AutomationCondition.on_cron('0 1 * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()),
 )
 def radnetz_bw_download() -> None:
     """
@@ -56,7 +54,7 @@ def radnetz_bw_download() -> None:
     non_argument_deps={'radnetz_bw_download'},
     compute_kind='PostGIS',
     group_name='radvis',
-    auto_materialize_policy=AutoMaterializePolicy.eager(),
+    automation_condition=AutomationCondition.eager(),
 )
 def radnetz_bw_postgis(ogr2ogr: Ogr2OgrResource) -> None:
     """

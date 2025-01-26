@@ -7,8 +7,7 @@ import warnings
 
 import docker
 from dagster import (
-    AutoMaterializePolicy,
-    FreshnessPolicy,
+    AutomationCondition,
     graph_asset,
     op,
 )
@@ -75,8 +74,7 @@ def reload_pgbouncer_databases(import_op):
 
 @graph_asset(
     group_name='gtfs',
-    auto_materialize_policy=AutoMaterializePolicy.eager(),
-    freshness_policy=FreshnessPolicy(maximum_lag_minutes=60 * 24, cron_schedule='0 1 * * *'),
+    automation_condition=(AutomationCondition.on_cron('0 1 * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()),
 )
 def gtfs():
     """
