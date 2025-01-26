@@ -5,31 +5,31 @@ build-backend = "setuptools.build_meta"
 [tool.dagster]
 module_name = "pipeline"
 
-[tool.black]
-line-length = 120
-skip-string-normalization = 1
-
 [tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
 select = [
     "E", # pycodestyle errors
     "W", # pycodestyle warnings
     "F", # pyflakes
-    "Q", # pydocstyle
-    "T", # mypy
-    "R", # pylint
-    "S", # flake8
+    "S", # flake8-bandit
     "I", # isort
-    "C", # flake8-comprehensions
-    "B", # flake8-bugbear
+    "ASYNC", # flake8-async
+    "DTZ", # flake8-datetimez
+    "ISC", # flake8-implicit-str-concat
+    "LOG", # flake8-logging
+    "INP", # flake8-no-pep420 (missing __init__.py)
+    "PIE", # flake8-pie
+    "T20", # flake8-print
+    "Q", # flake8-quotes
+    "TID", # flake8-tidy-imports
+    "FLY", # flynt (use f-string instead of static join)
 ]
 
 ignore = [
-    "E501", # line too long, handled by black
     "B008", # do not perform function calls in argument defaults
     "C901", # too complex
-    "F401", # imported but unused
-    "S101", # use of assert detected
-    "S608", # TODO: Appropriate SQL injection counter measures should be discussed
 ]
 
 fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
@@ -57,15 +57,23 @@ exclude = [
     "venv",
 ]
 
-line-length = 120
+# Enable preview rules since a lot of basic pycodestyle rules are in preview mode for some reason
+preview = true
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+[tool.ruff.lint.per-file-ignores]
+# Ignore unused and unsorted imports in init modules
+"__init__.py" = ["F401", "I001"]
+"tests/*" = ["S101"]
 
-[tool.ruff.flake8-quotes]
+
+[tool.ruff.lint.flake8-quotes]
 inline-quotes = "single"
-multiline-quotes = "single"
+multiline-quotes = "double"
 docstring-quotes = "double"
+
+[tool.ruff.format]
+quote-style = "single"
+
 
 [[tool.mypy.overrides]]
 # See https://github.com/HBNetwork/python-decouple/issues/122
