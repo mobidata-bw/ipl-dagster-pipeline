@@ -82,6 +82,9 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
                 table_exists = self._has_table(con, schema, table)
                 if table_exists:
                     self._truncate_table(schema, table, con)
+                    if not self._has_primary_key(con, schema, table):
+                        # table has no primary key yet, create primary key
+                        self._create_primary_key(schema, table, obj.index.names, con)
                 else:
                     # create table with empty frame (obj[:0]) and load later via copy_from
                     obj[:0].to_sql(
@@ -160,7 +163,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
 
     def _create_primary_key(self, schema: str, table: str, keys: list[str], con: Connection):
         with closing(con.connection.cursor()) as c:
-            self._assert_sql_safety(schema, table, **keys)
+            self._assert_sql_safety(schema, table, *keys)
             c.execute(f'ALTER TABLE {schema}.{table} ADD PRIMARY KEY ({",".join(keys)})')
 
     def _load_input(
@@ -204,6 +207,14 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
                 return True
             return False
 
+    def _has_primary_key(self, con: Connection, schema: str, table: str):
+        with closing(con.connection.cursor()) as c:
+            self._assert_sql_safety(schema, table)
+            c.execute(
+                f"SELECT i.indexrelid::regclass FROM pg_index i JOIN pg_class c ON c.oid = i.indrelid WHERE c.relnamespace::regnamespace::varchar = '{schema}' AND c.relname = '{table}' AND i.indisprimary ='t'"
+            )
+            fetch_result = c.fetchone()
+            return fetch_result is not None
 
 # need mypy to ignore following line due to https://github.com/dagster-io/dagster/issues/17443
 class PostGISGeoPandasIOManager(PostgreSQLPandasIOManager):  # type: ignore
@@ -239,8 +250,9 @@ class PostGISGeoPandasIOManager(PostgreSQLPandasIOManager):  # type: ignore
                 obj.to_postgis(
                     con=con, name=table, index=True, schema=schema, if_exists='append', chunksize=self.chunksize
                 )
-                if not table_exists:
-                    # table was just created, create primary key (to_postgis doesn't create these,
+                if not table_exists or not self._has_primary_key(con, schema, table):
+                    # table was just created or has no primary key,
+                    # create primary key (to_postgis doesn't create these,
                     # though index=True suggests this)
                     self._create_primary_key(schema, table, obj.index.names, con)
                 con.connection.commit()
