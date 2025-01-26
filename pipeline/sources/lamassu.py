@@ -52,6 +52,8 @@ STATION_BY_FORM_FACTOR_COLUMNS = {
     'last_reported': pd.DatetimeTZDtype(tz='UTC'),
 }
 
+logger = logging.getLogger(__name__)
+
 
 class Lamassu:
     # Feed ids of feeds, whose scooters are scooter_seated.
@@ -304,7 +306,7 @@ class Lamassu:
                     # otherwise would be created with float64.
                     df[column] = df[column].astype(dtype)
                 except Exception:
-                    logging.error(f'Error enforcing type {dtype} for column {column}')
+                    logger.error(f'Error enforcing type {dtype} for column {column}')
                     raise
 
         # restrict to essentiel columns or provide defaults

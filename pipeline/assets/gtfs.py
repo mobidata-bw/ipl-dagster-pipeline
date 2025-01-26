@@ -12,6 +12,8 @@ from dagster import (
 )
 from dagster_docker import docker_container_op
 
+logger = logging.getLogger(__name__)
+
 import_op = docker_container_op.configured(
     {
         # Note: We mirror ipl-orchestration's docker-compose.yaml here, the env vars & mounts should be kept in sync with it.
@@ -60,13 +62,13 @@ def reload_pgbouncer_databases(import_op):
     container_name = os.getenv('IPL_GTFS_PGBOUNCER_CONTAINER', 'ipl-pgbouncer-1')
     # TODO check for existanc and log warning if not
     # if container_name == None:
-    #    logging.warn('Will not reload pgbouncer databases, as IPL_GTFS_PGBOUNCER_CONTAINER is unset')
+    #    logger.warn('Will not reload pgbouncer databases, as IPL_GTFS_PGBOUNCER_CONTAINER is unset')
     #    return
     container = client.containers.get(container_name)
     if container:
         container.exec_run('/reload-pgbouncer-databases.sh')
     else:
-        logging.warn(
+        logger.warn(
             f'Will not reload pgbouncer databases, as IPL_GTFS_PGBOUNCER_CONTAINER {container_name} is not found'
         )
 

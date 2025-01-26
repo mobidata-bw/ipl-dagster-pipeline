@@ -12,6 +12,7 @@ from dagster import (
 
 from pipeline.resources import LamassuResource
 
+logger = logging.getLogger(__name__)
 
 @asset(
     io_manager_key='pg_gpd_io_manager',
@@ -39,7 +40,7 @@ def sharing_stations(context, lamassu: LamassuResource) -> pd.DataFrame:
             if stations is not None:
                 data_frames.append(stations)
         except Exception:
-            logging.exception(f'Error retrieving stations for system {system}')
+            logger.exception(f'Error retrieving stations for system {system}')
     return pd.concat(data_frames)
 
 
@@ -68,8 +69,7 @@ def sharing_station_status(context, lamassu: LamassuResource) -> pd.DataFrame:
             if station_status is not None:
                 data_frames.append(station_status)
         except Exception:
-            logging.exception(f'Error retrieving sharing_station_status for system {system}')
-
+            logger.exception(f'Error retrieving sharing_station_status for system {system}')
     return pd.concat(data_frames)
 
 
@@ -97,7 +97,7 @@ def vehicles(context, lamassu: LamassuResource) -> pd.DataFrame:
             if vehicles is not None:
                 data_frames.append(vehicles)
         except Exception:
-            logging.exception(f'Error retrieving vehicles for system {system}')
+            logger.exception(f'Error retrieving vehicles for system {system}')
     return pd.concat(data_frames)
 
 

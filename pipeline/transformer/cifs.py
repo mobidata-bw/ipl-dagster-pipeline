@@ -18,6 +18,8 @@ INCIDENT_TYPE_MAPPPING = {
 # Datex namespace
 ns = {'d': 'http://datex2.eu/schema/2/2_0'}
 
+logger = logging.getLogger(__name__)
+
 
 class DatexII2CifsTransformer:
     # Pattern to validate lanestatus encoding. For expected values, see https://www.mdm-portal.de/wp-content/uploads/2019/03/mdm_datenmodell_baustellen_04-00-00.zip
@@ -120,18 +122,27 @@ class DatexII2CifsTransformer:
         if '-gegen' in situationRecordId:
             # roadworks in oposite direction are handled via directions attribute
             # Note: This is a BW specific encoding which will not work out for other datasets
-            logging.debug('skip situationRecord %s as it is opposite direction', situationRecord.get('id'))
+            logger.debug(
+                'skip situationRecord %s as it is opposite direction',
+                situationRecord.get('id'),
+            )
 
             return True
 
         if self.should_skip_roadworks_in_past:
             (starttime, endtime) = self._get_start_end_time(situationRecord)
             if self.current_time.astimezone() > datetime.fromisoformat(endtime):
-                logging.debug('skip situationRecord %s as it is in the past', situationRecord.get('id'))
+                logger.debug(
+                    'skip situationRecord %s as it is in the past',
+                    situationRecord.get('id'),
+                )
                 return True
 
         if self._is_referenced_as_cause(situation, situationRecord):
-            logging.debug('skip situationRecord %s as it is referenced as cause', situationRecord.get('id'))
+            logger.debug(
+                'skip situationRecord %s as it is referenced as cause',
+                situationRecord.get('id'),
+            )
             return True
 
         return False
@@ -162,7 +173,7 @@ class DatexII2CifsTransformer:
         if self.LANE_STATUS_PATTERN.match(lsElement.text):
             return lsElement.text
 
-        logging.warn(
+        logger.warn(
             'ignore laneStatus %s for situatinoRecord %s as it has unexpected encoding',
             lsElement.text,
             situationRecord.get('id'),
