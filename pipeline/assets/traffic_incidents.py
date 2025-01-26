@@ -6,10 +6,9 @@ from typing import Any
 import geopandas as gpd
 import pandas as pd
 from dagster import (
-    AutoMaterializePolicy,
+    AutomationCondition,
     EnvVar,
     ExperimentalWarning,
-    FreshnessPolicy,
     asset,
 )
 
@@ -21,9 +20,6 @@ ROADWORKS_DATEX2_DOWNLOAD_URL = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL',
 ROADWORKS_DATEXII_FIILENAME = 'roadworks_svzbw.datex2.xml'
 ROADWORKS_ASSET_KEY_PREFIX = ['traffic', 'roadworks']
 
-# In Dagster 1.6.6 AutoMaterializePolicy and shortcut for referencing upstream dependencies without fully qualified
-# path are experimental and might break, even between dot-releases. Nevertheless, we ignore the warning, but should
-# check when migrating to newer versions
 warnings.filterwarnings('ignore', category=ExperimentalWarning)
 
 logger = logging.getLogger(__name__)
@@ -32,8 +28,9 @@ logger = logging.getLogger(__name__)
 @asset(
     compute_kind='DATEX2',
     group_name='traffic',
-    freshness_policy=FreshnessPolicy(maximum_lag_minutes=60 * 24, cron_schedule='0/5 * * * *'),
-    auto_materialize_policy=AutoMaterializePolicy.eager(),
+    automation_condition=(
+        AutomationCondition.on_cron('0/5 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
+    ),
     key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
 )
 def roadworks_svzbw_datex2() -> None:
@@ -47,11 +44,11 @@ def roadworks_svzbw_datex2() -> None:
 
 @asset(
     # TODO extend here if further roadwork sources are addedd
-    non_argument_deps={'roadworks_svzbw_datex2'},
+    deps={'roadworks_svzbw_datex2'},
     compute_kind='CIFS',
     group_name='traffic',
     io_manager_key='json_webasset_io_manager',
-    auto_materialize_policy=AutoMaterializePolicy.eager(),
+    automation_condition=AutomationCondition.eager(),
     key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
 )
 def roadworks_cifs() -> dict:
@@ -64,11 +61,11 @@ def roadworks_cifs() -> dict:
 
 
 @asset(
-    non_argument_deps={'roadworks_svzbw_datex2'},
+    deps={'roadworks_svzbw_datex2'},
     compute_kind='GeoJSON',
     group_name='traffic',
     io_manager_key='json_webasset_io_manager',
-    auto_materialize_policy=AutoMaterializePolicy.eager(),
+    automation_condition=AutomationCondition.eager(),
     key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
 )
 def roadworks_geojson() -> dict:
@@ -86,7 +83,7 @@ def roadworks_geojson() -> dict:
     compute_kind='PostGIS',
     group_name='traffic',
     io_manager_key='pg_gpd_io_manager',
-    auto_materialize_policy=AutoMaterializePolicy.eager(),
+    automation_condition=AutomationCondition.eager(),
 )
 def roadworks(roadworks_geojson: dict[str, Any]) -> pd.DataFrame:
     """
