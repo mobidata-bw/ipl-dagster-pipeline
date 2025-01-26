@@ -193,7 +193,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
         schema: str,
         columns: Optional[Sequence[str]],
     ):
-        self._assert_sql_safety(schema, table, **columns)
+        self._assert_sql_safety(schema, table, *(columns or []))
         col_str = ', '.join(columns) if columns else '*'
         return f'SELECT {col_str} FROM {schema}.{table}'
 
@@ -223,6 +223,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
             )
             fetch_result = c.fetchone()
             return fetch_result is not None
+
 
 # need mypy to ignore following line due to https://github.com/dagster-io/dagster/issues/17443
 class PostGISGeoPandasIOManager(PostgreSQLPandasIOManager):  # type: ignore

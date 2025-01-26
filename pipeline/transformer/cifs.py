@@ -27,7 +27,7 @@ class DatexII2CifsTransformer:
 
     should_skip_roadworks_in_past = True
 
-    def __init__(self, reference, should_skip_roadworks_in_past: bool = True, current_time: datetime = datetime.now()):
+    def __init__(self, reference, should_skip_roadworks_in_past: bool = True, current_time: datetime = datetime.now().astimezone()):
         self.reference = reference
         self.should_skip_roadworks_in_past = should_skip_roadworks_in_past
         self.current_time = current_time
@@ -132,7 +132,7 @@ class DatexII2CifsTransformer:
             return True
 
         if self.should_skip_roadworks_in_past:
-            (starttime, endtime) = self._get_start_end_time(situationRecord)
+            (_starttime, endtime) = self._get_start_end_time(situationRecord)
             if self.current_time.astimezone() > datetime.fromisoformat(endtime):
                 logger.debug(
                     'skip situationRecord %s as it is in the past',

@@ -1,6 +1,7 @@
 import logging
 import os
 import warnings
+from typing import Any
 
 import geopandas as gpd
 import pandas as pd
@@ -21,6 +22,7 @@ ROADWORKS_ASSET_KEY_PREFIX = ['traffic', 'roadworks']
 warnings.filterwarnings('ignore', category=ExperimentalWarning)
 
 logger = logging.getLogger(__name__)
+
 
 @asset(
     compute_kind='DATEX2',
@@ -80,7 +82,7 @@ def roadworks_geojson() -> dict:
     io_manager_key='pg_gpd_io_manager',
     automation_condition=AutomationCondition.eager(),
 )
-def roadworks(roadworks_geojson: dict[str, any]) -> pd.DataFrame:
+def roadworks(roadworks_geojson: dict[str, Any]) -> pd.DataFrame:
     """
     Imports the roadworks into PostGIS, from where they can be accessed e.g. via WMS/WFS.
     Note: only roadworks with geom_type are imported!

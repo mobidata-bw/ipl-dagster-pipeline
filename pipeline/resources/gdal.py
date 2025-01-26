@@ -10,7 +10,7 @@ from osgeo_utils.samples import ogr2ogr
 # need mypy to ignore following line due to https://github.com/dagster-io/dagster/issues/17443
 class Ogr2OgrResource(ConfigurableResource):  # type: ignore
     username: str = 'postgres'
-    password: str = 'postgres'
+    password: str = 'postgres'  # noqa: S105
     host: str = 'localhost'
     port: int = 5432
     database: Optional[str]
