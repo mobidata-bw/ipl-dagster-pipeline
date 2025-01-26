@@ -1,7 +1,6 @@
-from typing import Optional, Sequence
+from typing import Optional
 
 from dagster import (
-    Config,
     ConfigurableResource,
 )
 from osgeo import ogr

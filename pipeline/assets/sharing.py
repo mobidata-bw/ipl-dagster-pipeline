@@ -4,15 +4,10 @@ import pandas as pd
 from dagster import (
     AutomationCondition,
     DefaultScheduleStatus,
-    DefaultSensorStatus,
-    DynamicPartitionsDefinition,
     RunRequest,
-    ScheduleDefinition,
-    SensorResult,
     asset,
     define_asset_job,
     schedule,
-    sensor,
 )
 
 from pipeline.resources import LamassuResource

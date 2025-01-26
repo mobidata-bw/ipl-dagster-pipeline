@@ -12,13 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import gzip
 import json
-import os
-import shutil
-import tempfile
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 from dagster import (
     ConfigurableIOManager,

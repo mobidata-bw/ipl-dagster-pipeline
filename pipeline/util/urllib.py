@@ -1,14 +1,12 @@
 import gzip
 import os
 import shutil
-import tempfile
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Callable
 
 import requests
-from requests.auth import HTTPBasicAuth
 
 user_agent = 'IPL (MobiData-BW) +https://github.com/mobidata-bw/ipl-dagster-pipeline'
 

@@ -1,5 +1,4 @@
 import logging
-import traceback
 from typing import Dict, List, Optional, Union
 from urllib.parse import urljoin
 
@@ -7,8 +6,6 @@ import geopandas as gpd
 import pandas as pd
 import requests
 from geopandas.array import ExtensionDtype, GeometryDtype
-from sqlalchemy import create_engine, text
-from sqlalchemy.engine import URL, Connection
 
 from pipeline.util.urllib import get
 

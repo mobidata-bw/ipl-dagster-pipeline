@@ -3,7 +3,6 @@ import warnings
 
 from dagster import (
     AutomationCondition,
-    EnvVar,
     ExperimentalWarning,
     asset,
 )

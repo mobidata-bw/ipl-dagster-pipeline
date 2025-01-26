@@ -3,7 +3,6 @@
 import logging
 import os
 import os.path
-import warnings
 
 import docker
 from dagster import (
