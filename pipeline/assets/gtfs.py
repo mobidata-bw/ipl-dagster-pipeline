@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 import_op = docker_container_op.configured(
     {
-        # Note: We mirror ipl-orchestration's docker-compose.yaml here, the env vars & mounts should be kept in sync with it.
+        # Note: We mirror ipl-orchestration's docker-compose.yaml here, the env vars & mounts should be kept in sync.
         'image': {'env': 'IPL_GTFS_IMPORTER_IMAGE'},
         'networks': [os.getenv('IPL_GTFS_IMPORTER_NETWORK')],
         'env_vars': [
@@ -46,7 +46,14 @@ import_op = docker_container_op.configured(
             ],
             # > CPU shares (relative weight).
             # from https://docs.docker.com/config/containers/resource_constraints/#configure-the-default-cfs-scheduler:
-            # > --cpu-shares – Set this flag to a value greater or less than the default of 1024 to increase or reduce the container's weight, and give it access to a greater or lesser proportion of the host machine's CPU cycles. This is only enforced when CPU cycles are constrained. When plenty of CPU cycles are available, all containers use as much CPU as they need. In that way, this is a soft limit. --cpu-shares doesn't prevent containers from being scheduled in Swarm mode. It prioritizes container CPU resources for the available CPU cycles. It doesn't guarantee or reserve any specific CPU access.
+            # > --cpu-shares – Set this flag to a value greater or less than the default of 1024 to increase or reduce
+            # the container's weight, and give it access to a greater or lesser proportion of the host machine's
+            # CPU cycles.
+            # This is only enforced when CPU cycles are constrained. When plenty of CPU cycles are available,
+            # all containers use as much CPU as they need. In that way, this is a soft limit.
+            # --cpu-shares doesn't prevent containers from being scheduled in Swarm mode. It prioritizes
+            # container CPU resources for the available CPU cycles.
+            # It doesn't guarantee or reserve any specific CPU access.
             'cpu_shares': 512,
         },
     },

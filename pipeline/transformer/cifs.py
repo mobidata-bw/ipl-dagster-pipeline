@@ -114,9 +114,11 @@ class DatexII2CifsTransformer:
     def _should_skip(self, situation: ET, situationRecord: ET) -> bool:
         """
         Skips a situationRecord if one of the following criteris is met:
-        * suffix ends on '-gegen' (BEMaS/BIS specific encoding of opposite direction, which will be handled by setting direction as BOTH_DIRECTIONS)
+        * suffix ends on '-gegen' (BEMaS/BIS specific encoding of opposite direction,
+          which will be handled by setting direction as BOTH_DIRECTIONS)
         * self.should_skip_roadworks_in_past is True and endtime is in the past
-        * the situationRecord is referenced as cause (in which case we assume the caused situationRecord has the relevant restriction details)
+        * the situationRecord is referenced as cause (in which case we assume the
+          caused situationRecord has the relevant restriction details)
         """
         situationRecordId = situationRecord.get('id')
         if '-gegen' in situationRecordId:
@@ -182,7 +184,8 @@ class DatexII2CifsTransformer:
 
     @staticmethod
     def _is_opposite_direction_concerned(lanestatus: str) -> bool:
-        # lanes can be single carriageways (encoded by a centre line indicated by '1', or dual carriageways (encoded by separating centreline indicated '2'))
+        # lanes can be single carriageways (encoded by a centre line indicated by '1',
+        # or dual carriageways (encoded by separating centreline indicated '2'))
         # we split at both.
         lanesPerDirection = lanestatus.replace('2', '1').split('1')
 
@@ -255,7 +258,7 @@ class DatexII2CifsTransformer:
           "id": "101",
           "type": "ROAD_CLOSED",
           "subtype": "ROAD_CLOSED_CONSTRUCTION",
-          "polyline": "51.510090 -0.006902 51.509142 -0.006564 51.506291 -0.003640 51.503796 0.001051 51.499218 0.001687 51.497365 0.002020",
+          "polyline": "51.510090 -0.006902 51.509142 -0.006564 51.506291 -0.003640",
           "street": "NW 12th St",
           "starttime": "2016-04-07T09:00:00+01:00",
           "endtime": "2016-04-07T23:00:00+01:00",
@@ -289,7 +292,8 @@ class DatexII2CifsTransformer:
                         continue
                     lat = float(longitude_element.text)
                     lon = float(latitude_element.text)
-                    # FIXME the BW publication does not contain a LineString. As this is required by cifs, we add a minimal offset as workaround
+                    # FIXME the BW publication does not contain a LineString.
+                    # As this is required by cifs, we add a minimal offset as workaround
                     geometry = '{} {} {} {}'.format(lat, lon, lat, lon + 0.00001)
                     geojsonGeometry = {'type': 'Point', 'coordinates': [lon, lat]}
                 else:
@@ -340,7 +344,7 @@ class DatexII2CifsTransformer:
           "id": "101",
           "type": "ROAD_CLOSED",
           "subtype": "ROAD_CLOSED_CONSTRUCTION",
-          "polyline": "51.510090 -0.006902 51.509142 -0.006564 51.506291 -0.003640 51.503796 0.001051 51.499218 0.001687 51.497365 0.002020",
+          "polyline": "51.510090 -0.006902 51.509142 -0.006564 51.506291 -0.003640",
           "street": "NW 12th St",
           "starttime": "2016-04-07T09:00:00+01:00",
           "endtime": "2016-04-07T23:00:00+01:00",

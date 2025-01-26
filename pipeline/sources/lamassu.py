@@ -277,8 +277,9 @@ class Lamassu:
         * adds the given feed_id as column
         * sets the given index column as new index
         * converts last_reported from epoch to datetime column
-        * assures that the returned dataframe has excactly the enforced_columns. Columns not contained in enforced_columns
-          will be dropped, not yet existing columns created with their aassigned type, existing coerced to the given type
+        * assures that the returned dataframe has excactly the enforced_columns.
+          Columns not contained in enforced_columns will be dropped, not yet existing
+          columns created with their aassigned type, existing coerced to the given type
         """
         df = df.reset_index()
         df['feed_id'] = feed_id

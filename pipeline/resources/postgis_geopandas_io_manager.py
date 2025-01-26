@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# ruff: noqa: S608 (This file uses manually constructed SQL and checks against sql injection)
+
 import re
 from contextlib import closing, contextmanager
 from io import StringIO
@@ -199,7 +201,10 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
         with closing(con.connection.cursor()) as c:
             self._assert_sql_safety(schema, table)
             c.execute(
-                f"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{schema}' AND table_name = '{table}'"
+                f"""SELECT COUNT(*)
+                      FROM information_schema.tables
+                     WHERE table_schema = '{schema}'
+                       AND table_name = '{table}'"""
             )
             fetch_result = c.fetchone()
             if fetch_result and fetch_result[0] == 1:
@@ -210,7 +215,11 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
         with closing(con.connection.cursor()) as c:
             self._assert_sql_safety(schema, table)
             c.execute(
-                f"SELECT i.indexrelid::regclass FROM pg_index i JOIN pg_class c ON c.oid = i.indrelid WHERE c.relnamespace::regnamespace::varchar = '{schema}' AND c.relname = '{table}' AND i.indisprimary ='t'"
+                f"""SELECT i.indexrelid::regclass
+                      FROM pg_index i
+                      JOIN pg_class c ON c.oid = i.indrelid
+                     WHERE c.relnamespace::regnamespace::varchar = '{schema}'
+                       AND c.relname = '{table}' AND i.indisprimary ='t'"""
             )
             fetch_result = c.fetchone()
             return fetch_result is not None
