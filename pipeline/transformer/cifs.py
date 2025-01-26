@@ -27,7 +27,12 @@ class DatexII2CifsTransformer:
 
     should_skip_roadworks_in_past = True
 
-    def __init__(self, reference, should_skip_roadworks_in_past: bool = True, current_time: datetime = datetime.now().astimezone()):
+    def __init__(
+        self,
+        reference,
+        should_skip_roadworks_in_past: bool = True,
+        current_time: datetime = datetime.now().astimezone(),
+    ):
         self.reference = reference
         self.should_skip_roadworks_in_past = should_skip_roadworks_in_past
         self.current_time = current_time
@@ -252,7 +257,7 @@ class DatexII2CifsTransformer:
         return [[t[1], t[0]] for t in zip(it, it)]
 
     def transform_datex2(self, datex2doc: ET, format: str = 'cifs') -> dict:
-        '''
+        """
         Transforms situation records into cifs-roadworks, like e.g.:
         [{
           "id": "101",
@@ -267,7 +272,7 @@ class DatexII2CifsTransformer:
         },
         ...
         ]
-        '''
+        """
 
         closures = []
         features = []
@@ -338,7 +343,7 @@ class DatexII2CifsTransformer:
         return json_result
 
     def transform(self, datex2file: str, format: str = 'cifs') -> dict:
-        '''
+        """
         Transforms situation records into cifs-roadworks, like e.g.:
         [{
           "id": "101",
@@ -353,7 +358,7 @@ class DatexII2CifsTransformer:
         },
         ...
         ]
-        '''
+        """
 
         return self.transform_datex2(self._parse(datex2file), format)
 

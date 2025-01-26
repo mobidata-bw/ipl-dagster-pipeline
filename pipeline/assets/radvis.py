@@ -25,7 +25,9 @@ RADVIS_OUT_FILENAME = 'radnetz_bw.gpkg'
 @asset(
     compute_kind='Geopackage',
     group_name='radvis',
-    automation_condition=(AutomationCondition.on_cron('0 1 * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()),
+    automation_condition=(
+        AutomationCondition.on_cron('0 1 * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
+    ),
 )
 def radnetz_bw_download() -> None:
     """

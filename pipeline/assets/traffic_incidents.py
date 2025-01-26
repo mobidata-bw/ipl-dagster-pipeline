@@ -27,7 +27,9 @@ logger = logging.getLogger(__name__)
 @asset(
     compute_kind='DATEX2',
     group_name='traffic',
-    automation_condition=(AutomationCondition.on_cron('0/5 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()),
+    automation_condition=(
+        AutomationCondition.on_cron('0/5 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
+    ),
     key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
 )
 def roadworks_svzbw_datex2() -> None:
@@ -90,8 +92,8 @@ def roadworks(roadworks_geojson: dict[str, Any]) -> pd.DataFrame:
     roadworks_gdf = gpd.GeoDataFrame.from_features(roadworks_geojson['features'], crs='epsg:4326')
     roadworks_not_linestrings = roadworks_gdf[roadworks_gdf.geom_type != 'LineString']
     if len(roadworks_not_linestrings) > 0:
-        logger.warn(f'''Ignored {len(roadworks_not_linestrings)} which had
-            geom_type!=LineString, e.g. with id="{roadworks_not_linestrings["id"].iloc[0]}''')
+        logger.warn(f"""Ignored {len(roadworks_not_linestrings)} which had
+            geom_type!=LineString, e.g. with id="{roadworks_not_linestrings['id'].iloc[0]}""")
         roadworks_only_linestrings_gdf = roadworks_gdf[roadworks_gdf.geom_type == 'LineString']
         return roadworks_only_linestrings_gdf.set_index('id')
     return roadworks_gdf.set_index('id')

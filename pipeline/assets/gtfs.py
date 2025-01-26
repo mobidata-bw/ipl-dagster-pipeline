@@ -82,7 +82,9 @@ def reload_pgbouncer_databases(import_op):
 
 @graph_asset(
     group_name='gtfs',
-    automation_condition=(AutomationCondition.on_cron('0 1 * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()),
+    automation_condition=(
+        AutomationCondition.on_cron('0 1 * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
+    ),
 )
 def gtfs():
     """

@@ -14,11 +14,14 @@ from pipeline.resources import LamassuResource
 
 logger = logging.getLogger(__name__)
 
+
 @asset(
     io_manager_key='pg_gpd_io_manager',
     compute_kind='Lamassu',
     group_name='sharing',
-    automation_condition=(AutomationCondition.on_cron('0 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()),
+    automation_condition=(
+        AutomationCondition.on_cron('0 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
+    ),
 )
 def sharing_stations(context, lamassu: LamassuResource) -> pd.DataFrame:
     """
@@ -101,18 +104,18 @@ def vehicles(context, lamassu: LamassuResource) -> pd.DataFrame:
     return pd.concat(data_frames)
 
 
-'''
+"""
 Default execution mode (which could be overriden for the whole code location)
 is multiprocess, resulting in a new process started for every new job execution.
 That results in a large overhead for launching a new process, initializing db connections etc.,
 so we want high frequency jobs to be execucted in process.
 Note: this config has to be provided for job definitions and for RunRequests.
-'''
+"""
 in_process_job_config: dict = {'execution': {'config': {'in_process': {}}}}
 
-'''
+"""
 Define asset job grouping update of stations and vehicles asset.
-'''
+"""
 sharing_station_status_and_vehicles_job = define_asset_job(
     'sharing_station_status_and_vehicles_job',
     selection=[sharing_station_status, vehicles],

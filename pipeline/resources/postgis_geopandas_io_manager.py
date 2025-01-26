@@ -125,7 +125,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
             raise ValueError(
                 f"Asset '{context.asset_key}' has partitions, but no 'partition_expr'"
                 " metadata value, so we don't know what column it's partitioned on. To"
-                " specify a column, set this metadata value. E.g."
+                ' specify a column, set this metadata value. E.g.'
                 ' @asset(metadata={"partition_expr": "your_partition_column"}).'
             )
         return cast(str, partition_expr)

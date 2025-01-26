@@ -12,7 +12,9 @@ def test_situation_1487640():
     roadwork with multiple indipendent situations, some of them in the past,
     only the currently active situtation is extracted with it's corresponding properties.
     """
-    t = DatexII2CifsTransformer('Test', current_time=datetime.strptime('2024-01-01', '%Y-%m-%d').astimezone('Europe/Berlin'))
+    t = DatexII2CifsTransformer(
+        'Test', current_time=datetime.strptime('2024-01-01', '%Y-%m-%d').astimezone('Europe/Berlin')
+    )
     cifs = t.transform('./tests/transformer/situation_1487640.xml')
     assert 'incidents' in cifs
     incidents = cifs['incidents']
@@ -30,7 +32,9 @@ def test_situation_2959413():
     roadwork with multiple indipendent situations a specific situtation is extracted
     with it's corresponding properties.
     """
-    t = DatexII2CifsTransformer('Test', current_time=datetime.strptime('2024-01-01', '%Y-%m-%d').astimezone('Europe/Berlin'))
+    t = DatexII2CifsTransformer(
+        'Test', current_time=datetime.strptime('2024-01-01', '%Y-%m-%d').astimezone('Europe/Berlin')
+    )
     cifs = t.transform('./tests/transformer/situation_2959413-4272241-4272242-4272245.xml')
     assert 'incidents' in cifs
     incident = list(filter(lambda incident: incident['id'] == '2959413-4272241-4272242-4272245', cifs['incidents']))[0]
