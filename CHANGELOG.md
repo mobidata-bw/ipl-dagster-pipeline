@@ -2,6 +2,12 @@
 
 The changelog lists most feature changes between each release. 
 
+
+## 2025-01-28
+- Fix: [create primary key if missing](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/182)
+- Fix: [only push roadworks with geom_type LineString to postgis](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/184)
+
+
 ## 2024-12-03
 
 - Fix [webcam cleanup](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/180)
