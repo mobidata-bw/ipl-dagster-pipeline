@@ -8,7 +8,6 @@ import pandas as pd
 from dagster import (
     AutomationCondition,
     EnvVar,
-    ExperimentalWarning,
     asset,
 )
 
@@ -19,8 +18,6 @@ WEB_ROOT = os.getenv('WWW_ROOT_DIR', './tmp/www')
 ROADWORKS_DATEX2_DOWNLOAD_URL = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL', '')
 ROADWORKS_DATEXII_FIILENAME = 'roadworks_svzbw.datex2.xml'
 ROADWORKS_ASSET_KEY_PREFIX = ['traffic', 'roadworks']
-
-warnings.filterwarnings('ignore', category=ExperimentalWarning)
 
 logger = logging.getLogger(__name__)
 
