@@ -13,6 +13,17 @@ run_coordinator:
     dequeue_use_threads: true
     dequeue_interval_seconds: 1
 
+run_monitoring:
+  enabled: true
+  start_timeout_seconds: 180
+  cancel_timeout_seconds: 180
+  max_resume_run_attempts: 3
+  poll_interval_seconds: 120
+  # max_runtime_seconds 21600s = 6h
+  # to overwrite this for individual jobs, see 
+  # https://docs.dagster.io/guides/deploy/execution/run-monitoring#general-run-timeouts
+  max_runtime_seconds: 21600
+
 run_storage:
   module: dagster_postgres.run_storage
   class: PostgresRunStorage
