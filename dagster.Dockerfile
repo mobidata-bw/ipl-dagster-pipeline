@@ -27,6 +27,10 @@ LABEL org.opencontainers.image.licenses="(EUPL-1.2)"
 
 EXPOSE 3000
 
+COPY scripts/ /opt/dagster/app/scripts/
+
+ENTRYPOINT ["/opt/dagster/app/scripts/start_runs_termination_script_in_background.sh"]
+
 CMD ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000", "-w", "workspace.yaml"]
 
 FROM base AS daemon
