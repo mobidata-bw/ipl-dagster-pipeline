@@ -2,6 +2,9 @@
 
 The changelog lists most feature changes between each release. 
 
+## Upcoming release
+* Fix: on startup, terminate runs still in started/starting state, as dagster doesn't terminate them cleanly on shutdown.
+* Fix: enable run monitoring to terminate jobs hanging on startup/cancellation (after 180s) or running for more than 6h
 
 ## 2025-01-28
 - Fix: [create primary key if missing](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/182)
