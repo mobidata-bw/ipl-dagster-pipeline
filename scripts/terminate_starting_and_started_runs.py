@@ -71,6 +71,7 @@ mutation GraphQLClientTerminateRuns($runIds: [String!]! $terminatePolicy: Termin
 }
 '''
 
+
 def terminate_runs(self, run_ids: list[str], force: bool = False):
     """Terminates a list of pipeline runs. This method it is useful when you would like to stop a list of pipeline runs
     based on a external event.
@@ -80,10 +81,9 @@ def terminate_runs(self, run_ids: list[str], force: bool = False):
     """
     check.list_param(run_ids, 'run_ids', of_type=str)
 
-    res_data: dict[str, dict[str, Any]] = self._execute(TERMINATE_RUNS_JOB_MUTATION,
-        {'runIds': run_ids,
-         'terminatePolicy': 'MARK_AS_CANCELED_IMMEDIATELY' if force else 'SAFE_TERMINATE'
-        },
+    res_data: dict[str, dict[str, Any]] = self._execute(
+        TERMINATE_RUNS_JOB_MUTATION,
+        {'runIds': run_ids, 'terminatePolicy': 'MARK_AS_CANCELED_IMMEDIATELY' if force else 'SAFE_TERMINATE'},
     )
 
     query_result: dict[str, Any] = res_data['terminateRuns']
@@ -93,25 +93,23 @@ def terminate_runs(self, run_ids: list[str], force: bool = False):
     for run_result in run_query_result:
         if run_result['__typename'] == 'TerminateRunSuccess':
             continue
-        elif run_result['__typename'] == 'RunNotFoundError':
+        if run_result['__typename'] == 'RunNotFoundError':
             errors.append(('RunNotFoundError', run_result['message']))
         else:
             errors.append((run_result['__typename'], run_result['message']))
 
     if errors:
         if len(errors) < len(run_ids):
-            raise DagsterGraphQLClientError(
-                'TerminateRunsError', f'Some runs could not be terminated: {errors}'
-            )
-        elif len(errors) == len(run_ids):
-            raise DagsterGraphQLClientError(
-                'TerminateRunsError', f'All run terminations failed: {errors}'
-            )
+            raise DagsterGraphQLClientError('TerminateRunsError', f'Some runs could not be terminated: {errors}')
+        if len(errors) == len(run_ids):
+            raise DagsterGraphQLClientError('TerminateRunsError', f'All run terminations failed: {errors}')
+
 
 # Patch DagsterGraphQLClient.terminate_runs to support force option
-DagsterGraphQLClient.terminate_runs = terminate_runs
+DagsterGraphQLClient.terminate_runs = terminate_runs  # type: ignore[method-assign]
 
 # / End of dagster patch --------------------------
+
 
 def get_run_ids_of_runs(status: list[str], timeout: int = 20) -> list[str]:
     variables = {'filter': {'statuses': status}}
@@ -134,6 +132,7 @@ run_ids = get_run_ids_of_runs(['STARTED', 'STARTING'])
 
 if len(run_ids) > 0:
     logger.info(f'Terminating runs {run_ids}')
-    client.terminate_runs(run_ids, True)
+
+    client.terminate_runs(run_ids, True)  # type: ignore[call-arg]
 else:
     logger.info('No run in state STARTED or STARTING')
