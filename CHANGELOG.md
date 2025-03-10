@@ -2,8 +2,8 @@
 
 The changelog lists most feature changes between each release. 
 
-## Upcoming release
-- Fix: on startup, terminate runs still in started/starting state, as dagster doesn't terminate them cleanly on shutdown (https://github.com/mobidata-bw/ipl-dagster-pipeline/commit/81135abf8f80a4ba49f16fbcf24a6496a5bc48dc).
+## 2025-03-12
+- Fix: on startup, (force) terminate runs still in started/starting state, as dagster doesn't terminate them cleanly on shutdown (https://github.com/mobidata-bw/ipl-dagster-pipeline/commit/81135abf8f80a4ba49f16fbcf24a6496a5bc48dc).
 - Fix: enable run monitoring to terminate jobs hanging on startup/cancellation (after 180s) or running for more than 6h (https://github.com/mobidata-bw/ipl-dagster-pipeline/commit/7defa4d7ec22f69595e2de2ad0ee3c49bd22dc90)
     - ⚠️ NOTE: note this config needs to be replicated in case you use ipl-dagster-pipeline with an externally mounted dagster config.
 - Chore: [update to Dagster 1.10.2.](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/188)
