@@ -1,6 +1,6 @@
 types-requests==2.31.0.10
 types-urllib3==1.26.25.14
-types-psycopg2==2.9.21.20240311
+types-psycopg2==2.9.21.20240819
 pandas-stubs==2.2.1.240316
 types-SQLAlchemy==1.4.53.38
 # for docker currently no official stubs exist, see https://github.com/docker/docker-py/issues/2796
