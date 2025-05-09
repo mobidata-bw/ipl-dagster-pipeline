@@ -2,6 +2,12 @@
 
 The changelog lists most feature changes between each release. 
 
+## 2025-05-09
+
+- GTFS import: Allow manually resolving a domain name using `$IPL_GTFS_IMPORTER_EXTRA_HOST_HOSTNAME` & `$IPL_GTFS_IMPORTER_EXTRA_HOST_IP`.
+  - To make the GTFS import work with the *MobiData-BW IPL deployment*, where we must manually resolve the GTFS server's domain.
+    - This is the `ipl-dagster-pipeline` equivalent to [`ipl-orchestration#62fb7e2`](https://github.com/mobidata-bw/ipl-orchestration/commit/62fb7e28aeaee1ad88914ce7004be1cda539abec) and  [`ipl-orchestration#07cc70f`](https://github.com/mobidata-bw/ipl-orchestration/commit/07cc70fca8af543315722d5cd93fad84e0073429).
+
 ## 2025-03-12
 - Fix: on startup, (force) terminate runs still in started/starting state, as dagster doesn't terminate them cleanly on shutdown (https://github.com/mobidata-bw/ipl-dagster-pipeline/commit/81135abf8f80a4ba49f16fbcf24a6496a5bc48dc).
 - Fix: enable run monitoring to terminate jobs hanging on startup/cancellation (after 180s) or running for more than 6h (https://github.com/mobidata-bw/ipl-dagster-pipeline/commit/7defa4d7ec22f69595e2de2ad0ee3c49bd22dc90)
