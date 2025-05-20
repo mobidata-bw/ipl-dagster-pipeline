@@ -1,5 +1,18 @@
+# Copyright 2025 Holger Bruch (hb@mfdz.de)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import logging
-import socket
 import time
 from typing import Any
 
@@ -7,7 +20,6 @@ from typing import Any
 import dagster._check as check
 
 # / Dagster Patch ---------------------------------------------------
-from dagster import DagsterRunStatus
 from dagster_graphql import DagsterGraphQLClient, DagsterGraphQLClientError
 from requests.exceptions import ConnectionError
 
@@ -17,7 +29,7 @@ logger.setLevel(logging.INFO)
 
 client = DagsterGraphQLClient('localhost', port_number=3000)
 
-GET_RUNS_QUERY = '''
+GET_RUNS_QUERY = """
 query RunsQuery ($filter: RunsFilter) {
   runsOrError(
     filter: $filter
@@ -35,11 +47,11 @@ query RunsQuery ($filter: RunsFilter) {
     }
   }
 }
-'''
+"""
 
 # Dagster Patch  (see also https://github.com/dagster-io/dagster/pull/28339)  -----
 
-TERMINATE_RUNS_JOB_MUTATION = '''
+TERMINATE_RUNS_JOB_MUTATION = """
 mutation GraphQLClientTerminateRuns($runIds: [String!]! $terminatePolicy: TerminateRunPolicy) {
   terminateRuns(runIds: $runIds, terminatePolicy: $terminatePolicy) {
     __typename
@@ -69,7 +81,7 @@ mutation GraphQLClientTerminateRuns($runIds: [String!]! $terminatePolicy: Termin
     }
   }
 }
-'''
+"""
 
 
 def terminate_runs(self, run_ids: list[str], force: bool = False):

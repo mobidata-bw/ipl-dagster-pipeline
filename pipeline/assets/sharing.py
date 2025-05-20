@@ -1,21 +1,32 @@
+# Copyright 2023 Holger Bruch (hb@mfdz.de)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import logging
 
 import pandas as pd
 from dagster import (
     AutomationCondition,
     DefaultScheduleStatus,
-    DefaultSensorStatus,
-    DynamicPartitionsDefinition,
     RunRequest,
-    ScheduleDefinition,
-    SensorResult,
     asset,
     define_asset_job,
     schedule,
-    sensor,
 )
 
 from pipeline.resources import LamassuResource
+
+logger = logging.getLogger(__name__)
 
 
 @asset(
@@ -46,7 +57,7 @@ def sharing_stations(context, lamassu: LamassuResource) -> pd.DataFrame:
             if stations is not None:
                 data_frames.append(stations)
         except Exception:
-            logging.exception(f'Error retrieving stations for system {system}')
+            logger.exception(f'Error retrieving stations for system {system}')
     return pd.concat(data_frames)
 
 
@@ -75,7 +86,7 @@ def sharing_station_status(context, lamassu: LamassuResource) -> pd.DataFrame:
             if station_status is not None:
                 data_frames.append(station_status)
         except Exception:
-            logging.exception(f'Error retrieving sharing_station_status for system {system}')
+            logger.exception(f'Error retrieving sharing_station_status for system {system}')
 
     return pd.concat(data_frames)
 
@@ -104,22 +115,22 @@ def vehicles(context, lamassu: LamassuResource) -> pd.DataFrame:
             if vehicles is not None:
                 data_frames.append(vehicles)
         except Exception:
-            logging.exception(f'Error retrieving vehicles for system {system}')
+            logger.exception(f'Error retrieving vehicles for system {system}')
     return pd.concat(data_frames)
 
 
-'''
+"""
 Default execution mode (which could be overriden for the whole code location)
 is multiprocess, resulting in a new process started for every new job execution.
 That results in a large overhead for launching a new process, initializing db connections etc.,
 so we want high frequency jobs to be execucted in process.
 Note: this config has to be provided for job definitions and for RunRequests.
-'''
+"""
 in_process_job_config: dict = {'execution': {'config': {'in_process': {}}}}
 
-'''
+"""
 Define asset job grouping update of stations and vehicles asset.
-'''
+"""
 sharing_station_status_and_vehicles_job = define_asset_job(
     'sharing_station_status_and_vehicles_job',
     selection=[sharing_station_status, vehicles],

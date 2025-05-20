@@ -1,17 +1,29 @@
+# Copyright 2023 Holger Bruch (hb@mfdz.de)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # mypy: disable-error-code="operator,arg-type"
 # We ignore operator and arg-type warnings, as failing if env vars are unset is explicitly intended
+
 import logging
 import os
 import os.path
-import warnings
 
 import docker
-from dagster import (
-    AutomationCondition,
-    graph_asset,
-    op,
-)
+from dagster import AutomationCondition, graph_asset, op
 from dagster_docker import docker_container_op
+
+logger = logging.getLogger(__name__)
 
 import_op = docker_container_op.configured(
     {
@@ -66,13 +78,13 @@ def reload_pgbouncer_databases(import_op):
     container_name = os.getenv('IPL_GTFS_PGBOUNCER_CONTAINER', 'ipl-pgbouncer-1')
     # TODO check for existanc and log warning if not
     # if container_name == None:
-    #    logging.warn('Will not reload pgbouncer databases, as IPL_GTFS_PGBOUNCER_CONTAINER is unset')
+    #    logger.warning('Will not reload pgbouncer databases, as IPL_GTFS_PGBOUNCER_CONTAINER is unset')
     #    return
     container = client.containers.get(container_name)
     if container:
         container.exec_run('/reload-pgbouncer-databases.sh')
     else:
-        logging.warn(
+        logger.warning(
             f'Will not reload pgbouncer databases, as IPL_GTFS_PGBOUNCER_CONTAINER {container_name} is not found'
         )
 

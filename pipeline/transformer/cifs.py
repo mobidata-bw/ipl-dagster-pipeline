@@ -1,3 +1,17 @@
+# Copyright 2023 Holger Bruch (hb@mfdz.de)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import argparse
 import json
 import logging
@@ -7,6 +21,8 @@ from typing import Optional
 
 import defusedxml.ElementTree as ET
 import requests
+
+logger = logging.getLogger(__name__)
 
 INCIDENT_TYPE_MAPPPING = {
     'roadClosed': 'ROAD_CLOSED',
@@ -120,18 +136,18 @@ class DatexII2CifsTransformer:
         if '-gegen' in situationRecordId:
             # roadworks in oposite direction are handled via directions attribute
             # Note: This is a BW specific encoding which will not work out for other datasets
-            logging.debug('skip situationRecord %s as it is opposite direction', situationRecord.get('id'))
+            logger.debug('skip situationRecord %s as it is opposite direction', situationRecord.get('id'))
 
             return True
 
         if self.should_skip_roadworks_in_past:
             (starttime, endtime) = self._get_start_end_time(situationRecord)
             if self.current_time.astimezone() > datetime.fromisoformat(endtime):
-                logging.debug('skip situationRecord %s as it is in the past', situationRecord.get('id'))
+                logger.debug('skip situationRecord %s as it is in the past', situationRecord.get('id'))
                 return True
 
         if self._is_referenced_as_cause(situation, situationRecord):
-            logging.debug('skip situationRecord %s as it is referenced as cause', situationRecord.get('id'))
+            logger.debug('skip situationRecord %s as it is referenced as cause', situationRecord.get('id'))
             return True
 
         return False
@@ -162,7 +178,7 @@ class DatexII2CifsTransformer:
         if self.LANE_STATUS_PATTERN.match(lsElement.text):
             return lsElement.text
 
-        logging.warn(
+        logger.warning(
             'ignore laneStatus %s for situatinoRecord %s as it has unexpected encoding',
             lsElement.text,
             situationRecord.get('id'),
@@ -238,7 +254,7 @@ class DatexII2CifsTransformer:
         return [[t[1], t[0]] for t in zip(it, it)]
 
     def transform_datex2(self, datex2doc: ET, format: str = 'cifs') -> dict:
-        '''
+        """
         Transforms situation records into cifs-roadworks, like e.g.:
         [{
           "id": "101",
@@ -253,7 +269,7 @@ class DatexII2CifsTransformer:
         },
         ...
         ]
-        '''
+        """
 
         closures = []
         features = []
@@ -323,7 +339,7 @@ class DatexII2CifsTransformer:
         return json_result
 
     def transform(self, datex2file: str, format: str = 'cifs') -> dict:
-        '''
+        """
         Transforms situation records into cifs-roadworks, like e.g.:
         [{
           "id": "101",
@@ -338,7 +354,7 @@ class DatexII2CifsTransformer:
         },
         ...
         ]
-        '''
+        """
 
         return self.transform_datex2(self._parse(datex2file), format)
 
