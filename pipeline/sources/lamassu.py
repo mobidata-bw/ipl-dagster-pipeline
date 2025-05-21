@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import warnings
 from typing import Dict, List, Optional, Union
 from urllib.parse import urljoin
 
@@ -22,6 +23,9 @@ import requests
 from geopandas.array import ExtensionDtype, GeometryDtype
 
 from pipeline.util.urllib import get
+
+# Sadly, we have to filter this warning, as it seems that the maintainer does not care so far
+warnings.filterwarnings('ignore', '')
 
 logger = logging.getLogger(__name__)
 

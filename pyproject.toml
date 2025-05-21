@@ -22,7 +22,11 @@ testpaths = [
 ]
 
 # Fail on warnings
-filterwarnings = "error"
+filterwarnings = [
+    "error",
+    # Because of depricated import of shapely.geos
+    "ignore::DeprecationWarning:geopandas.*",
+]
 
 env = [
 	"IPL_GTFS_DB_POSTGRES_HOST = ''",
@@ -36,6 +40,7 @@ env = [
 	"IPL_GTFS_DB_POSTGREST_PASSWORD = ''",
 	"IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR = ''",
 	"IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR = ''",
+    "IPL_GTFS_IMPORTER_SCHEMA = ''",
 ]
 
 
@@ -105,6 +110,8 @@ line-length = 120
     "S101", "S105", "S106",
     # Don't require __init__.py files
     "INP",
+    # Allow using /tmp
+    "S108",
 ]
 
 "scripts/*" = [

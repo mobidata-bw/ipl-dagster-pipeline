@@ -54,6 +54,4 @@ def webcam_images(context: AssetExecutionContext, pipes_subprocess_client: Pipes
             'IPL_WEBCAM_WORKER',
         ],
     )
-    return pipes_subprocess_client.run(
-        command=['bash', 'download_webcams.sh'], context=context, cwd=SCRIPT_DIR, env=env
-    ).get_results()
+    # TODO: run script
