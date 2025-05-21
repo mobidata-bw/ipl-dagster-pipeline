@@ -1,18 +1,27 @@
+# Copyright 2023 Holger Bruch (hb@mfdz.de)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import logging
 import os
-import warnings
 from typing import Any
 
 import geopandas as gpd
 import pandas as pd
-from dagster import (
-    AutomationCondition,
-    EnvVar,
-    asset,
-)
+from dagster import AutomationCondition, asset
 
 from pipeline.transformer.cifs import DatexII2CifsTransformer
-from pipeline.util.urllib import download, get
+from pipeline.util.urllib import download
 
 WEB_ROOT = os.getenv('WWW_ROOT_DIR', './tmp/www')
 ROADWORKS_DATEX2_DOWNLOAD_URL = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL', '')
@@ -90,9 +99,9 @@ def roadworks(roadworks_geojson: dict[str, Any]) -> pd.DataFrame:
     roadworks_gdf = gpd.GeoDataFrame.from_features(roadworks_geojson['features'], crs='epsg:4326')
     roadworks_not_linestrings = roadworks_gdf[roadworks_gdf.geom_type != 'LineString']
     if len(roadworks_not_linestrings) > 0:
-        logger.warn(
-            f'''Ignored {len(roadworks_not_linestrings)} which had
-            geom_type!=LineString, e.g. with id="{roadworks_not_linestrings["id"].iloc[0]}'''
+        logger.warning(
+            f'Ignored {len(roadworks_not_linestrings)} which had'
+            'geom_type!=LineString, e.g. with id="{roadworks_not_linestrings["id"].iloc[0]}'
         )
         roadworks_only_linestrings_gdf = roadworks_gdf[roadworks_gdf.geom_type == 'LineString']
         return roadworks_only_linestrings_gdf.set_index('id')

@@ -2,37 +2,72 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[tool.pytest.ini_options]
+minversion = 6.0
+addopts = """
+    -ra
+    --import-mode=importlib
+"""
+
+python_files = [
+    "test_*.py",
+    "*_test.py",
+    "*Test.py"
+]
+
+python_classes = ["*Test"]
+
+testpaths = [
+    "tests",
+]
+
+# Fail on warnings
+filterwarnings = "error"
+
+env = [
+	"IPL_GTFS_DB_POSTGRES_HOST = ''",
+	"IPL_GTFS_DB_POSTGRES_USER = ''",
+	"IPL_GTFS_DB_POSTGRES_PASSWORD = ''",
+	"IPL_GTFS_DB_POSTGRES_DB = ''",
+	"IPL_GTFS_IMPORTER_GTFS_DOWNLOAD_URL = ''",
+	"IPL_GTFS_IMPORTER_GTFS_DOWNLOAD_USER_AGENT = ''",
+	"IPL_GTFS_DB_POSTGRES_DB_PREFIX = ''",
+	"IPL_GTFS_DB_POSTGREST_USER = ''",
+	"IPL_GTFS_DB_POSTGREST_PASSWORD = ''",
+	"IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR = ''",
+	"IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR = ''",
+]
+
+
 [tool.dagster]
 module_name = "pipeline"
 
-[tool.black]
-line-length = 120
-skip-string-normalization = 1
-
 [tool.ruff]
-select = [
-    "E", # pycodestyle errors
-    "W", # pycodestyle warnings
+lint.select = [
     "F", # pyflakes
-    "Q", # pydocstyle
-    "T", # mypy
-    "R", # pylint
-    "S", # flake8
     "I", # isort
-    "C", # flake8-comprehensions
-    "B", # flake8-bugbear
+    "S", # flake8-bandit
+    "ASYNC", # flake8-async
+    "ISC", # flake8-implicit-str-concat
+    "LOG", # flake8-logging
+    "INP", # flake8-no-pep420 (missing __init__.py)
+    "PIE", # flake8-pie
+    "T20", # flake8-print
+    "Q", # flake8-quotes
+    "TID", # flake8-tidy-imports
+    "FLY", # flynt (use f-string instead of static join)
 ]
 
-ignore = [
-    "E501", # line too long, handled by black
+# Enable preview rules since a lot of basic pycodestyle rules are in preview mode for some reason
+preview = true
+
+lint.ignore = [
     "B008", # do not perform function calls in argument defaults
     "C901", # too complex
     "F401", # imported but unused
-    "S101", # use of assert detected
     "S608", # TODO: Appropriate SQL injection counter measures should be discussed
 ]
 
-fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
 
 exclude = [
     ".bzr",
@@ -55,19 +90,53 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "temp",
 ]
 
 line-length = 120
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 
-[tool.ruff.flake8-quotes]
+"tests/*" = [
+    # Allow assert
+    "S101",
+    # Ignore unsafe practices like hardcoded passwords
+    "S101", "S105", "S106",
+    # Don't require __init__.py files
+    "INP",
+]
+
+"scripts/*" = [
+    # Don't require __init__.py files
+    "INP",
+]
+
+[tool.ruff.lint.flake8-quotes]
 inline-quotes = "single"
-multiline-quotes = "single"
+multiline-quotes = "double"
 docstring-quotes = "double"
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.mypy]
+exclude = [
+    "^venv/",
+]
 
 [[tool.mypy.overrides]]
 # See https://github.com/HBNetwork/python-decouple/issues/122
-module = ["dagster_docker", "geopandas", "geopandas.array", "osgeo", "osgeo_utils.samples", "defusedxml", "defusedxml.ElementTree"]
+module = [
+    "dagster",
+    "dagster._check",
+    "dagster_docker",
+    "dagster_graphql",
+    "geopandas",
+    "geopandas.array",
+    "osgeo",
+    "osgeo_utils.samples",
+    "defusedxml",
+    "defusedxml.ElementTree",
+]
 ignore_missing_imports = true

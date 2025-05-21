@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import csv
 import re
 from contextlib import closing, contextmanager
 from io import StringIO
@@ -20,11 +19,7 @@ from typing import Any, Dict, Iterator, Optional, Sequence, cast
 
 import geopandas
 import pandas
-from dagster import (
-    ConfigurableIOManager,
-    InputContext,
-    OutputContext,
-)
+from dagster import ConfigurableIOManager, InputContext, OutputContext
 from psycopg2.errors import UndefinedTable
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL, Connection
@@ -124,7 +119,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
             raise ValueError(
                 f"Asset '{context.asset_key}' has partitions, but no 'partition_expr'"
                 " metadata value, so we don't know what column it's partitioned on. To"
-                " specify a column, set this metadata value. E.g."
+                ' specify a column, set this metadata value. E.g.'
                 ' @asset(metadata={"partition_expr": "your_partition_column"}).'
             )
         return cast(str, partition_expr)
@@ -192,7 +187,8 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
         schema: str,
         columns: Optional[Sequence[str]],
     ):
-        self._assert_sql_safety(schema, table, **columns)
+        columns = columns or []
+        self._assert_sql_safety(schema, table, *columns)
         col_str = ', '.join(columns) if columns else '*'
         return f'SELECT {col_str} FROM {schema}.{table}'
 

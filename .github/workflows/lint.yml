@@ -31,18 +31,10 @@ jobs:
       run: pip install -r requirements-dagster.txt -r requirements-dev.txt
 
     - name: lint using ruff
-      # We could also use the official GitHub Actions integration.
-      # https://beta.ruff.rs/docs/usage/#github-action
-      # uses: chartboost/ruff-action@v1
       run: ruff check --output-format=github .
 
-    - name: format using black
-      # We could also use the official GitHub Actions integration.
-      # https://black.readthedocs.io/en/stable/integrations/github_actions.html
-      # uses: uses: psf/black@stable
-      run: |
-        black -S --check --diff .
+    - name: format using ruff
+      run: ruff format --check .
 
     - name: type-check using mypy
-      run: |
-        mypy .
+      run: mypy .

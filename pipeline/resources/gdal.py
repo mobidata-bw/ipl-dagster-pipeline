@@ -1,17 +1,28 @@
-from typing import Optional, Sequence
+# Copyright 2023 Holger Bruch (hb@mfdz.de)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-from dagster import (
-    Config,
-    ConfigurableResource,
-)
+from typing import Optional
+
+from dagster import ConfigurableResource
 from osgeo import ogr
 from osgeo_utils.samples import ogr2ogr
 
 
 # need mypy to ignore following line due to https://github.com/dagster-io/dagster/issues/17443
 class Ogr2OgrResource(ConfigurableResource):  # type: ignore
-    username: str = 'postgres'
-    password: str = 'postgres'
+    username: str = 'postgres'  # noqa: S105
+    password: str = 'postgres'  # noqa: S105
     host: str = 'localhost'
     port: int = 5432
     database: Optional[str]

@@ -1,0 +1,28 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.11.10
+    hooks:
+      - id: ruff-format
+      - id: ruff
+        args: [ --fix, --exit-non-zero-on-fix ]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.15.0
+    hooks:
+    - id: mypy
+      exclude: ^tests/
+      additional_dependencies: [
+        "types-requests==2.32.0.20250515",
+        "types-urllib3==1.26.25.14",
+        "types-psycopg2==2.9.21.20250516",
+        "pandas-stubs==2.2.3.250308",
+        "types-SQLAlchemy==1.4.53.38"
+      ]

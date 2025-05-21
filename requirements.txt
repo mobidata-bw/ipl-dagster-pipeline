@@ -1,2 +1,3 @@
 -r requirements-dagster.txt
 -r requirements-pipeline.txt
+-r requirements-dev.txt

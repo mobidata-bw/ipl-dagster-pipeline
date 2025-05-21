@@ -1,5 +1,18 @@
+# Copyright 2023 Holger Bruch (hb@mfdz.de)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import logging
-import traceback
 from typing import Dict, List, Optional, Union
 from urllib.parse import urljoin
 
@@ -7,10 +20,11 @@ import geopandas as gpd
 import pandas as pd
 import requests
 from geopandas.array import ExtensionDtype, GeometryDtype
-from sqlalchemy import create_engine, text
-from sqlalchemy.engine import URL, Connection
 
 from pipeline.util.urllib import get
+
+logger = logging.getLogger(__name__)
+
 
 # https://pandas.pydata.org/docs/user_guide/basics.html#basics-dtypes
 STATION_COLUMNS = {
@@ -307,7 +321,7 @@ class Lamassu:
                     # otherwise would be created with float64.
                     df[column] = df[column].astype(dtype)
                 except Exception:
-                    logging.error(f'Error enforcing type {dtype} for column {column}')
+                    logger.error(f'Error enforcing type {dtype} for column {column}')
                     raise
 
         # restrict to essentiel columns or provide defaults
