@@ -301,7 +301,14 @@ class Lamassu:
         if 'last_reported' in df.columns:
             df['last_reported'] = pd.to_datetime(df['last_reported'], unit='s', utc=True, errors='coerce')
         df_with_enforced_columns = Lamassu._enforce_columns(df, enforced_columns)
-        return df_with_enforced_columns.set_index(index)
+        len_before_dup_removal = len(df_with_enforced_columns)
+        df_with_uniq_by_index_columns = df_with_enforced_columns.drop_duplicates(subset=index, keep='first')
+        if len_before_dup_removal > len(df_with_uniq_by_index_columns):
+            logger.warning(
+                f'Removed {len_before_dup_removal - len(df_with_uniq_by_index_columns)} as duplicates for feed_id {feed_id} and index {index}'
+            )
+
+        return df_with_uniq_by_index_columns.set_index(index)
 
     @staticmethod
     def _enforce_columns(df: pd.DataFrame, column_names: dict[str, ExtensionDtype]) -> pd.DataFrame:
