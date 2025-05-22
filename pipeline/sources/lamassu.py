@@ -24,9 +24,6 @@ from geopandas.array import ExtensionDtype, GeometryDtype
 
 from pipeline.util.urllib import get
 
-# Sadly, we have to filter this warning, as it seems that the maintainer does not care so far
-warnings.filterwarnings('ignore', '')
-
 logger = logging.getLogger(__name__)
 
 

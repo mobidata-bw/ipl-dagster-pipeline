@@ -10,11 +10,11 @@ LABEL org.opencontainers.image.licenses="(EUPL-1.2)"
 WORKDIR /opt/dagster/app
 
 RUN apt update && apt install -y \
-	build-essential \
-	libgdal-dev \
-	lftp \
-    git \
-	&& rm -rf /var/lib/apt/lists/*
+        build-essential \
+        libgdal-dev \
+        lftp \
+        git \
+    && rm -rf /var/lib/apt/lists/*
 
 
 # Copy and install requirements
