@@ -1,0 +1,52 @@
+name: run tests
+
+on:
+  pull_request:
+    branches:
+      - '*'
+
+  # make workflow "callable" by others
+  workflow_call:
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    container:
+      image: python:3.11
+      volumes:
+        - ftp:/ftp/user
+
+    env:
+      TZ: Europe/Berlin
+
+    services:
+      postgis:
+        image: postgis/postgis:15-3.5-alpine
+        env:
+          POSTGRES_USER: "admin"
+          POSTGRES_PASSWORD: "admin"
+          POSTGRES_DB: pipeline
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      ftp:
+        image: delfer/alpine-ftp-server
+        env:
+          USERS: 'user|password'
+        volumes:
+          - ftp:/ftp/user
+
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+
+    - name: pip install
+      run: pip install -r requirements.txt -r requirements-dev.txt
+
+    - name: run pytest
+      run: python -m pytest tests/integration
