@@ -59,7 +59,7 @@ def radnetz_bw_download() -> None:
 
 
 @asset(
-    non_argument_deps={'radnetz_bw_download'},
+    deps=['radnetz_bw_download'],
     compute_kind='PostGIS',
     group_name='radvis',
     automation_condition=AutomationCondition.eager(),

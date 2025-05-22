@@ -1,22 +1,45 @@
-version: "3.7"
+# Docker Compose project for local development
+name: ipl-dagster-pipeline
+
+# Define placeholder for running a container with the same UID/GID as your local user
+x-local-user: &local-user ${DOCKER_LOCAL_USER:?Variable needs to be set in .env (e.g. "DOCKER_LOCAL_USER=1000:1000")}
 
 services:
-  # This service runs the postgis DB used to publish datasets, either via GeoServer or REST services,
-  # and to perform data transformation
-  ipl_postgis:
-    image: postgis/postgis:${IPL_POSTGIS_VERSION_TAG}
-    container_name: ipl_postgis
+  python:
+    image: ipl-dagster-pipeline:local-dev
+    build:
+      context: .
+      dockerfile: dev.python.Dockerfile
+    # The containers should run with the same UID/GID as your local user, so that files created by the containers are
+    # owned by and accessible to the local user.
+    user: *local-user
     volumes:
-      - ./geo-db-data:/var/lib/postgresql
-    ports:
-      - 5432:5432
-    restart: on-failure
+      - .:/opt/dagster/app/
+      - ftp:/ftp/user
+    depends_on:
+      postgis:
+        condition: service_healthy
+      ftp:
+        condition: service_started
+
+  postgis:
+    image: postgis/postgis:15-3.5-alpine
     healthcheck:
-      test: "PGPASSWORD=${IPL_POSTGRES_PASSWORD} pg_isready -h 127.0.0.1 -U ${IPL_POSTGRES_USER} -d ${IPL_POSTGRES_DB}"
+      test: "PGPASSWORD=admin pg_isready -h 127.0.0.1 -U admin -d pipeline"
       interval: 5s
       timeout: 3s
       retries: 12
     environment:
-      POSTGRES_USER: "${IPL_POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${IPL_POSTGRES_PASSWORD}"
-      POSTGRES_DB: "${IPL_POSTGRES_DB}"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+      POSTGRES_DB: pipeline
+
+  ftp:
+    image: delfer/alpine-ftp-server
+    environment:
+      USERS: 'user|password'
+    volumes:
+      - ftp:/ftp/user
+
+volumes:
+  ftp:

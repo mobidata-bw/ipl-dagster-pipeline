@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Webcam Index</title>
+</head>
+
+<body>
+    <h1>Webcam Index</h1>
+    {% for symlink_item in symlink_items %}
+        <div>
+            <h2>{{ symlink_item.name }}</h2>
+            <p><img src="./{{ symlink_item.filename }}" alt="{{ symlink_item.name }} Photo"/></p>
+            <p>{{ symlink_item.moment.strftime('%d.%m.%Y, %H:%M:%S') }}</p>
+        </div>
+    {% endfor %}
+</body>
+
+</html>
