@@ -17,7 +17,7 @@ from typing import Sequence
 from unittest.mock import Mock
 
 import pytest
-from dagster import PipesSubprocessClient
+from dagster import AssetExecutionContext, PipesSubprocessClient
 from dagster._core.errors import DagsterPipesExecutionError
 from dagster._core.pipes import PipesClientCompletedInvocation
 
@@ -41,4 +41,12 @@ def stripped_pipes_subprocess_client() -> Mock:
 
     mock.run.side_effect = run
 
+    return mock
+
+
+@pytest.fixture
+def mocked_asset_execution_context() -> Mock:
+    mock = Mock(AssetExecutionContext)
+    mock.log.info.return_value = None
+    mock.log.error.return_value = None
     return mock

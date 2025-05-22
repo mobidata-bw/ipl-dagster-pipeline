@@ -19,8 +19,11 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from subprocess import PIPE, Popen  # noqa: S404
 
-from dagster import PipesSubprocessClient
+from dagster import AssetExecutionContext, PipesSubprocessClient
 from jinja2 import Environment, PackageLoader, Template, select_autoescape
+
+
+class CommandExecutionFailed(RuntimeError): ...
 
 
 @dataclass
@@ -47,12 +50,20 @@ class SymlinkItem:
 class WebcamWorker:
     config: WebcamWorkerConfig
     pipes_subprocess_client: PipesSubprocessClient
+    context: AssetExecutionContext
     index_template: Template
 
-    def __init__(self, config: WebcamWorkerConfig, pipes_subprocess_client: PipesSubprocessClient):
+    def __init__(
+        self,
+        config: WebcamWorkerConfig,
+        context: AssetExecutionContext,
+        pipes_subprocess_client: PipesSubprocessClient,
+    ):
         self.config = config
         # TODO: how to get stdout from PipesSubprocessClient?
         self.pipes_subprocess_client = pipes_subprocess_client
+        self.context = context
+
         jinja2_env = Environment(loader=PackageLoader(package_name='pipeline'), autoescape=select_autoescape())
         self.index_template = jinja2_env.get_template('webcam_index.html.j2')
 
@@ -80,13 +91,13 @@ class WebcamWorker:
         match = re.match(r'Total: (\d*) directories?, (\d*) files?, (\d*) symlinks?', result)
 
         if match is None:
-            raise RuntimeError(f'Could not parse lftp output: {result}')
+            self.context.log.error(f'Could not parse lftp output: {result}')
+            return
 
         directories, files, symlinks = match.groups()
 
         # TODO: this would be perfect for metrics
-        # TODO: how to return this to dagster?
-        print(f'Downloaded {files} files, {directories} directories, {symlinks} symlinks')  # noqa: T201
+        self.context.log.info(f'Downloaded {files} files, {directories} directories, {symlinks} symlinks')
 
     def symlink_with_index(self):
         symlink_items = self.symlink()
@@ -209,6 +220,6 @@ class WebcamWorker:
         stdout, stderr = process.communicate()
 
         if process.returncode != 0:
-            raise RuntimeError(f'Subprocess {command} was not successful: {stderr.decode()}')
+            raise CommandExecutionFailed(f'Subprocess {command} was not successful: {stderr.decode()}')
 
         return stdout.decode(), stderr.decode()

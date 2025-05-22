@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Generator
 
 import pytest
-from dagster import PipesSubprocessClient
+from dagster import AssetExecutionContext, PipesSubprocessClient
 from freezegun import freeze_time
 
 from pipeline.sources import WebcamWorker
@@ -59,14 +59,19 @@ def symlink_path() -> Generator[Path, None, None]:
 
     yield tmp_dir
 
-    # shutil.rmtree(tmp_dir)
+    shutil.rmtree(tmp_dir)
 
 
 @pytest.fixture
 def webcam_worker(
-    image_path: Path, symlink_path: Path, stripped_pipes_subprocess_client: PipesSubprocessClient
+    image_path: Path,
+    symlink_path: Path,
+    stripped_pipes_subprocess_client: PipesSubprocessClient,
+    mocked_asset_execution_context: AssetExecutionContext,
 ) -> WebcamWorker:
     return WebcamWorker(
+        context=mocked_asset_execution_context,
+        pipes_subprocess_client=stripped_pipes_subprocess_client,
         config=WebcamWorkerConfig(
             host='ftp',
             user='user',
@@ -78,7 +83,6 @@ def webcam_worker(
             check_empty_files=False,
             remote_dir='.',  # FTP image does not chroot, so you would download the / file system
         ),
-        pipes_subprocess_client=stripped_pipes_subprocess_client,
     )
 
 
