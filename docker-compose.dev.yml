@@ -23,7 +23,7 @@ services:
         condition: service_started
 
   postgis:
-    image: postgis/postgis:15-3.4-alpine
+    image: postgis/postgis:15-3.5-alpine
     healthcheck:
       test: "PGPASSWORD=admin pg_isready -h 127.0.0.1 -U admin -d pipeline"
       interval: 5s
