@@ -42,6 +42,9 @@ jobs:
           - ftp:/ftp/user
 
     steps:
+    - name: install packages
+      run: apt update && apt install -y build-essential libgdal-dev lftp git
+
     - name: checkout
       uses: actions/checkout@v4
 
