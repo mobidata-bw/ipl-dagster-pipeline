@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from subprocess import PIPE, Popen  # noqa: S404
+from zoneinfo import ZoneInfo
 
 from dagster import AssetExecutionContext, PipesSubprocessClient
 from jinja2 import Environment, PackageLoader, Template, select_autoescape
@@ -129,14 +130,19 @@ class WebcamWorker:
 
         self.config.symlink_path.mkdir(parents=True, exist_ok=True)
         symlink_path = Path(self.config.symlink_path, symlink_item.filename)
-        symlink_path.unlink(missing_ok=True)
-        os.symlink(symlink_item.path, symlink_path)
+        temp_symlink_path = Path(self.config.symlink_path, f'temp-{symlink_item.filename}')
+
+        # Atomic symlinking by overwriting the old symlink
+        os.symlink(symlink_item.path, temp_symlink_path)
+        os.rename(temp_symlink_path, symlink_path)
 
         return symlink_item
 
     def get_latest_image_path_per_webcam_base_path(self, webcam_base_path: Path) -> SymlinkItem | None:
-        # We add 4 hours to make sure that we really get the latest image.
-        check_datetime = datetime.now() + timedelta(hours=4)
+        # We add 4 hours to make sure that we really get the latest image. One is subtracted at the start of the loop,
+        # the remaining 3 are enough for any issue with UTC / local time / daylight-saving time / issues
+        # (which is max 2).
+        check_datetime = datetime.now(tz=ZoneInfo('Europe/Berlin')) + timedelta(hours=4)
         while check_datetime > datetime.now() - timedelta(days=self.config.keep_days):
             # Jump one hour back at each iteration
             check_datetime = check_datetime - timedelta(hours=1)
