@@ -143,7 +143,7 @@ class WebcamWorker:
         # the remaining 3 are enough for any issue with UTC / local time / daylight-saving time / issues
         # (which is max 2).
         check_datetime = datetime.now(tz=ZoneInfo('Europe/Berlin')) + timedelta(hours=4)
-        while check_datetime > datetime.now() - timedelta(days=self.config.keep_days):
+        while check_datetime > datetime.now(tz=ZoneInfo('Europe/Berlin')) - timedelta(days=self.config.keep_days):
             # Jump one hour back at each iteration
             check_datetime = check_datetime - timedelta(hours=1)
 
