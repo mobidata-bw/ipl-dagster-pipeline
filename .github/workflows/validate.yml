@@ -1,12 +1,10 @@
 name: validate
 
 on:
-  push:
-    branches:
-      - '*'
   pull_request:
     branches:
       - '*'
+
   # make workflow "callable" by others
   workflow_call:
 
@@ -22,5 +20,8 @@ jobs:
         docker compose config
 
     - name: validate docker-compose.dev.yml
+      env:
+        # Will be set by Makefile locally, is required for validation
+        DOCKER_LOCAL_USER: '1000:1000'
       run: |
         docker compose -f docker-compose.dev.yml config

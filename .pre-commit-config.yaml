@@ -24,5 +24,4 @@ repos:
         "types-urllib3==1.26.25.14",
         "types-psycopg2==2.9.21.20250516",
         "pandas-stubs==2.2.3.250308",
-        "types-SQLAlchemy==1.4.53.38"
       ]

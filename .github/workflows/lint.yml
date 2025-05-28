@@ -4,20 +4,17 @@ on:
   push:
     branches:
       - '*'
-  pull_request:
-    branches:
-      - '*'
+
   # make workflow "callable" by others
   workflow_call:
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version:
-          - '3.11' # fix to 3.11, as dagster does not support 3.12 for now
-          - '3.10' # minimum version we intend to support
+
+    container:
+      image: python:3.12
+
     steps:
     - name: checkout
       uses: actions/checkout@v4
