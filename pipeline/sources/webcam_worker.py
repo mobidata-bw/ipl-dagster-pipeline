@@ -79,7 +79,7 @@ class WebcamWorker:
         self.clean()
 
     def download(self):
-        result, _ = self._run_command(
+        result, stderr = self._run_command(
             command=[
                 'lftp',
                 '-e',
@@ -92,7 +92,7 @@ class WebcamWorker:
         match = re.match(r'Total: (\d*) directories?, (\d*) files?, (\d*) symlinks?', result)
 
         if match is None:
-            self.context.log.error(f'Could not parse lftp output: {result}')
+            self.context.log.error(f'Could not parse lftp output: {result} / {stderr}')
             return
 
         directories, files, symlinks = match.groups()
@@ -103,6 +103,7 @@ class WebcamWorker:
     def symlink_with_index(self):
         symlink_items = self.symlink()
         index_page = self.index_template.render(symlink_items=symlink_items)
+        self.config.symlink_path.mkdir(parents=True, exist_ok=True)
         index_path = Path(self.config.symlink_path, 'index.html')
         with open(index_path, 'w') as f:
             f.write(index_page)
@@ -131,9 +132,10 @@ class WebcamWorker:
         self.config.symlink_path.mkdir(parents=True, exist_ok=True)
         symlink_path = Path(self.config.symlink_path, symlink_item.filename)
         temp_symlink_path = Path(self.config.symlink_path, f'temp-{symlink_item.filename}')
+        image_path = symlink_item.path.relative_to(self.config.symlink_path, walk_up=True)
 
         # Atomic symlinking by overwriting the old symlink
-        os.symlink(symlink_item.path, temp_symlink_path)
+        temp_symlink_path.symlink_to(image_path)
         os.rename(temp_symlink_path, symlink_path)
 
         return symlink_item
@@ -174,7 +176,7 @@ class WebcamWorker:
                 if self.config.check_empty_files and image_path.stat().st_size == 0:
                     continue
                 try:
-                    image_datetime = datetime.strptime(image_name[1:-5], '%Y%m%d%H%M%S')
+                    image_datetime = datetime.strptime(image_name[1:-4], '%y%m%d%H%M%S%f')
                 except ValueError:
                     # If we have a value error, the file name is invalid, so we continue
                     continue

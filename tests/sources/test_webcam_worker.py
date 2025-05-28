@@ -96,7 +96,7 @@ def generate_image_path(image_path: Path, webcam_name: str, moment: datetime) ->
         f'{moment.hour:02d}',
     )
     image_base_path.mkdir(parents=True, exist_ok=True)
-    image_path = Path(image_base_path, f'm{moment.strftime("%Y%m%d%H%M%S")}{str(moment.microsecond)[0]}.jpg')
+    image_path = Path(image_base_path, f'm{moment.strftime("%y%m%d%H%M%S%f")[:-3]}.jpg')
     image_path.touch()
     os.utime(image_path, (moment.timestamp(), moment.timestamp()))
 
