@@ -120,7 +120,8 @@ def test_create_symlinks(image_path: Path, symlink_path: Path, webcam_worker: We
     generate_image_path(image_path, webcam_2_name, datetime(2025, 5, 9, 20, 4, 10, 100))
 
     with freeze_time(datetime(2025, 5, 10, 10, 10)):
-        webcam_worker.symlink_with_index()
+        symlink_items = webcam_worker.symlink()
+        webcam_worker.generate_index_page(symlink_items)
 
     symlinks = list(symlink_path.iterdir())
     assert len(symlinks) == 3

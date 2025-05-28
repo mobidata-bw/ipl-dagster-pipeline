@@ -73,7 +73,8 @@ class WebcamWorker:
         self.download()
 
         # We always symlink, as we need to publish the latest images
-        self.symlink_with_index()
+        symlink_items = self.symlink()
+        self.generate_index_page(symlink_items)
 
         # We just clean at full syncs
         self.clean()
@@ -100,7 +101,7 @@ class WebcamWorker:
         # TODO: this would be perfect for metrics
         self.context.log.info(f'Downloaded {files} files, {directories} directories, {symlinks} symlinks')
 
-    def symlink_with_index(self):
+    def generate_index_page(self, symlink_items: list[SymlinkItem]):
         symlink_items = self.symlink()
         index_page = self.index_template.render(symlink_items=symlink_items)
         self.config.symlink_path.mkdir(parents=True, exist_ok=True)
