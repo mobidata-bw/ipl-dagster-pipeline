@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Generator
 
 import pytest
-from dagster import AssetExecutionContext, PipesSubprocessClient
+from dagster import AssetExecutionContext
 from freezegun import freeze_time
 
 from pipeline.sources import WebcamWorker
@@ -66,12 +66,10 @@ def symlink_path() -> Generator[Path, None, None]:
 def webcam_worker(
     image_path: Path,
     symlink_path: Path,
-    stripped_pipes_subprocess_client: PipesSubprocessClient,
     mocked_asset_execution_context: AssetExecutionContext,
 ) -> WebcamWorker:
     return WebcamWorker(
         context=mocked_asset_execution_context,
-        pipes_subprocess_client=stripped_pipes_subprocess_client,
         config=WebcamWorkerConfig(
             host='ftp',
             user='user',

@@ -54,15 +54,8 @@ class WebcamWorker:
     context: AssetExecutionContext
     index_template: Template
 
-    def __init__(
-        self,
-        config: WebcamWorkerConfig,
-        context: AssetExecutionContext,
-        pipes_subprocess_client: PipesSubprocessClient,
-    ):
+    def __init__(self, config: WebcamWorkerConfig, context: AssetExecutionContext):
         self.config = config
-        # TODO: how to get stdout from PipesSubprocessClient?
-        self.pipes_subprocess_client = pipes_subprocess_client
         self.context = context
 
         jinja2_env = Environment(loader=PackageLoader(package_name='pipeline'), autoescape=select_autoescape())
@@ -82,6 +75,7 @@ class WebcamWorker:
     def download(self):
         result, stderr = self._run_command(
             command=[
+                'unbuffer',
                 'lftp',
                 '-e',
                 f'mirror --newer-than=now-{self.config.keep_days - 1}days -c --parallel={self.config.worker_count} {self.config.remote_dir} {self.config.image_path}; quit;"',
@@ -90,19 +84,23 @@ class WebcamWorker:
                 self.config.host,
             ],
         )
-        match = re.match(r'Total: (\d*) directories?, (\d*) files?, (\d*) symlinks?', result)
+        total_match = re.search(r'Total: (\d+) director(y|ies), (\d+) files?, (\d+) symlinks?', result)
 
-        if match is None:
+        if total_match is None:
             self.context.log.error(f'Could not parse lftp output: {result} / {stderr}')
             return
 
-        directories, files, symlinks = match.groups()
+        total_directories, _, total_files, total_symlinks = total_match.groups()
+        new_match = re.match(r'New: (\d+) files?, (\d+) symlinks?', result)
 
         # TODO: this would be perfect for metrics
-        self.context.log.info(f'Downloaded {files} files, {directories} directories, {symlinks} symlinks')
+        metadata = {'total_directories': total_directories, 'total_files': total_files}
+        if new_match:
+            new_files, new_symlinks = new_match.groups()
+            metadata['new_files'] = new_files
+        self.context.add_output_metadata(metadata)
 
     def generate_index_page(self, symlink_items: list[SymlinkItem]):
-        symlink_items = self.symlink()
         index_page = self.index_template.render(symlink_items=symlink_items)
         self.config.symlink_path.mkdir(parents=True, exist_ok=True)
         index_path = Path(self.config.symlink_path, 'index.html')
@@ -225,10 +223,10 @@ class WebcamWorker:
 
     @staticmethod
     def _run_command(command: list[str]) -> tuple[str, str]:
-        process = Popen(command, stdout=PIPE, stderr=PIPE)  # noqa: S603
+        process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)  # noqa: S603
         stdout, stderr = process.communicate()
 
         if process.returncode != 0:
-            raise CommandExecutionFailed(f'Subprocess {command} was not successful: {stderr.decode()}')
+            raise CommandExecutionFailed(f'Subprocess {command} was not successful: {stderr}')
 
-        return stdout.decode(), stderr.decode()
+        return stdout, stderr

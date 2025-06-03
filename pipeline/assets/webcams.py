@@ -46,7 +46,6 @@ def webcam_images(context: AssetExecutionContext, pipes_subprocess_client: Pipes
     Downloads webcam via WebcamWorker
     """
     worker = WebcamWorker(
-        pipes_subprocess_client=pipes_subprocess_client,
         context=context,
         config=WebcamWorkerConfig(
             host=_get_env_var('IPL_WEBCAM_SERVER'),

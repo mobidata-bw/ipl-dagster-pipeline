@@ -49,4 +49,5 @@ def mocked_asset_execution_context() -> Mock:
     mock = Mock(AssetExecutionContext)
     mock.log.info.return_value = None
     mock.log.error.return_value = None
+    mock.add_output_metadata.return_value = None
     return mock
