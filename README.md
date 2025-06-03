@@ -10,9 +10,7 @@ It uses [Dagster](https://dagster.io) to retrieve and transform several datasour
 
 ### Prerequisites
 
-If you intend to run this project locally via `dagster dev`, you need to have python 3.10–3.12 for everything except
-for the webcam handling, there it has to be 3.12 because of
-[relative_to(walk_up=True)](https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.relative_to)
+If you intend to run this project locally via `dagster dev`, you need to have python 3.12.
 
 To install all required libraries, use
 
@@ -21,10 +19,45 @@ To install all required libraries, use
 Note: `requirements.txt` imports `requirements-pipeline.txt` and `requirements-dagster.txt`, which include the
 dependencies for the different dagster services. `pipeline.Dockerfile` and `dagster.Dockerfile` just import these respective requirements.
 
-In addition, you need a postgres database into which the datasets are loaded.
-This database can be started via
 
-`docker compose -f docker-compose.dev.yml up`
+### Development docker compose
+
+Instead of running it manually, you can use the `docker-compose.dev.yml` for running all required dependencies. To do
+so, you need an `.env` file with the uid / gid of your local user like this:
+
+```
+DOCKER_LOCAL_USER=1000:1000
+```
+
+Afterwards, you can start the dev container with it's dependencies (a PostGIS and an FTP server) using
+
+```bash
+docker compose -f docker-compose.dev.yml run --rm python bash
+```
+
+With this approach, you can run tests, too:
+
+```bash
+docker compose -f docker-compose.dev.yml run --rm python python -m pytest tests
+```
+
+There is a makefile to make it a bit simpler for you:
+
+```bash
+make  # gives the interactive shell
+make test  # runs tests
+make docker-build  # builds everything
+make docker-purge  # purges everything, including, good for a fresh start
+make lint-check  # runs the ruff linter and formatter in check mode
+make lint-fix  # runs the ruff linter and formatter in fix mode
+```
+
+For committing, there is also a pre-commit file. You can activate it with
+
+```bash
+pre-commit install
+```
+
 
 ### Running
 
