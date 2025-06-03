@@ -3,16 +3,11 @@ PYTHON_RUN = $(DOCKER_COMPOSE) run --rm python
 
 # Default target when running `make`
 .PHONY: all
-all: docker-up
+all: docker-shell
 
 # Create .env file to set the UID/GID for the docker containers to run as to the current user
 .env:
 	echo "DOCKER_LOCAL_USER=$(shell id -u):$(shell id -g)" >> .env
-
-# Builds and starts all docker containers
-.PHONY: docker-up
-docker-up: docker-build
-	$(DOCKER_COMPOSE) up $(SERVICE)
 
 # Tear down all containers and delete all volumes
 .PHONY: docker-purge
