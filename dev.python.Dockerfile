@@ -14,6 +14,7 @@ RUN apt update && apt install -y \
         libgdal-dev \
         lftp \
         git \
+        expect \
     && rm -rf /var/lib/apt/lists/*
 
 

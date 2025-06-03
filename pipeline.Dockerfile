@@ -12,7 +12,7 @@ WORKDIR /opt/dagster/app
 RUN apt update && apt install -y \
 	build-essential \
 	libgdal-dev \
-	lftp \
+	lftp expect \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Checkout and install dagster libraries needed to run the gRPC server
