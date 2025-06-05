@@ -48,6 +48,9 @@ class SymlinkItem:
     moment: datetime
 
 
+class RequirementsFailedException(Exception): ...
+
+
 class WebcamWorker:
     config: WebcamWorkerConfig
     pipes_subprocess_client: PipesSubprocessClient
@@ -62,6 +65,15 @@ class WebcamWorker:
         self.index_template = jinja2_env.get_template('webcam_index.html.j2')
 
     def run(self):
+        # Check for directories which should never be in our paths
+        for base_bath in [self.config.image_path, self.config.symlink_path]:
+            for path in ['etc', '.ssh', '.bashrc']:
+                full_path = Path(base_bath, path)
+                if full_path.exists():
+                    raise RequirementsFailedException(
+                        f'Path {full_path} should not exist in {base_bath}. Did you mount the wrong path?',
+                    )
+
         # TODO: splitting up in incremental and full download
         self.download()
 
@@ -206,6 +218,10 @@ class WebcamWorker:
                 f'+{self.config.keep_days}',
                 '-type',
                 'f',
+                '-regextype',
+                'sed',
+                '-regex',
+                '.*m[0-9]\{15\}\.jpg',
                 '-delete',
             ],
         )
