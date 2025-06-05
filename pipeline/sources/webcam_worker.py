@@ -221,7 +221,7 @@ class WebcamWorker:
                 '-regextype',
                 'sed',
                 '-regex',
-                '.*m[0-9]\{15\}\.jpg',
+                '.*m[0-9]\\{15\\}\\.jpg',
                 '-delete',
             ],
         )
