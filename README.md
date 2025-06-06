@@ -10,25 +10,60 @@ It uses [Dagster](https://dagster.io) to retrieve and transform several datasour
 
 ### Prerequisites
 
-If you intend to run this project locally via `dagster dev`, you need to have python 3.10 or 3.11 installed. Python 3.12 is not yet supported by dagster. 
+If you intend to run this project locally via `dagster dev`, you need to have python 3.12.
 
-To install all required libraries, use 
+To install all required libraries, use
 
 `pip install -r requirements.txt`
 
-Note: `requirements.txt` imports `requirements-pipeline.txt` and `requirements-dagster.txt`, which include the 
+Note: `requirements.txt` imports `requirements-pipeline.txt` and `requirements-dagster.txt`, which include the
 dependencies for the different dagster services. `pipeline.Dockerfile` and `dagster.Dockerfile` just import these respective requirements.
 
-In addition, you need a postgres database into which the datasets are loaded. 
-This database can be started via 
 
-`docker compose -f docker-compose.dev.yml up`
+### Development docker compose
 
-### Running 
+Instead of running it manually, you can use the `docker-compose.dev.yml` for running all required dependencies. To do
+so, you need an `.env` file with the uid / gid of your local user like this:
 
-To start this dagster project in interactive develepment mode, you should use a DAGSTER_HOME other than 
-this project directory, as a) the dagster.yml defines a postgres storage for dagster run information 
-and is usually intended for prod use, and b) a number of files is generated in the temporary dagster 
+```
+DOCKER_LOCAL_USER=1000:1000
+```
+
+Afterwards, you can start the dev container with it's dependencies (a PostGIS and an FTP server) using
+
+```bash
+docker compose -f docker-compose.dev.yml run --rm python bash
+```
+
+With this approach, you can run tests, too:
+
+```bash
+docker compose -f docker-compose.dev.yml run --rm python python -m pytest tests
+```
+
+There is a makefile to make it a bit simpler for you:
+
+```bash
+make  # gives the interactive shell
+make test  # runs tests
+make docker-build  # builds everything
+make docker-purge  # purges everything, including, good for a fresh start
+make lint-check  # runs the ruff linter and formatter in check mode
+make lint-fix  # runs the ruff linter and formatter in fix mode
+```
+
+For committing, there is also a pre-commit file. You can activate it with
+
+```bash
+pre-commit install
+```
+
+
+### Running
+
+To start this dagster project in interactive develepment mode, you should use a DAGSTER_HOME other than
+this project directory, as a) the dagster.yml defines a postgres storage for dagster run information
+and is usually intended for prod use, and b) a number of files is generated in the temporary dagster
 directories which would impact your IDE responsiveness if it's indexing new files continuously.
 
 

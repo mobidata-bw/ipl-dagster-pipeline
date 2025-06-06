@@ -1,6 +1,15 @@
 # Changelog
 
-The changelog lists most feature changes between each release. 
+The changelog lists most feature changes between each release.
+
+## 2025-06-06
+
+- ⚠️ Change to Python 3.12 as the base python version
+- ⚠️ Webcams: extended and breaking approach with symlinking an index page. This comes with an extended sync system,
+  requiring new env vars: `$IPL_WEBCAM_IMAGE_PATH` and `$IPL_WEBCAM_SYMLINK_PATH`. As there are relative symlinks
+  between the two of them, please ensure that the host stucture is the same as the container structure when mounting
+  these two paths.
+
 
 ## 2025-05-09
 
@@ -8,12 +17,14 @@ The changelog lists most feature changes between each release.
   - To make the GTFS import work with the *MobiData-BW IPL deployment*, where we must manually resolve the GTFS server's domain.
     - This is the `ipl-dagster-pipeline` equivalent to [`ipl-orchestration#62fb7e2`](https://github.com/mobidata-bw/ipl-orchestration/commit/62fb7e28aeaee1ad88914ce7004be1cda539abec) and  [`ipl-orchestration#07cc70f`](https://github.com/mobidata-bw/ipl-orchestration/commit/07cc70fca8af543315722d5cd93fad84e0073429).
 
+
 ## 2025-03-12
 - Fix: on startup, (force) terminate runs still in started/starting state, as dagster doesn't terminate them cleanly on shutdown (https://github.com/mobidata-bw/ipl-dagster-pipeline/commit/81135abf8f80a4ba49f16fbcf24a6496a5bc48dc).
 - Fix: enable run monitoring to terminate jobs hanging on startup/cancellation (after 180s) or running for more than 6h (https://github.com/mobidata-bw/ipl-dagster-pipeline/commit/7defa4d7ec22f69595e2de2ad0ee3c49bd22dc90)
     - ⚠️ NOTE: note this config needs to be replicated in case you use ipl-dagster-pipeline with an externally mounted dagster config.
 - Chore: [update to Dagster 1.10.2.](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/188)
 - Switch from deprecated `AutoMaterialization` and `FreshnessPolicy` to `AutomationCondition`. Assets will now be materialized on a cronlike schedule and eagerly on startup (in case they did not exist before).
+
 
 ## 2025-01-28
 - Fix: [create primary key if missing](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/182)
@@ -51,4 +62,4 @@ The changelog lists most feature changes between each release.
 
 ## 2024-06-26
 - change: `sharing_station.capacity` is changed to an integer field, `vehicle.max_range_meters` and `vehicle.current_range_meters`, according to the [GBFS spec](https://github.com/MobilityData/gbfs/blob/cd75662c25180f68f76237f88a861d82e940cf3b/gbfs.md?plain=1#L1044), to float.
-- change: `sharing_station_status` now reports vehicle availability for the feed's predominant `form_factor`, even for station, which don't have `vehicle_types_available` explicitly stated. Note: this requires, that all `vehicle_types` in `vehicle_types.json` declare the same `form_factor`. 
+- change: `sharing_station_status` now reports vehicle availability for the feed's predominant `form_factor`, even for station, which don't have `vehicle_types_available` explicitly stated. Note: this requires, that all `vehicle_types` in `vehicle_types.json` declare the same `form_factor`.

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+from pathlib import Path
 
 from dagster import (
     AssetExecutionContext,
@@ -21,18 +22,17 @@ from dagster import (
     asset,
 )
 
-SCRIPT_DIR = os.getenv('SCRIPT_DIR', './scripts/')
+from pipeline.sources import WebcamWorker
+from pipeline.sources.webcam_worker import WebcamWorkerConfig
 
 
-def _env_vars_map(env_vars: list[str]) -> dict[str, str]:
-    env = {}
-    for env_var in env_vars:
-        value = os.getenv(env_var)
-        if value is None:
-            raise ValueError(f'Environment variable {env_var} is required but not undefined')
-        env[env_var] = value
+def _get_env_var(env_var: str) -> str:
+    value = os.getenv(env_var)
 
-    return env
+    if value is None:
+        raise ValueError(f'Environment variable {env_var} is required but not undefined')
+
+    return value
 
 
 @asset(
@@ -43,17 +43,18 @@ def _env_vars_map(env_vars: list[str]) -> dict[str, str]:
 # explicitly no typing '-> Sequence[PipesExecutionResult]' due to https://github.com/dagster-io/dagster/issues/25490
 def webcam_images(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
     """
-    Downloads webcam images via lftp.
+    Downloads webcam via WebcamWorker
     """
-    env = _env_vars_map(
-        [
-            'IPL_WEBCAM_USER',
-            'IPL_WEBCAM_PASSWORD',
-            'IPL_WEBCAM_SERVER',
-            'IPL_WEBCAM_KEEP_DAYS',
-            'IPL_WEBCAM_WORKER',
-        ],
+    worker = WebcamWorker(
+        context=context,
+        config=WebcamWorkerConfig(
+            host=_get_env_var('IPL_WEBCAM_SERVER'),
+            user=_get_env_var('IPL_WEBCAM_USER'),
+            password=_get_env_var('IPL_WEBCAM_PASSWORD'),
+            worker_count=int(_get_env_var('IPL_WEBCAM_WORKER')),
+            keep_days=int(_get_env_var('IPL_WEBCAM_KEEP_DAYS')),
+            image_path=Path(_get_env_var('IPL_WEBCAM_IMAGE_PATH')),
+            symlink_path=Path(_get_env_var('IPL_WEBCAM_SYMLINK_PATH')),
+        ),
     )
-    return pipes_subprocess_client.run(
-        command=['bash', 'download_webcams.sh'], context=context, cwd=SCRIPT_DIR, env=env
-    ).get_results()
+    worker.run()
