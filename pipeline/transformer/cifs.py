@@ -218,11 +218,10 @@ class DatexII2CifsTransformer:
         situationRecordId = situationRecord.get('id')
         if situationRecordId.endswith('-sperrung'):
             inverse_direction_id = situationRecordId.replace('-sperrung', '-gegen-sperrung')
-            return (
-                'BOTH_DIRECTIONS'
-                if len(situation.find("d:situationRecord[@id='{}']".format(inverse_direction_id), ns))
-                else 'ONE_DIRECTION'
-            )
+            check: list | None = situation.find("d:situationRecord[@id='{}']".format(inverse_direction_id), ns)
+            if check is None or len(check) == 0:
+                return 'ONE_DIRECTION'
+            return 'BOTH_DIRECTIONS'
 
         laneStatusCoded = self._laneStatusCoded(situationRecord)
         if laneStatusCoded is not None:
