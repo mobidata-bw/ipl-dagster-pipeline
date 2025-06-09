@@ -2,7 +2,7 @@
 # Dagster libraries to run both dagit and the dagster-daemon. Does not
 # need to have access to any pipeline code.
 
-FROM python:3.12 AS base
+FROM python:3.13 AS base
 
 COPY requirements-dagster.txt ./requirements-dagster.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
