@@ -2,6 +2,10 @@
 
 The changelog lists most feature changes between each release.
 
+## [unreleased]
+
+- add CSS styling to [webcam overview page](https://api.mobidata-bw.de/webcam/overview/)
+
 ## 2025-06-06
 
 - ⚠️ Change to Python 3.12 as the base python version
