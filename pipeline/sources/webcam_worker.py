@@ -15,7 +15,7 @@
 import os
 import re
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from subprocess import PIPE, Popen  # noqa: S404
 from zoneinfo import ZoneInfo
@@ -186,11 +186,9 @@ class WebcamWorker:
                 # We ignore empty files
                 if self.config.check_empty_files and image_path.stat().st_size == 0:
                     continue
-                try:
-                    image_datetime = datetime.strptime(image_name[1:-4], '%y%m%d%H%M%S%f')
-                except ValueError:
-                    # If we have a value error, the file name is invalid, so we continue
-                    continue
+
+                image_datetime = datetime.fromtimestamp(image_path.stat().st_mtime, tz=timezone.utc)
+                image_datetime = image_datetime.astimezone(tz=ZoneInfo('Europe/Berlin'))
 
                 if latest_image_datetime is None or image_datetime > latest_image_datetime:
                     latest_image_datetime = image_datetime
