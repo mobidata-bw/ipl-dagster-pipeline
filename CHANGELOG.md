@@ -4,7 +4,15 @@ The changelog lists most feature changes between each release.
 
 ## [unreleased]
 
+## 2025-07-21
+
+- [use mtime at webcam import](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/222)
+
+
+## 2025-07-07
+
 - add CSS styling to [webcam overview page](https://api.mobidata-bw.de/webcam/overview/)
+
 
 ## 2025-06-06
 
