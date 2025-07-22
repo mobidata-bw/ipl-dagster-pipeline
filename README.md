@@ -78,3 +78,8 @@ $ docker compose up --build
 ```
 
 Note that the config differs in that for docker-compose, `workspace.docker.yaml` and `dagster.docker.yaml` will be used, which configure a postgres db as dagster storage, whild `dagster dev` will use sqlite and temporary folders.
+
+
+### Deployment
+
+On each push to `main`, a new set of 3 images (`dagster-pipeline`, `dagster-daemon`, `dagster-dagit`) is published, each tagged with `latest` and a date-time-based tag (e.g. `2025-07-21T16-10`).
