@@ -83,3 +83,5 @@ Note that the config differs in that for docker-compose, `workspace.docker.yaml`
 ### Deployment
 
 On each push to `main`, a new set of 3 images (`dagster-pipeline`, `dagster-daemon`, `dagster-dagit`) is published, each tagged with `latest` and a date-time-based tag (e.g. `2025-07-21T16-10`).
+
+In addition, in order to allow preview deployments with not-merged-yet code, on each push of a Git tag called `preview/…`, a corresponding set of Docker images is published, e.g. `dagster-pipeline:my-feature`/`dagster-daemon:my-feature`/`dagster-dagit:my-feature` for the Git tag `preview/my-feature`.

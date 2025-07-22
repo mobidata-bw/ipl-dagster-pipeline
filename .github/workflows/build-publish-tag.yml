@@ -1,9 +1,9 @@
-name: build & publish Docker image
+name: build & publish preview Docker image from Git tag
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'preview/**'
 
 jobs:
   lint:
@@ -33,24 +33,23 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
 
-    - name: set date-based tag
+    - name: determine Docker images tag
       run: |
-        echo "DATE_TIME_TAG=$(date '+%Y-%m-%dT%H-%M')" >> $GITHUB_ENV
+        set -x # todo: remove
+        echo "DOCKER_TAG=$(cut -d'/' -f2- <<<'${{ github.ref_name }}')" >> $GITHUB_ENV
 
-    # todo: DRY with build-publish-tag.yml workflow
+    # todo: DRY with build-publish.yml workflow
     - name: build and push dagster-pipeline Docker image
       uses: docker/build-push-action@v6
       with:
         file: pipeline.Dockerfile
         push: true
         tags: |
-          ghcr.io/${{ github.repository_owner }}/dagster-pipeline:latest
-          ghcr.io/${{ github.repository_owner }}/dagster-pipeline:${{ env.DATE_TIME_TAG }}
+          ghcr.io/${{ github.repository_owner }}/dagster-pipeline:${{ env.DOCKER_TAG }}
         platforms: linux/amd64,linux/arm64
         # https://docs.docker.com/build/ci/github-actions/cache/#cache-backend-api
         cache-from: type=gha
         cache-to: type=gha,mode=max
-
     - name: build and push dagster-daemon Docker image
       uses: docker/build-push-action@v6
       with:
@@ -58,13 +57,11 @@ jobs:
         target: daemon
         push: true
         tags: |
-          ghcr.io/${{ github.repository_owner }}/dagster-daemon:latest
-          ghcr.io/${{ github.repository_owner }}/dagster-daemon:${{ env.DATE_TIME_TAG }}
+          ghcr.io/${{ github.repository_owner }}/dagster-daemon:${{ env.DOCKER_TAG }}
         platforms: linux/amd64,linux/arm64
         # https://docs.docker.com/build/ci/github-actions/cache/#cache-backend-api
         cache-from: type=gha
         cache-to: type=gha,mode=max
-
     - name: build and push dagster-dagit Docker image
       uses: docker/build-push-action@v6
       with:
@@ -72,8 +69,7 @@ jobs:
         target: dagit
         push: true
         tags: |
-          ghcr.io/${{ github.repository_owner }}/dagster-dagit:latest
-          ghcr.io/${{ github.repository_owner }}/dagster-dagit:${{ env.DATE_TIME_TAG }}
+          ghcr.io/${{ github.repository_owner }}/dagster-dagit:${{ env.DOCKER_TAG }}
         platforms: linux/amd64,linux/arm64
         # https://docs.docker.com/build/ci/github-actions/cache/#cache-backend-api
         cache-from: type=gha
