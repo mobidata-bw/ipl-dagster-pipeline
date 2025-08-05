@@ -1,5 +1,5 @@
 dagster==1.10.17
 dagster-graphql==1.10.17
-dagster-webserver==1.10.17
+dagster-webserver==1.11.4
 dagster-postgres==0.26.17
 dagster-docker==0.26.17
