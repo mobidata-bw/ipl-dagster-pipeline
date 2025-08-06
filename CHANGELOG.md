@@ -4,6 +4,8 @@ The changelog lists most feature changes between each release.
 
 ## [unreleased]
 
+- Lamassu: add `is_virtual_station` to [`lamassu.py`](https://github.com/mobidata-bw/ipl-dagster-pipeline/blob/78785cf42e5700a9fbfd32a77ee672f2df955e9c/pipeline/sources/lamassu.py#L36)
+
 ## 2025-07-21
 
 - [use mtime at webcam import](https://github.com/mobidata-bw/ipl-dagster-pipeline/pull/222)

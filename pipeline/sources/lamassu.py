@@ -33,6 +33,7 @@ STATION_COLUMNS = {
     'station_id': pd.StringDtype(),
     'name': pd.StringDtype(),
     'capacity': pd.Int32Dtype(),
+    'is_virtual_station': pd.BooleanDtype(),
     'rental_uris_android': pd.StringDtype(),
     'rental_uris_ios': pd.StringDtype(),
     'rental_uris_web': pd.StringDtype(),
