@@ -46,7 +46,7 @@ jobs:
       run: apt update && apt install -y build-essential libgdal-dev lftp git expect
 
     - name: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: pip install
       run: pip install -r requirements.txt -r requirements-dev.txt
