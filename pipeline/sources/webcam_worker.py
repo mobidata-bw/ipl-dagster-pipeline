@@ -216,10 +216,8 @@ class WebcamWorker:
                 f'+{self.config.keep_days}',
                 '-type',
                 'f',
-                '-regextype',
-                'sed',
-                '-regex',
-                '.*m[0-9]\\{15\\}\\.jpg',
+                '-name',
+                '*.jpg',
                 '-delete',
             ],
         )
