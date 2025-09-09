@@ -25,6 +25,8 @@ from pipeline.util.urllib import download
 
 WEB_ROOT = os.getenv('WWW_ROOT_DIR', './tmp/www')
 ROADWORKS_DATEX2_DOWNLOAD_URL = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL', '')
+ROADWORKS_DATEX2_DOWNLOAD_USER = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD_USER', '')
+ROADWORKS_DATEX2_DOWNLOAD_PASSWORD = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD_PASSWORD', '')
 ROADWORKS_DATEXII_FIILENAME = 'roadworks_svzbw.datex2.xml'
 ROADWORKS_ASSET_KEY_PREFIX = ['traffic', 'roadworks']
 
@@ -45,7 +47,18 @@ def roadworks_svzbw_datex2() -> None:
     """
     # Download and republish, if changed
     destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
-    download(ROADWORKS_DATEX2_DOWNLOAD_URL, destination_folder, ROADWORKS_DATEXII_FIILENAME, create_precompressed=True)
+
+    auth: tuple[str, str] | None = None
+    if ROADWORKS_DATEX2_DOWNLOAD_USER:
+        auth = (ROADWORKS_DATEX2_DOWNLOAD_USER, ROADWORKS_DATEX2_DOWNLOAD_PASSWORD)
+
+    download(
+        ROADWORKS_DATEX2_DOWNLOAD_URL,
+        destination_folder,
+        ROADWORKS_DATEXII_FIILENAME,
+        create_precompressed=True,
+        auth=auth,
+    )
 
 
 @asset(

@@ -75,6 +75,10 @@ services:
       - IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR=${PWD}/var/gtfs/
       - RADVIS_WFS_USER
       - RADVIS_WFS_PASSWORD
+      # Roadworks download parameters
+      - ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL
+      - ROADWORKS_SVZBW_DATEX2_DOWNLOAD_USER
+      - ROADWORKS_SVZBW_DATEX2_DOWNLOAD_PASSWORD
     networks:
       - dagster_network
     volumes:
