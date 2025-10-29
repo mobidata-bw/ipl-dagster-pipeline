@@ -30,6 +30,8 @@ COPY scripts/ /opt/dagster/app/scripts/
 
 EXPOSE 4000
 
+HEALTHCHECK --interval=3s --timeout=1s --start-period=2s --retries=20 CMD ["/usr/local/bin/dagster", "api", "grpc-health-check", "-p", "4000"]
+
 # CMD allows this to be overridden from run launchers or executors that want
 # to run other commands against your repository
 CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "pipeline"]
