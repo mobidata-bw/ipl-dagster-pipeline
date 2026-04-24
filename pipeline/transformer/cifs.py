@@ -240,6 +240,52 @@ class DatexII2CifsTransformer:
 
         return (starttime, endtime)
 
+    def _merge_periods(self, periods: list[tuple[str, str]]) -> list[tuple[str, str]]:
+        """
+        Merges a subsequent (start, end) periods if the end of the former is identical
+        to the following. E.g.
+         [('2026-01-01T22:00:00+01:00', '2026-01-02T00:00:00+01:00'),
+          ('2026-01-02T00:00:00+01:00', '2026-01-02T05:00:00+01:00')]
+          becomes
+         [('2026-01-01T22:00:00+01:00', '2026-01-02T05:00:00+01:00')]
+        """
+        mergedPeriods = []
+        lastPeriod = None
+        for period in periods:
+            if lastPeriod is None:
+                lastPeriod = period
+                continue
+            if period[0] == lastPeriod[1]:
+                lastPeriod = (lastPeriod[0], period[1])
+                continue
+            else:
+                mergedPeriods.append(lastPeriod)
+                lastPeriod = period
+        if lastPeriod is not None:
+            mergedPeriods.append(lastPeriod)
+
+        return mergedPeriods
+
+    def _get_periods(self, situationRecord: ET) -> list[tuple[str, str]]:
+        """
+        Extracts validity periods from <validity><validityTimeSpecification>.
+        If no validPeriods are defined, a one element list with overall start/end time is returned,
+        else a list of all validPeriods as (start,end) tuples.
+        Note: subsequent validPeriods are merged if the end of the former equals start of the following.
+        """
+        validity = situationRecord.find('d:validity/d:validityTimeSpecification', ns)
+        validPeriods = validity.findall('d:validPeriod', ns)
+        if len(validPeriods) == 0:
+            return [self._get_start_end_time(situationRecord)]
+
+        periods = []
+        for validPeriod in validPeriods:
+            starttime = validPeriod.find('d:startOfPeriod', ns).text
+            endtime = validPeriod.find('d:endOfPeriod', ns).text
+            periods.append((starttime, endtime))
+
+        return self._merge_periods(periods)
+
     def _parse(self, datex2file: str) -> ET:
         if datex2file.startswith('http'):
             r = requests.get(datex2file, timeout=10)
@@ -271,7 +317,7 @@ class DatexII2CifsTransformer:
         """
 
         closures = []
-        features = []
+        features: list[dict] = []
 
         root = datex2doc
         payload = root.find('d:payloadPublication', ns)
@@ -303,7 +349,6 @@ class DatexII2CifsTransformer:
                         'coordinates': self._pairwise([float(i) for i in geometry.split()]),
                     }
 
-                (starttime, endtime) = self._get_start_end_time(situationRecord)
                 location = {
                     'polyline': geometry,
                     'street': self._road_name(situationRecord),
@@ -313,22 +358,31 @@ class DatexII2CifsTransformer:
                     'id': situationRecord.get('id'),
                     'type': self._incident_type(situationRecord),
                     'subtype': self._incident_subtype(situationRecord),
-                    'starttime': starttime,
-                    'endtime': endtime,
                     'description': self._roadworks_name(situationRecord) or self._roadworks_name(overallSituation),
                     'reference': self.reference,
                 }
+                closure['location'] = location
 
-                if 'geojson' == format:
-                    closure['street'] = location.get('street')
-                    closure['direction'] = location.get('direction')
-                    feature = {'type': 'Feature', 'geometry': geojsonGeometry, 'properties': closure}
-                    features.append(feature)
-                else:
-                    closure['location'] = location
-                    closures.append(closure)
+                periods = self._get_periods(situationRecord)
+                for period in periods:
+                    new_closure = closure.copy()
+                    (starttime, endtime) = period
+                    if self.current_time.astimezone() > datetime.fromisoformat(endtime):
+                        # ignore periods in the past
+                        continue
+                    new_closure['starttime'] = starttime
+                    new_closure['endtime'] = endtime
+                    closures.append(new_closure)
 
         if 'geojson' == format:
+            features = []
+            for closure in closures:
+                location = closure.pop('location')
+                closure['street'] = location.get('street')
+                closure['direction'] = location.get('direction')
+                feature = {'type': 'Feature', 'geometry': geojsonGeometry, 'properties': closure}
+                features.append(feature)
+
             geojson = {'type': 'FeatureCollection', 'features': features}
             json_result = geojson
         else:
