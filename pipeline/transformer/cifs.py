@@ -250,19 +250,19 @@ class DatexII2CifsTransformer:
          [('2026-01-01T22:00:00+01:00', '2026-01-02T05:00:00+01:00')]
         """
         mergedPeriods = []
-        lastPeriod = None
+        previousPeriod = None
         for period in periods:
-            if lastPeriod is None:
-                lastPeriod = period
+            if previousPeriod is None:
+                previousPeriod = period
                 continue
-            if period[0] == lastPeriod[1]:
-                lastPeriod = (lastPeriod[0], period[1])
+            if period[0] == previousPeriod[1]:
+                previousPeriod = (previousPeriod[0], period[1])
                 continue
             else:
-                mergedPeriods.append(lastPeriod)
-                lastPeriod = period
-        if lastPeriod is not None:
-            mergedPeriods.append(lastPeriod)
+                mergedPeriods.append(previousPeriod)
+                previousPeriod = period
+        if previousPeriod is not None:
+            mergedPeriods.append(previousPeriod)
 
         return mergedPeriods
 
