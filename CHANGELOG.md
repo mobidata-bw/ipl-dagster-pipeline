@@ -3,7 +3,13 @@
 The changelog lists most feature changes between each release.
 
 ## [unreleased]
+- 
 
+## 2026-05-04
+
+- Fix: Split BEMaS short term roadworks on subsequent days into multiple roadworks (#269)
+- Add healthcheck to dagster image (#267)
+- Fix: [Fix jpg delete for webcams](https://github.com/mobidata-bw/ipl-dagster-pipeline/commit/2691a35967209f1cfb5d936eb0757da145e2efc5)
 - Lamassu: add `is_virtual_station` to [`lamassu.py`](https://github.com/mobidata-bw/ipl-dagster-pipeline/blob/78785cf42e5700a9fbfd32a77ee672f2df955e9c/pipeline/sources/lamassu.py#L36)
 
 ## 2025-07-21
