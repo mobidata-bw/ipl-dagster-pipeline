@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<d2LogicalModel modelBaseVersion="2" xmlns="http://datex2.eu/schema/2/2_0">
+    <exchange>
+        <supplierIdentification>
+            <country>de</country>
+            <nationalIdentifier>test</nationalIdentifier>
+        </supplierIdentification>
+    </exchange>
+    <payloadPublication xsi:type="SituationPublication" lang="DE" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <publicationTime>2026-04-20T10:02:45.684+02:00</publicationTime>
+        <publicationCreator>
+            <country>de</country>
+            <nationalIdentifier>test</nationalIdentifier>
+        </publicationCreator>
+        <situation id="2454613" version="876">
+            <overallSeverity>low</overallSeverity>
+            <situationVersionTime>2026-04-10T11:11:25.030+02:00</situationVersionTime>
+            <headerInformation>
+                <confidentiality>noRestriction</confidentiality>
+                <informationStatus>test</informationStatus>
+            </headerInformation>
+            <situationRecord xsi:type="ConstructionWorks" id="2454613-37594876-37594877-37594882" version="876">
+                <situationRecordCreationTime>2025-03-29T06:14:53.755+01:00</situationRecordCreationTime>
+                <situationRecordVersionTime>2025-03-29T06:15:25.457+01:00</situationRecordVersionTime>
+                <probabilityOfOccurrence>certain</probabilityOfOccurrence>
+                <validity>
+                    <validityStatus>definedByValidityTimeSpec</validityStatus>
+                    <validityTimeSpecification>
+                        <overallStartTime>2025-04-14T07:00:00.000+02:00</overallStartTime>
+                        <overallEndTime>2025-04-15T20:00:00.000+02:00</overallEndTime>
+                        <validPeriod>
+                            <startOfPeriod>2025-04-14T07:00:00.000+02:00</startOfPeriod>
+                            <endOfPeriod>2025-04-14T20:00:00.000+02:00</endOfPeriod>
+                        </validPeriod>
+                        <validPeriod>
+                            <startOfPeriod>2025-04-15T07:00:00.000+02:00</startOfPeriod>
+                            <endOfPeriod>2025-04-15T20:00:00.000+02:00</endOfPeriod>
+                        </validPeriod>
+                    </validityTimeSpecification>
+                </validity>
+                <impact>
+                    <capacityRemaining>1470.0</capacityRemaining>
+                    <residualRoadWidth>3.25</residualRoadWidth>
+                    <impactExtension>
+                        <impactExtended>
+                            <laneStatusCoded>e2i</laneStatusCoded>
+                            <laneRestriction>
+                                <lane>allLanesCompleteCarriageway</lane>
+                            </laneRestriction>
+                        </impactExtended>
+                    </impactExtension>
+                </impact>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE">A81 Bauwerksarbeiten Rückbau LSW</value>
+                        </values>
+                    </comment>
+                    <commentExtension>
+                        <commentExtended>
+                            <commentType2>roadworksName</commentType2>
+                        </commentExtended>
+                    </commentExtension>
+                </generalPublicComment>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE">Bauwerksarbeiten</value>
+                        </values>
+                    </comment>
+                    <commentExtension>
+                        <commentExtended>
+                            <commentType2>roadworksType</commentType2>
+                        </commentExtended>
+                    </commentExtension>
+                </generalPublicComment>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE"></value>
+                        </values>
+                    </comment>
+                </generalPublicComment>
+                <groupOfLocations xsi:type="Linear">
+                    <locationForDisplay>
+                        <latitude>48.694458</latitude>
+                        <longitude>9.012799</longitude>
+                    </locationForDisplay>
+                    <linearExtension>
+                        <linearExtended>
+                            <gmlLineString>
+                                <srsName>WGS84 EPSG 4326</srsName>
+                                <posList>48.694460 9.012799 48.694391 9.012520 48.694310 9.012200 48.694270 9.012010</posList>
+                                <roadInformation/>
+                            </gmlLineString>
+                        </linearExtended>
+                    </linearExtension>
+                </groupOfLocations>
+                <situationRecordExtension>
+                    <situationRecordExtended>
+                        <extendedLaneStatusCoded>iue2i</extendedLaneStatusCoded>
+                    </situationRecordExtended>
+                </situationRecordExtension>
+                <actionPlanIdentifier>B10</actionPlanIdentifier>
+                <operatorActionStatus>requested</operatorActionStatus>
+                <roadworksDuration>shortTerm</roadworksDuration>
+                <mobility>
+                    <mobilityType>stationary</mobilityType>
+                </mobility>
+                <constructionWorkType>constructionWork</constructionWorkType>
+            </situationRecord>
+        </situation>
+    </payloadPublication>
+</d2LogicalModel>
