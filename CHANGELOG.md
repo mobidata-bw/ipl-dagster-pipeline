@@ -5,6 +5,10 @@ The changelog lists most feature changes between each release.
 ## [unreleased]
 - 
 
+## 2026-05-05
+- Fix: Provide unique IDs for multi-period roadworks.
+- ⚠️ BEMaS roadwork IDs, which were uuids copied straight from BEMaS situation records, now have a three digit counter appended (e.g. ".001") to guarantee that they are still unique after situation records with multiple validtyPeriods are split in multiple incidents.
+
 ## 2026-05-04
 
 - Fix: Split BEMaS short term roadworks on subsequent days into multiple roadworks (#269)
