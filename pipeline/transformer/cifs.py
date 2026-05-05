@@ -369,10 +369,10 @@ class DatexII2CifsTransformer:
                     new_closure = closure.copy()
                     # Append couter to create unique IDs though roadworks have been split
                     # Note: we increase counter before checking if period should be skipped
-                    # which will result in (somewhat more) stable IDs if roadworks periods 
-                    # are unmodified 
+                    # which will result in (somewhat more) stable IDs if roadworks periods
+                    # are unmodified
                     period_counter += 1
-                    new_closure['id']=f'{new_closure['id']}.{period_counter:03d}'
+                    new_closure['id'] = f'{new_closure["id"]}.{period_counter:03d}'
                     (starttime, endtime) = period
                     if self.current_time.astimezone() > datetime.fromisoformat(endtime):
                         # ignore periods in the past

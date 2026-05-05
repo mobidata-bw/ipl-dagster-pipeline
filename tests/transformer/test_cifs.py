@@ -33,7 +33,9 @@ def test_situation_2959413():
     t = DatexII2CifsTransformer('Test', current_time=datetime.strptime('2024-01-01', '%Y-%m-%d'))
     cifs = t.transform('./tests/transformer/situation_2959413-4272241-4272242-4272245.xml')
     assert 'incidents' in cifs
-    incident = list(filter(lambda incident: incident['id'] == '2959413-4272241-4272242-4272245.001', cifs['incidents']))[0]
+    incident = list(
+        filter(lambda incident: incident['id'] == '2959413-4272241-4272242-4272245.001', cifs['incidents'])
+    )[0]
 
     assert incident['type'] == 'CONSTRUCTION'
     assert incident['location']['street'] == 'L409 B294/L409 Krähenhart-B462/L409 Klosterreichenbach'
@@ -42,7 +44,7 @@ def test_situation_2959413():
 
 def test_situation_multi_valid_periods():
     """
-    This tests asserts that for a situationRecord with multiple separate validPeriods, 
+    This tests asserts that for a situationRecord with multiple separate validPeriods,
     multiple incidents are created.
     """
     expected_feature_properties = {
@@ -59,12 +61,12 @@ def test_situation_multi_valid_periods():
 
     t = DatexII2CifsTransformer('Test', current_time=datetime.strptime('2024-01-01', '%Y-%m-%d'))
     geojson = t.transform('./tests/transformer/situation_multi_valid_periods.xml', format='geojson')
-    
+
     assert len(geojson.get('features')) == 2
     assert geojson['features'][1]['properties'] == expected_feature_properties
     # Assert IDs are unique
     ids = set([incident['properties']['id'] for incident in geojson['features']])
-    assert len(geojson['features'])== len(ids)
+    assert len(geojson['features']) == len(ids)
 
 
 def test_situation_multi_valid_consecutive_periods():
@@ -78,14 +80,15 @@ def test_situation_multi_valid_consecutive_periods():
     assert len(cifs['incidents']) == 2
     assert cifs['incidents'][0]['endtime'] == '2025-04-15T07:00:00.000+02:00'
     assert cifs['incidents'][1]['endtime'] == '2025-04-16T07:00:00.000+02:00'
-    
+
+
 @pytest.mark.parametrize(
     'test_laneStatusCoded,expected',
     [('x2x', True), ('u1x', False), ('sluu2xxro', False), ('uo2xx', True), ('uu2uoo', True)],
 )
 def test_eval(test_laneStatusCoded, expected):
     """
-    Assert that DatexII2CifsTransformer deduces correctly from laneStatusCoded, 
+    Assert that DatexII2CifsTransformer deduces correctly from laneStatusCoded,
     if opposite direction is concerned.
     Opposite direction is concerned if all lanes on left carriageway (=left of lane separator code 1 or 2)
     are unrestricted (u) and no opposite lane is shifted to the right carriageway.
