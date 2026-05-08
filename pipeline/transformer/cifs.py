@@ -298,6 +298,33 @@ class DatexII2CifsTransformer:
         it = iter(t)
         return [[t[1], t[0]] for t in zip(it, it)]
 
+    def _extract_geometry(self, situationRecord: ET, format: str) -> dict | str | None:
+        polyline = situationRecord.find(
+            'd:groupOfLocations/d:linearExtension/d:linearExtended/d:gmlLineString/d:posList', ns
+        )
+
+        if polyline is None:
+            # FIXME the order of lat/lon currently is wrong for the BW publication
+            longitude_element = situationRecord.find('d:groupOfLocations/d:locationForDisplay/d:longitude', ns)
+            latitude_element = situationRecord.find('d:groupOfLocations/d:locationForDisplay/d:latitude', ns)
+            if longitude_element is None or latitude_element is None:
+                return None
+            lat = float(longitude_element.text)
+            lon = float(latitude_element.text)
+            # FIXME the BW publication does not contain a LineString. As this is required by cifs, we add a minimal offset as workaround
+            if format == 'cifs':
+                return '{} {} {} {}'.format(lat, lon, lat, lon + 0.00001)
+            else:
+                return {'type': 'Point', 'coordinates': [lon, lat]}
+        else:
+            if format == 'cifs':
+                return polyline.text
+            else:
+                return {
+                    'type': 'LineString',
+                    'coordinates': self._pairwise([float(i) for i in polyline.text.split()]),
+                }
+
     def transform_datex2(self, datex2doc: ET, format: str = 'cifs') -> dict:
         """
         Transforms situation records into cifs-roadworks, like e.g.:
@@ -327,33 +354,6 @@ class DatexII2CifsTransformer:
                 if self._should_skip(situation, situationRecord):
                     continue
 
-                polyline = situationRecord.find(
-                    'd:groupOfLocations/d:linearExtension/d:linearExtended/d:gmlLineString/d:posList', ns
-                )
-                if polyline is None:
-                    # FIXME the order of lat/lon currently is wrong for the BW publication
-                    longitude_element = situationRecord.find('d:groupOfLocations/d:locationForDisplay/d:longitude', ns)
-                    latitude_element = situationRecord.find('d:groupOfLocations/d:locationForDisplay/d:latitude', ns)
-                    if longitude_element is None or latitude_element is None:
-                        # TODO log warning
-                        continue
-                    lat = float(longitude_element.text)
-                    lon = float(latitude_element.text)
-                    # FIXME the BW publication does not contain a LineString. As this is required by cifs, we add a minimal offset as workaround
-                    geometry = '{} {} {} {}'.format(lat, lon, lat, lon + 0.00001)
-                    geojsonGeometry = {'type': 'Point', 'coordinates': [lon, lat]}
-                else:
-                    geometry = polyline.text
-                    geojsonGeometry = {
-                        'type': 'LineString',
-                        'coordinates': self._pairwise([float(i) for i in geometry.split()]),
-                    }
-
-                location = {
-                    'polyline': geometry,
-                    'street': self._road_name(situationRecord),
-                    'direction': self._detect_direction(situation, situationRecord),
-                }
                 closure = {
                     'id': situationRecord.get('id'),
                     'type': self._incident_type(situationRecord),
@@ -361,7 +361,21 @@ class DatexII2CifsTransformer:
                     'description': self._roadworks_name(situationRecord) or self._roadworks_name(overallSituation),
                     'reference': self.reference,
                 }
-                closure['location'] = location
+
+                street = self._road_name(situationRecord)
+                direction = self._detect_direction(situation, situationRecord)
+                geometry = self._extract_geometry(situationRecord, format)
+                if geometry is None:
+                    logger.warning('No geometry for situationRecord %s', situationRecord.get('id'))
+                    continue
+
+                if format == 'cifs':
+                    closure['location'] = {'polyline': geometry, 'street': street, 'direction': direction}
+                else:
+                    closure['street'] = street
+                    closure['direction'] = direction
+                    # we temporarilly store geometry in closures, will pull up to feature later on
+                    closure['geometry'] = geometry
 
                 periods = self._get_periods(situationRecord)
                 period_counter = 0
@@ -384,10 +398,9 @@ class DatexII2CifsTransformer:
         if 'geojson' == format:
             features = []
             for closure in closures:
-                location = closure.pop('location')
-                closure['street'] = location.get('street')
-                closure['direction'] = location.get('direction')
-                feature = {'type': 'Feature', 'geometry': geojsonGeometry, 'properties': closure}
+                # move geometry from properties to feature
+                geometry = closure.pop('geometry')
+                feature = {'type': 'Feature', 'geometry': geometry, 'properties': closure}
                 features.append(feature)
 
             geojson = {'type': 'FeatureCollection', 'features': features}
