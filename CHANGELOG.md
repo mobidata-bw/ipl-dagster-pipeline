@@ -4,6 +4,8 @@ The changelog lists most feature changes between each release.
 
 ## [unreleased]
 - 
+## 2026-05-08
+- Fix: Fix broken geojson geometries introduced with 2026-05-04
 
 ## 2026-05-05
 - Fix: Provide unique IDs for multi-period roadworks.
