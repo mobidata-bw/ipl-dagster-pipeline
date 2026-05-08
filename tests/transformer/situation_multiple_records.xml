@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<d2LogicalModel modelBaseVersion="2" xmlns="http://datex2.eu/schema/2/2_0">
+    <exchange>
+        <supplierIdentification>
+            <country>de</country>
+            <nationalIdentifier>DE-MDM-Straßenbauverwaltung Baden-Württemberg - Landesstelle für Straßentechnik</nationalIdentifier>
+        </supplierIdentification>
+    </exchange>
+    <payloadPublication xsi:type="SituationPublication" lang="DE" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <publicationTime>2024-03-05T15:30:38.481+01:00</publicationTime>
+        <publicationCreator>
+            <country>de</country>
+            <nationalIdentifier>DE-MDM-Straßenbauverwaltung Baden-Württemberg - Landesstelle für Straßentechnik</nationalIdentifier>
+        </publicationCreator>
+        <situation id="2959413" version="42">
+            <overallSeverity>low</overallSeverity>
+            <situationVersionTime>2024-03-04T10:55:03.727+01:00</situationVersionTime>
+            <headerInformation>
+                <confidentiality>noRestriction</confidentiality>
+                <informationStatus>real</informationStatus>
+            </headerInformation>
+            <situationRecord xsi:type="ConstructionWorks" id="1" version="42">
+                <situationRecordCreationTime>2022-08-23T09:37:57.784+02:00</situationRecordCreationTime>
+                <situationRecordVersionTime>2022-12-14T08:14:17.956+01:00</situationRecordVersionTime>
+                <probabilityOfOccurrence>certain</probabilityOfOccurrence>
+                <validity>
+                    <validityStatus>definedByValidityTimeSpec</validityStatus>
+                    <validityTimeSpecification>
+                        <overallStartTime>2022-08-26T00:00:00.000+02:00</overallStartTime>
+                        <overallEndTime>2028-12-15T23:30:00.000+01:00</overallEndTime>
+                    </validityTimeSpecification>
+                </validity>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE">A81 Bauwerksarbeiten Rückbau LSW</value>
+                        </values>
+                    </comment>
+                    <commentExtension>
+                        <commentExtended>
+                            <commentType2>roadworksName</commentType2>
+                        </commentExtended>
+                    </commentExtension>
+                </generalPublicComment>
+                <groupOfLocations xsi:type="Linear">
+                    <locationForDisplay>
+                        <latitude>48.48694</latitude>
+                        <longitude>8.378343</longitude>
+                    </locationForDisplay>
+                    <linearExtension>
+                        <linearExtended>
+                            <gmlLineString>
+                                <srsName>WGS84 EPSG 4326</srsName>
+                                <posList>48.486938 8.378342 48.486914 8.378332</posList>
+                            </gmlLineString>
+                        </linearExtended>
+                    </linearExtension>
+                </groupOfLocations>
+                <roadworksDuration>longTerm</roadworksDuration>
+                <constructionWorkType>roadWideningWork</constructionWorkType>
+            </situationRecord>
+            <situationRecord xsi:type="RoadOrCarriagewayOrLaneManagement" id="2" version="42">
+                <situationRecordCreationTime>2022-08-23T09:37:57.784+02:00</situationRecordCreationTime>
+                <situationRecordVersionTime>2022-12-14T08:14:17.956+01:00</situationRecordVersionTime>
+                <probabilityOfOccurrence>certain</probabilityOfOccurrence>
+                <validity>
+                    <validityStatus>definedByValidityTimeSpec</validityStatus>
+                    <validityTimeSpecification>
+                        <overallStartTime>2022-08-26T00:00:00.000+02:00</overallStartTime>
+                        <overallEndTime>2028-12-15T23:30:00.000+01:00</overallEndTime>
+                    </validityTimeSpecification>
+                </validity>
+                <generalPublicComment>
+                    <comment>
+                        <values>
+                            <value lang="DE">A81 Bauwerksarbeiten Rückbau LSW</value>
+                        </values>
+                    </comment>
+                    <commentExtension>
+                        <commentExtended>
+                            <commentType2>roadworksName</commentType2>
+                        </commentExtended>
+                    </commentExtension>
+                </generalPublicComment>
+                <groupOfLocations xsi:type="Linear">
+                    <locationForDisplay>
+                        <latitude>48.48694</latitude>
+                        <longitude>8.378343</longitude>
+                    </locationForDisplay>        
+                    <linearExtension>
+                        <linearExtended>
+                            <gmlLineString>
+                                <srsName>WGS84 EPSG 4326</srsName>
+                                <posList>48.0 8.0 48.1 8.1</posList>
+                            </gmlLineString>
+                        </linearExtended>
+                    </linearExtension>
+                </groupOfLocations>
+                <actionPlanIdentifier>SP1</actionPlanIdentifier>
+                <operatorActionStatus>requested</operatorActionStatus>
+                <complianceOption>mandatory</complianceOption>
+                <roadOrCarriagewayOrLaneManagementType>roadClosed</roadOrCarriagewayOrLaneManagementType>
+            </situationRecord>
+        </situation>
+    </payloadPublication>
+</d2LogicalModel>

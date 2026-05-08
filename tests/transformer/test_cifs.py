@@ -24,11 +24,11 @@ def test_situation_1487640():
     assert incident['location']['street'] == 'L154 Albbruck-St. Blasien'
 
 
-def test_situation_2959413():
+def test_situation_2959413_cifs():
     """
     This tests asserts that for a complex situationRecord describing a
-    roadwork with multiple indipendent situations a specific situtation is extracted
-    with it's corresponding properties.
+    roadwork with multiple independent situations a specific situtation is extracted
+    in CIFS format with it's corresponding properties.
     """
     t = DatexII2CifsTransformer('Test', current_time=datetime.strptime('2024-01-01', '%Y-%m-%d'))
     cifs = t.transform('./tests/transformer/situation_2959413-4272241-4272242-4272245.xml')
@@ -40,6 +40,26 @@ def test_situation_2959413():
     assert incident['type'] == 'CONSTRUCTION'
     assert incident['location']['street'] == 'L409 B294/L409 Krähenhart-B462/L409 Klosterreichenbach'
     assert incident['description'] == 'L409 Lkw-Verbot'
+
+
+def test_situation_geometries():
+    """
+    This tests asserts that for a complex situationRecord describing a
+    roadwork with multiple independent situations a specific situtation is extracted
+    in GeoJSON format with it's corresponding properties and expected geometry
+    """
+    t = DatexII2CifsTransformer('Test', current_time=datetime.strptime('2024-01-01', '%Y-%m-%d'))
+    geojson = t.transform('./tests/transformer/situation_multiple_records.xml', format='geojson')
+
+    features = geojson['features']
+    assert features[0]['geometry'] == {
+        'coordinates': [[8.378342, 48.486938], [8.378332, 48.486914]],
+        'type': 'LineString',
+    }
+    assert features[1]['geometry'] == {
+        'coordinates': [[8.0, 48.0], [8.1, 48.1]],
+        'type': 'LineString',
+    }
 
 
 def test_situation_multi_valid_periods():
@@ -63,10 +83,13 @@ def test_situation_multi_valid_periods():
     geojson = t.transform('./tests/transformer/situation_multi_valid_periods.xml', format='geojson')
 
     assert len(geojson.get('features')) == 2
+
     assert geojson['features'][1]['properties'] == expected_feature_properties
     # Assert IDs are unique
     ids = set([incident['properties']['id'] for incident in geojson['features']])
     assert len(geojson['features']) == len(ids)
+    # Assert Geometries are unique
+    assert geojson['features'][0]['geometry'] == geojson['features'][1]['geometry']
 
 
 def test_situation_multi_valid_consecutive_periods():
