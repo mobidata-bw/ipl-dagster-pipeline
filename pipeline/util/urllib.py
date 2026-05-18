@@ -15,7 +15,7 @@
 import gzip
 import os
 import shutil
-from datetime import datetime
+from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Callable
@@ -58,7 +58,7 @@ def download(
     def download_and_store(tmp_filename):
         headers = {'User-Agent': user_agent}
         if not force and final_filename.exists():
-            pre_existing_file_last_modified = datetime.utcfromtimestamp(final_filename.stat().st_mtime)
+            pre_existing_file_last_modified = datetime.fromtimestamp(final_filename.stat().st_mtime, UTC)
             headers['If-Modified-Since'] = pre_existing_file_last_modified.strftime('%a, %d %b %Y %H:%M:%S UTC')
 
         response = get(
