@@ -24,11 +24,102 @@ from pipeline.transformer.cifs import DatexII2CifsTransformer
 from pipeline.util.urllib import download
 
 WEB_ROOT = os.getenv('WWW_ROOT_DIR', './tmp/www')
+IPL_MOBILITHEK_CERT = os.getenv('IPL_MOBILITHEK_CERT', '')
+IPL_MOBILITHEK_KEY = os.getenv('IPL_MOBILITHEK_KEY', '')
+
 ROADWORKS_DATEX2_DOWNLOAD_URL = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL', '')
+ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL = os.getenv('IPL_ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL', '')
+ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL = os.getenv('IPL_ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL', '')
+INCIDENTS_LMSBW_DATEX2_DOWNLOAD_URL = os.getenv('IPL_INCIDENTS_LMSBW_DATEX2_DOWNLOAD_URL', '')
+ROADWORKS_ADB_SHORT_TERM_DATEX2_FIILENAME = 'roadworks_adb_short_term.datex2.xml'
+ROADWORKS_ADB_LONG_TERM_DATEX2_FIILENAME = 'roadworks_adb_long_term.datex2.xml'
 ROADWORKS_DATEX2_FILENAME = 'roadworks_svzbw.datex2.xml'
+INCIDENTS_LMSBW_DATEX2_FIILENAME = 'incidents_lmsbw.datex2.xml'
 ROADWORKS_ASSET_KEY_PREFIX = ['traffic', 'roadworks']
+INCIDENTS_ASSET_KEY_PREFIX = ['traffic', 'incidents']
 
 logger = logging.getLogger(__name__)
+
+
+@asset(
+    compute_kind='DATEX2',
+    group_name='traffic',
+    automation_condition=(
+        AutomationCondition.on_cron('* * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
+    ),
+    key_prefix=INCIDENTS_ASSET_KEY_PREFIX,
+)
+def INCIDENTS_LMSBW_datex2() -> None:
+    """
+    Downloads incidents from Mobilithek and republishes this DATEX2 dataset.
+    """
+    # Download and republish, if changed
+    destination_folder = os.path.join(WEB_ROOT, *INCIDENTS_ASSET_KEY_PREFIX)
+    cert = (
+        IPL_MOBILITHEK_CERT,
+        IPL_MOBILITHEK_KEY,
+    )
+    download(
+        INCIDENTS_LMSBW_DATEX2_DOWNLOAD_URL,
+        destination_folder,
+        INCIDENTS_LMSBW_DATEX2_FIILENAME,
+        cert=cert,
+        create_precompressed=True,
+    )
+
+
+@asset(
+    compute_kind='DATEX2',
+    group_name='traffic',
+    automation_condition=(
+        AutomationCondition.on_cron('0/5 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
+    ),
+    key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
+)
+def roadworks_adb_short_term_datex2() -> None:
+    """
+    Downloads incidents from Mobilithek and republishes this DATEX2 dataset.
+    """
+    # Download and republish, if changed
+    destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
+    cert = (
+        IPL_MOBILITHEK_CERT,
+        IPL_MOBILITHEK_KEY,
+    )
+    download(
+        ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL,
+        destination_folder,
+        ROADWORKS_ADB_SHORT_TERM_DATEX2_FIILENAME,
+        cert=cert,
+        create_precompressed=True,
+    )
+
+
+@asset(
+    compute_kind='DATEX2',
+    group_name='traffic',
+    automation_condition=(
+        AutomationCondition.on_cron('0/5 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
+    ),
+    key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
+)
+def roadworks_adb_long_term_datex2() -> None:
+    """
+    Downloads incidents from Mobilithek and republishes this DATEX2 dataset.
+    """
+    # Download and republish, if changed
+    destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
+    cert = (
+        IPL_MOBILITHEK_CERT,
+        IPL_MOBILITHEK_KEY,
+    )
+    download(
+        ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL,
+        destination_folder,
+        ROADWORKS_ADB_LONG_TERM_DATEX2_FIILENAME,
+        cert=cert,
+        create_precompressed=True,
+    )
 
 
 @asset(

@@ -40,6 +40,7 @@ def download(
     create_precompressed: bool = False,
     auth: tuple[str, str] | None = None,
     force: bool = False,
+    cert: tuple[str, str] | None = None,
     timeout=15,
 ) -> None:
     """
@@ -66,6 +67,7 @@ def download(
             headers=headers,
             stream=True,
             auth=auth,
+            cert=cert,
         )
         if response.status_code == 304:
             # File not modified since last download
@@ -93,7 +95,7 @@ def store_with_tmp_and_gzipped(
     tmp_filename = final_filename.parent / (final_filename.name + '.tmp')
 
     if not final_filename.parent.exists():
-        final_filename.parent.mkdir()
+        final_filename.parent.mkdir(parents=True, exist_ok=True)
 
     store_successful = store_function(tmp_filename)
 

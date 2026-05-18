@@ -77,10 +77,16 @@ services:
       - RADVIS_WFS_USER
       - RADVIS_WFS_PASSWORD
       - ROADWORKS_DATEX2_DOWNLOAD_URL
+      - IPL_MOBILITHEK_CERT
+      - IPL_MOBILITHEK_KEY
+      - IPL_ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL
+      - IPL_ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL
+      - IPL_INCIDENTS_LMSBW_DATEX2_DOWNLOAD_URL
     networks:
       - dagster_network
     volumes:
       - /tmp/io_manager_storage:/tmp/io_manager_storage
+      - ./tmp/files/:/opt/dagster/app/files
       - ./var/www/:/var/www
       - ./var/dagster/storage:/opt/dagster/dagster_home/storage
       # Make docker client accessible so we can start containers in jobs
