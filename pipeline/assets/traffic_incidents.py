@@ -45,6 +45,7 @@ logger = logging.getLogger(__name__)
     compute_kind='DATEX2',
     group_name='traffic',
     automation_condition=(
+        # every minute, as incidents might be more urgent and important than roadworks
         AutomationCondition.on_cron('* * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
     ),
     key_prefix=INCIDENTS_ASSET_KEY_PREFIX,
@@ -72,6 +73,7 @@ def incidents_lmsbw_datex2() -> None:
     compute_kind='DATEX2',
     group_name='traffic',
     automation_condition=(
+        # every 5 minutes
         AutomationCondition.on_cron('0/5 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
     ),
     key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
@@ -99,6 +101,7 @@ def roadworks_adb_short_term_datex2() -> None:
     compute_kind='DATEX2',
     group_name='traffic',
     automation_condition=(
+        # every 5 minutes
         AutomationCondition.on_cron('0/5 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
     ),
     key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
@@ -126,6 +129,7 @@ def roadworks_adb_long_term_datex2() -> None:
     compute_kind='DATEX2',
     group_name='traffic',
     automation_condition=(
+        # every 5 minutes
         AutomationCondition.on_cron('0/5 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
     ),
     key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
