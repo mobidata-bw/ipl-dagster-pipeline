@@ -52,7 +52,9 @@ logger = logging.getLogger(__name__)
 )
 def incidents_lmsbw_datex2() -> None:
     """
-    Downloads incidents from Mobilithek and republishes this DATEX2 dataset.
+    Downloads dataset `Verkehrsmeldungsdaten der Landesmeldestelle BW`
+    (https://mobilithek.info/offers/857127500689977344)
+    from Mobilithek and republishes this DATEX2 dataset.
     """
     # Download and republish, if changed
     destination_folder = os.path.join(WEB_ROOT, *INCIDENTS_ASSET_KEY_PREFIX)
@@ -80,7 +82,9 @@ def incidents_lmsbw_datex2() -> None:
 )
 def roadworks_adb_short_term_datex2() -> None:
     """
-    Downloads incidents from Mobilithek and republishes this DATEX2 dataset.
+    Downloads dataset `Arbeitsstellen kürzerer Dauer (AkD) auf BAB in DE - Planungsdaten`
+    (https://mobilithek.info/offers/641235133820284928 )
+    from Mobilithek and republishes this DATEX2 dataset.
     """
     # Download and republish, if changed
     destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
@@ -108,7 +112,9 @@ def roadworks_adb_short_term_datex2() -> None:
 )
 def roadworks_adb_long_term_datex2() -> None:
     """
-    Downloads incidents from Mobilithek and republishes this DATEX2 dataset.
+    Downloads dataset `Arbeitsstellen längerer Dauer (AlD) auf BAB in DE - aktuelle und in den nächsten 14 Tagen beginnende`
+    (https://mobilithek.info/offers/641228542228467712)
+    from Mobilithek and republishes this DATEX2 dataset.
     """
     # Download and republish, if changed
     destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
@@ -136,7 +142,7 @@ def roadworks_adb_long_term_datex2() -> None:
 )
 def roadworks_svzbw_datex2() -> None:
     """
-    Downloads roadworks from SVZ-BW ad republishes this DATEX2 dataset.
+    Downloads roadworks from SVZ-BW and republishes this DATEX2 dataset.
     """
     # Download and republish, if changed
     destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
