@@ -24,9 +24,19 @@ from pipeline.transformer.cifs import DatexII2CifsTransformer
 from pipeline.util.urllib import download
 
 WEB_ROOT = os.getenv('WWW_ROOT_DIR', './tmp/www')
-ROADWORKS_DATEX2_DOWNLOAD_URL = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL', '')
-ROADWORKS_DATEXII_FIILENAME = 'roadworks_svzbw.datex2.xml'
+IPL_MOBILITHEK_CERT_PATH = os.getenv('IPL_MOBILITHEK_CERT_PATH', '')
+IPL_MOBILITHEK_KEY_PATH = os.getenv('IPL_MOBILITHEK_KEY_PATH', '')
+
+ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL', '')
+ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL = os.getenv('IPL_ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL', '')
+ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL = os.getenv('IPL_ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL', '')
+INCIDENTS_LMSBW_DATEX2_DOWNLOAD_URL = os.getenv('IPL_INCIDENTS_LMSBW_DATEX2_DOWNLOAD_URL', '')
+ROADWORKS_ADB_SHORT_TERM_DATEX2_FIILENAME = 'roadworks_adb_short_term.datex2.xml'
+ROADWORKS_ADB_LONG_TERM_DATEX2_FIILENAME = 'roadworks_adb_long_term.datex2.xml'
+ROADWORKS_SVZBW_DATEX2_FILENAME = 'roadworks_svzbw.datex2.xml'
+INCIDENTS_LMSBW_DATEX2_FIILENAME = 'incidents_lmsbw.datex2.xml'
 ROADWORKS_ASSET_KEY_PREFIX = ['traffic', 'roadworks']
+INCIDENTS_ASSET_KEY_PREFIX = ['traffic', 'incidents']
 
 logger = logging.getLogger(__name__)
 
@@ -35,17 +45,113 @@ logger = logging.getLogger(__name__)
     compute_kind='DATEX2',
     group_name='traffic',
     automation_condition=(
+        # every minute, as incidents might be more urgent and important than roadworks
+        AutomationCondition.on_cron('* * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
+    ),
+    key_prefix=INCIDENTS_ASSET_KEY_PREFIX,
+)
+def incidents_lmsbw_datex2() -> None:
+    """
+    Downloads dataset `Verkehrsmeldungsdaten der Landesmeldestelle BW`
+    (https://mobilithek.info/offers/857127500689977344)
+    from Mobilithek and republishes this DATEX2 dataset.
+    """
+    # Download and republish, if changed
+    destination_folder = os.path.join(WEB_ROOT, *INCIDENTS_ASSET_KEY_PREFIX)
+    cert = (
+        IPL_MOBILITHEK_CERT_PATH,
+        IPL_MOBILITHEK_KEY_PATH,
+    )
+    download(
+        INCIDENTS_LMSBW_DATEX2_DOWNLOAD_URL,
+        destination_folder,
+        INCIDENTS_LMSBW_DATEX2_FIILENAME,
+        cert=cert,
+        create_precompressed=True,
+    )
+
+
+@asset(
+    compute_kind='DATEX2',
+    group_name='traffic',
+    automation_condition=(
+        # every 5 minutes
+        AutomationCondition.on_cron('0/5 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
+    ),
+    key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
+)
+def roadworks_adb_short_term_datex2() -> None:
+    """
+    Downloads dataset `Arbeitsstellen kürzerer Dauer (AkD) auf BAB in DE - Planungsdaten`
+    (https://mobilithek.info/offers/641235133820284928 )
+    from Mobilithek and republishes this DATEX2 dataset.
+    """
+    # Download and republish, if changed
+    destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
+    cert = (
+        IPL_MOBILITHEK_CERT_PATH,
+        IPL_MOBILITHEK_KEY_PATH,
+    )
+    download(
+        ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL,
+        destination_folder,
+        ROADWORKS_ADB_SHORT_TERM_DATEX2_FIILENAME,
+        cert=cert,
+        create_precompressed=True,
+    )
+
+
+@asset(
+    compute_kind='DATEX2',
+    group_name='traffic',
+    automation_condition=(
+        # every 5 minutes
+        AutomationCondition.on_cron('0/5 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
+    ),
+    key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
+)
+def roadworks_adb_long_term_datex2() -> None:
+    """
+    Downloads dataset `Arbeitsstellen längerer Dauer (AlD) auf BAB in DE - aktuelle und in den nächsten 14 Tagen beginnende`
+    (https://mobilithek.info/offers/641228542228467712)
+    from Mobilithek and republishes this DATEX2 dataset.
+    """
+    # Download and republish, if changed
+    destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
+    cert = (
+        IPL_MOBILITHEK_CERT_PATH,
+        IPL_MOBILITHEK_KEY_PATH,
+    )
+    download(
+        ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL,
+        destination_folder,
+        ROADWORKS_ADB_LONG_TERM_DATEX2_FIILENAME,
+        cert=cert,
+        create_precompressed=True,
+    )
+
+
+@asset(
+    compute_kind='DATEX2',
+    group_name='traffic',
+    automation_condition=(
+        # every 5 minutes
         AutomationCondition.on_cron('0/5 * * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
     ),
     key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
 )
 def roadworks_svzbw_datex2() -> None:
     """
-    Downloads roadworks from SVZ-BW ad republishes this DATEX2 dataset.
+    Downloads roadworks from SVZ-BW and republishes this DATEX2 dataset.
     """
     # Download and republish, if changed
     destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
-    download(ROADWORKS_DATEX2_DOWNLOAD_URL, destination_folder, ROADWORKS_DATEXII_FIILENAME, create_precompressed=True)
+    download(
+        ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL,
+        destination_folder,
+        ROADWORKS_SVZBW_DATEX2_FILENAME,
+        create_precompressed=True,
+    )
 
 
 @asset(
@@ -61,7 +167,7 @@ def roadworks_cifs() -> dict:
     """
     Transforms roadworks datasets into waze cifs format and publishes them.
     """
-    source = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX, ROADWORKS_DATEXII_FIILENAME)
+    source = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX, ROADWORKS_SVZBW_DATEX2_FILENAME)
     # TODO extend here if further roadwork sources are addedd
     return DatexII2CifsTransformer('MobiData BW').transform(source, 'cifs')
 
@@ -81,7 +187,7 @@ def roadworks_geojson() -> dict:
     Note: these may include roadworks with geometry type point. A point geometry type
     is not recommended as downstream standards like e.g. CIFS can't handle them.
     """
-    source = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX, ROADWORKS_DATEXII_FIILENAME)
+    source = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX, ROADWORKS_SVZBW_DATEX2_FILENAME)
     return DatexII2CifsTransformer('MobiData BW').transform(source, 'geojson')
 
 

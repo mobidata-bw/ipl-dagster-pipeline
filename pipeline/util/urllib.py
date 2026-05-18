@@ -15,7 +15,7 @@
 import gzip
 import os
 import shutil
-from datetime import datetime
+from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Callable
@@ -40,6 +40,7 @@ def download(
     create_precompressed: bool = False,
     auth: tuple[str, str] | None = None,
     force: bool = False,
+    cert: tuple[str, str] | None = None,
     timeout=15,
 ) -> None:
     """
@@ -57,7 +58,7 @@ def download(
     def download_and_store(tmp_filename):
         headers = {'User-Agent': user_agent}
         if not force and final_filename.exists():
-            pre_existing_file_last_modified = datetime.utcfromtimestamp(final_filename.stat().st_mtime)
+            pre_existing_file_last_modified = datetime.fromtimestamp(final_filename.stat().st_mtime, UTC)
             headers['If-Modified-Since'] = pre_existing_file_last_modified.strftime('%a, %d %b %Y %H:%M:%S UTC')
 
         response = get(
@@ -66,6 +67,7 @@ def download(
             headers=headers,
             stream=True,
             auth=auth,
+            cert=cert,
         )
         if response.status_code == 304:
             # File not modified since last download
@@ -93,7 +95,7 @@ def store_with_tmp_and_gzipped(
     tmp_filename = final_filename.parent / (final_filename.name + '.tmp')
 
     if not final_filename.parent.exists():
-        final_filename.parent.mkdir()
+        final_filename.parent.mkdir(parents=True, exist_ok=True)
 
     store_successful = store_function(tmp_filename)
 
