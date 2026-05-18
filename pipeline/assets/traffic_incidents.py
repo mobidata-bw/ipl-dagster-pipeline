@@ -24,8 +24,8 @@ from pipeline.transformer.cifs import DatexII2CifsTransformer
 from pipeline.util.urllib import download
 
 WEB_ROOT = os.getenv('WWW_ROOT_DIR', './tmp/www')
-IPL_MOBILITHEK_CERT = os.getenv('IPL_MOBILITHEK_CERT', '')
-IPL_MOBILITHEK_KEY = os.getenv('IPL_MOBILITHEK_KEY', '')
+IPL_MOBILITHEK_CERT_PATH = os.getenv('IPL_MOBILITHEK_CERT_PATH', '')
+IPL_MOBILITHEK_KEY_PATH = os.getenv('IPL_MOBILITHEK_KEY_PATH', '')
 
 ROADWORKS_DATEX2_DOWNLOAD_URL = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL', '')
 ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL = os.getenv('IPL_ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL', '')
@@ -56,8 +56,8 @@ def INCIDENTS_LMSBW_datex2() -> None:
     # Download and republish, if changed
     destination_folder = os.path.join(WEB_ROOT, *INCIDENTS_ASSET_KEY_PREFIX)
     cert = (
-        IPL_MOBILITHEK_CERT,
-        IPL_MOBILITHEK_KEY,
+        IPL_MOBILITHEK_CERT_PATH,
+        IPL_MOBILITHEK_KEY_PATH,
     )
     download(
         INCIDENTS_LMSBW_DATEX2_DOWNLOAD_URL,
@@ -83,8 +83,8 @@ def roadworks_adb_short_term_datex2() -> None:
     # Download and republish, if changed
     destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
     cert = (
-        IPL_MOBILITHEK_CERT,
-        IPL_MOBILITHEK_KEY,
+        IPL_MOBILITHEK_CERT_PATH,
+        IPL_MOBILITHEK_KEY_PATH,
     )
     download(
         ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL,
@@ -110,8 +110,8 @@ def roadworks_adb_long_term_datex2() -> None:
     # Download and republish, if changed
     destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
     cert = (
-        IPL_MOBILITHEK_CERT,
-        IPL_MOBILITHEK_KEY,
+        IPL_MOBILITHEK_CERT_PATH,
+        IPL_MOBILITHEK_KEY_PATH,
     )
     download(
         ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL,

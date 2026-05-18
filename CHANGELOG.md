@@ -4,7 +4,7 @@ The changelog lists most feature changes between each release.
 
 ## [unreleased]
 - ⚠️ Addition: download roadworks/incidents datasets from Mobilithek and republish them (traffic/roadworks/roadworks_adb_short_term.datex2.xml, traffic/roadworks/roadworks_adb_long_term.datex2.xml, traffic/incidents/incidents_lmsbw.datex2.xml ). This requires new ENV VARs:
-  `$IPL_MOBILITHEK_CERT`, `$IPL_MOBILITHEK_KEY` as paths to Mobilithek download certificates, as well as subscription URLs for the following datasets:
+  `$IPL_MOBILITHEK_CERT_PATH`, `$IPL_MOBILITHEK_KEY_PATH` as paths to Mobilithek download certificates, as well as subscription URLs for the following datasets:
   - `IPL_ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL`: https://mobilithek.info/offers/641235133820284928 
   - `IPL_ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL`: https://mobilithek.info/offers/641228542228467712
   - `IPL_INCIDENTS_LMSBW_DATEX2_DOWNLOAD_URL` : https://mobilithek.info/offers/857127500689977344
