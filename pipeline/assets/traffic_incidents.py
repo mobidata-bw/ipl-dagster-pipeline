@@ -25,7 +25,7 @@ from pipeline.util.urllib import download
 
 WEB_ROOT = os.getenv('WWW_ROOT_DIR', './tmp/www')
 ROADWORKS_DATEX2_DOWNLOAD_URL = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL', '')
-ROADWORKS_DATEXII_FIILENAME = 'roadworks_svzbw.datex2.xml'
+ROADWORKS_DATEX2_FILENAME = 'roadworks_svzbw.datex2.xml'
 ROADWORKS_ASSET_KEY_PREFIX = ['traffic', 'roadworks']
 
 logger = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ def roadworks_svzbw_datex2() -> None:
     """
     # Download and republish, if changed
     destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
-    download(ROADWORKS_DATEX2_DOWNLOAD_URL, destination_folder, ROADWORKS_DATEXII_FIILENAME, create_precompressed=True)
+    download(ROADWORKS_DATEX2_DOWNLOAD_URL, destination_folder, ROADWORKS_DATEX2_FILENAME, create_precompressed=True)
 
 
 @asset(
@@ -61,7 +61,7 @@ def roadworks_cifs() -> dict:
     """
     Transforms roadworks datasets into waze cifs format and publishes them.
     """
-    source = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX, ROADWORKS_DATEXII_FIILENAME)
+    source = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX, ROADWORKS_DATEX2_FILENAME)
     # TODO extend here if further roadwork sources are addedd
     return DatexII2CifsTransformer('MobiData BW').transform(source, 'cifs')
 
@@ -81,7 +81,7 @@ def roadworks_geojson() -> dict:
     Note: these may include roadworks with geometry type point. A point geometry type
     is not recommended as downstream standards like e.g. CIFS can't handle them.
     """
-    source = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX, ROADWORKS_DATEXII_FIILENAME)
+    source = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX, ROADWORKS_DATEX2_FILENAME)
     return DatexII2CifsTransformer('MobiData BW').transform(source, 'geojson')
 
 
