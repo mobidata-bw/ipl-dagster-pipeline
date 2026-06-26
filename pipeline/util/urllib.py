@@ -73,6 +73,9 @@ def download(
             # File not modified since last download
             return False
 
+        # In case of error (e.g. status code 404 / 500), we raise an exception
+        response.raise_for_status()
+
         with tmp_filename.open('wb') as file:
             for chunk in response.iter_content(chunk_size=1024 * 1024):
                 if chunk:
