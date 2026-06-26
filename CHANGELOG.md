@@ -3,7 +3,7 @@
 The changelog lists most feature changes between each release.
 
 ## [unreleased]
--
+- Fix: in case of a download error, let the task fail instead of storing the exception response as download result
 
 ## 2026-05-18
 - ⚠️ Addition: download roadworks/incidents datasets from Mobilithek and republish them (traffic/roadworks/roadworks_adb_short_term.datex2.xml, traffic/roadworks/roadworks_adb_long_term.datex2.xml, traffic/incidents/incidents_lmsbw.datex2.xml ). This requires new ENV VARs:
