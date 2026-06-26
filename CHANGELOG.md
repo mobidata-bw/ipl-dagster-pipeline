@@ -3,6 +3,9 @@
 The changelog lists most feature changes between each release.
 
 ## [unreleased]
+-
+
+## 2026-06-29
 - Fix: in case of a download error, let the task fail instead of storing the exception response as download result
 
 ## 2026-05-18
