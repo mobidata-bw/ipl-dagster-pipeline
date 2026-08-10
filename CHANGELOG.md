@@ -3,7 +3,10 @@
 The changelog lists most feature changes between each release.
 
 ## [unreleased]
-- New publication: from new URL $REROUTING_MANAGEMENT_SVZBW_DATEX2_DOWNLOAD_URL a rerouting publication is donwloaded and written to $WWW_ROOT/traffic/rerouting_management/rerouting_management_svzbw.datex2.xml
+-
+
+## 2026-08-10
+- New publication: from new URL `$REROUTING_MANAGEMENT_SVZBW_DATEX2_DOWNLOAD_URL` a rerouting publication is downloaded and written to `$WWW_ROOT/traffic/rerouting_management/rerouting_management_svzbw.datex2.xml`
 
 ## 2026-06-29
 - Fix: in case of a download error, let the task fail instead of storing the exception response as download result
