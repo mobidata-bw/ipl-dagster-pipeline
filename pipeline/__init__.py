@@ -13,6 +13,9 @@
 # limitations under the License.
 
 from dagster import (
+    AssetSelection,
+    AutomationConditionSensorDefinition,
+    DefaultSensorStatus,
     Definitions,
     EnvVar,
     PipesSubprocessClient,
@@ -36,6 +39,13 @@ assets = load_assets_from_modules([
 defs = Definitions(
     assets=assets,
     schedules=[sharing.update_sharing_station_status_and_vehicles_minutely],
+    sensors=[
+        AutomationConditionSensorDefinition(
+            name='default_automation_condition_sensor',
+            target=AssetSelection.all(),
+            default_status=DefaultSensorStatus.RUNNING,
+        ),
+    ],
     resources={
         'lamassu': LamassuResource(lamassu_base_url=EnvVar('IPL_LAMASSU_INTERNAL_BASE_URL')),
         'pg_gpd_io_manager': PostGISGeoPandasIOManager(
