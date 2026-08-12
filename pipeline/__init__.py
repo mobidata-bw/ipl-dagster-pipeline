@@ -20,7 +20,7 @@ from dagster import (
 )
 
 from .assets import admin_areas, gtfs, radvis, sharing, traffic_incidents, traffic_rerouting_management, webcams
-from .resources import JsonWebAssetIOManager, LamassuResource, PostGISGeoPandasIOManager
+from .resources import JsonWebAssetIOManager, LamassuResource, PostGISGeoPandasIOManager, PostgresResource
 from .resources.gdal import Ogr2OgrResource
 
 assets = load_assets_from_modules([
@@ -39,6 +39,13 @@ defs = Definitions(
     resources={
         'lamassu': LamassuResource(lamassu_base_url=EnvVar('IPL_LAMASSU_INTERNAL_BASE_URL')),
         'pg_gpd_io_manager': PostGISGeoPandasIOManager(
+            host=EnvVar('IPL_POSTGRES_HOST'),
+            user=EnvVar('IPL_POSTGRES_USER'),
+            port=EnvVar.int('IPL_POSTGRES_PORT'),
+            password=EnvVar('IPL_POSTGRES_PASSWORD'),
+            database=EnvVar('IPL_POSTGRES_DB'),
+        ),
+        'ipl_db': PostgresResource(
             host=EnvVar('IPL_POSTGRES_HOST'),
             user=EnvVar('IPL_POSTGRES_USER'),
             port=EnvVar.int('IPL_POSTGRES_PORT'),
