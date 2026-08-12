@@ -19,11 +19,12 @@ from dagster import (
     load_assets_from_modules,
 )
 
-from .assets import gtfs, radvis, sharing, traffic_incidents, traffic_rerouting_management, webcams
+from .assets import admin_areas, gtfs, radvis, sharing, traffic_incidents, traffic_rerouting_management, webcams
 from .resources import JsonWebAssetIOManager, LamassuResource, PostGISGeoPandasIOManager
 from .resources.gdal import Ogr2OgrResource
 
 assets = load_assets_from_modules([
+    admin_areas,
     sharing,
     radvis,
     gtfs,

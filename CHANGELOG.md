@@ -3,7 +3,7 @@
 The changelog lists most feature changes between each release.
 
 ## [unreleased]
--
+- New database table `vg25_geom` imported from `Verwaltungsgrenzen` geopackage, which can be used to join administrative information against e.g. sharing data.
 
 ## 2026-08-10
 - New publication: from new URL `$REROUTING_MANAGEMENT_SVZBW_DATEX2_DOWNLOAD_URL` a rerouting publication is downloaded and written to `$WWW_ROOT/traffic/rerouting_management/rerouting_management_svzbw.datex2.xml`
