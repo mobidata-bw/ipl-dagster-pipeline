@@ -27,7 +27,7 @@ class Ogr2OgrResource(ConfigurableResource):  # type: ignore
     port: int = 5432
     database: Optional[str]
 
-    def import_file(self, file_to_import: str, pg_use_copy=True, schema: str = 'public'):
+    def import_file(self, file_to_import: str, pg_use_copy=True, schema: str = 'public', layer: str | None = None):
         connect_string = self._connect_string()
         schema_param = f'SCHEMA={schema}'
         args = [
@@ -42,8 +42,12 @@ class Ogr2OgrResource(ConfigurableResource):  # type: ignore
 
         if pg_use_copy:
             args.extend(['--config', 'PG_USE_COPY', 'YES'])
+        if layer is not None:
+            args.extend(['-nln', layer])
 
         args.append(file_to_import)
+        if layer is not None:
+            args.append(layer)
         ogr.UseExceptions()
         exit_code = ogr2ogr.main(args)
         if exit_code != 0:
