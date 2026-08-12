@@ -14,17 +14,19 @@
 
 import logging
 
+import geopandas as gpd
 import pandas as pd
 from dagster import (
     AutomationCondition,
     DefaultScheduleStatus,
+    MaterializeResult,
     RunRequest,
     asset,
     define_asset_job,
     schedule,
 )
 
-from pipeline.resources import LamassuResource
+from pipeline.resources import LamassuResource, PostgresResource
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +61,42 @@ def sharing_stations(context, lamassu: LamassuResource) -> pd.DataFrame:
         except Exception:
             logger.exception(f'Error retrieving stations for system {system}')
     return pd.concat(data_frames)
+
+
+@asset(
+    compute_kind='PostGIS',
+    group_name='sharing',
+    automation_condition=(AutomationCondition.any_deps_updated()),
+    deps=[sharing_stations, 'vg25_gem'],
+)
+def sharing_stations_with_ars(context, ipl_db: PostgresResource) -> MaterializeResult:
+    """
+    Joins sharing stations with admin areas to add regional code.
+    """
+
+    view_creation_statements = [
+        """
+        CREATE MATERIALIZED VIEW IF NOT EXISTS sharing_stations_with_ars AS                   
+            WITH projected_points AS (
+            SELECT p.*, ST_TRANSFORM(ST_SetSRID(p.geometry, 4326), 25832) projected_geom FROM sharing_stations p)
+            SELECT
+                p.*,
+                poly.ars
+            FROM projected_points AS p
+            LEFT JOIN vg25_gem AS poly
+                ON ST_Within(p.projected_geom, poly.wkb_geometry);
+        """,
+        """
+        CREATE UNIQUE INDEX sharing_stations_with_ars_pkey ON public.sharing_stations_with_ars USING btree (station_id)
+        """,
+        """
+        CREATE INDEX idx_sharing_stations_with_ars_geometry ON public.sharing_stations_with_ars USING gist (geometry)
+        """,
+    ]
+    view_refresh_statements = ['REFRESH MATERIALIZED VIEW sharing_stations_with_ars']
+    ipl_db.execute_if_exists_else('sharing_stations_with_ars', view_refresh_statements, view_creation_statements)
+
+    return MaterializeResult()
 
 
 @asset(
@@ -117,6 +155,42 @@ def vehicles(context, lamassu: LamassuResource) -> pd.DataFrame:
         except Exception:
             logger.exception(f'Error retrieving vehicles for system {system}')
     return pd.concat(data_frames)
+
+
+@asset(
+    compute_kind='PostGIS',
+    group_name='sharing',
+    automation_condition=(AutomationCondition.any_deps_updated()),
+    deps=[vehicles, 'vg25_gem'],
+)
+def vehicles_with_ars(context, ipl_db: PostgresResource) -> MaterializeResult:
+    """
+    Joins vehicles with admin areas using coordinates to add regional code.
+    """
+
+    view_creation_statements = [
+        """
+        CREATE MATERIALIZED VIEW IF NOT EXISTS vehicles_with_ars AS                   
+            WITH projected_points AS (
+            SELECT p.*, ST_TRANSFORM(ST_SetSRID(p.geometry, 4326), 25832) projected_geom FROM vehicles p)
+            SELECT
+                p.*,
+                poly.ars
+            FROM projected_points AS p
+            LEFT JOIN vg25_gem AS poly
+                ON ST_Within(p.projected_geom, poly.wkb_geometry);
+        """,
+        """
+        CREATE UNIQUE INDEX vehicles_with_ars_pkey ON public.vehicles_with_ars USING btree (vehicle_id)
+        """,
+        """
+        CREATE INDEX idx_vehicles_with_ars_geometry ON public.vehicles_with_ars USING gist (geometry)
+        """,
+    ]
+    view_refresh_statements = ['REFRESH MATERIALIZED VIEW vehicles_with_ars']
+    ipl_db.execute_if_exists_else('vehicles_with_ars', view_refresh_statements, view_creation_statements)
+
+    return MaterializeResult()
 
 
 """

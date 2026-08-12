@@ -1,3 +1,4 @@
 from .lamassu import LamassuResource
 from .postgis_geopandas_io_manager import PostGISGeoPandasIOManager, PostgreSQLPandasIOManager
+from .postgres import PostgresResource
 from .webasset_io_manager import JsonWebAssetIOManager
