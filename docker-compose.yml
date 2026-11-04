@@ -86,6 +86,7 @@ services:
       - IPL_ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL=${IPL_ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL:?missing/empty}
       - IPL_ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL=${IPL_ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL:?missing/empty}
       - WWW_ROOT_DIR=${WWW_ROOT_DIR:?missing/empty}
+      - GEOPARQUET_TEMP_DIR=${GEOPARQUET_TEMP_DIR:?missing/empty}
     networks:
       - dagster_network
     volumes:

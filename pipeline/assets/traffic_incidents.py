@@ -14,8 +14,11 @@
 
 import logging
 import os
+from pathlib import Path
 from typing import Any
 
+import datex2_xml2json.merge as datex2_merge
+import datex2_xml2json.transformer as datex2_transformer
 import geopandas as gpd
 import pandas as pd
 from dagster import AutomationCondition, asset
@@ -24,6 +27,7 @@ from pipeline.transformer.cifs import DatexII2CifsTransformer
 from pipeline.util.urllib import download
 
 WEB_ROOT = os.getenv('WWW_ROOT_DIR', './tmp/www')
+GEOPARQUET_TEMP_DIR = os.getenv('GEOPARQUET_TEMP_DIR', './tmp/geoparquet/traffic')
 IPL_MOBILITHEK_CERT_PATH = os.getenv('IPL_MOBILITHEK_CERT_PATH', '')
 IPL_MOBILITHEK_KEY_PATH = os.getenv('IPL_MOBILITHEK_KEY_PATH', '')
 
@@ -31,10 +35,24 @@ ROADWORKS_SVZBW_DATEX2_DOWNLOAD_URL = os.getenv('ROADWORKS_SVZBW_DATEX2_DOWNLOAD
 ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL = os.getenv('IPL_ROADWORKS_ADB_SHORT_TERM_DATEX2_DOWNLOAD_URL', '')
 ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL = os.getenv('IPL_ROADWORKS_ADB_LONG_TERM_DATEX2_DOWNLOAD_URL', '')
 INCIDENTS_LMSBW_DATEX2_DOWNLOAD_URL = os.getenv('IPL_INCIDENTS_LMSBW_DATEX2_DOWNLOAD_URL', '')
+
 ROADWORKS_ADB_SHORT_TERM_DATEX2_FIILENAME = 'roadworks_adb_short_term.datex2.xml'
 ROADWORKS_ADB_LONG_TERM_DATEX2_FIILENAME = 'roadworks_adb_long_term.datex2.xml'
 ROADWORKS_SVZBW_DATEX2_FILENAME = 'roadworks_svzbw.datex2.xml'
 INCIDENTS_LMSBW_DATEX2_FIILENAME = 'incidents_lmsbw.datex2.xml'
+# Resulting file is named roadworks_and_events_bw, which will shortly be added in a follow up PR
+ROADWORKS_AND_EVENTS_PARQUET_FILENAME = 'roadworks_and_events_bw.parquet'
+
+# Source identification, custom shortnames we use as IDs for our datasources
+ROADWORKS_ADB_SHORT_TERM_SOURCE_IDENTIFICATION = 'roadworks_adb_short_term'
+ROADWORKS_ADB_LONG_TERM_SOURCE_IDENTIFICATION = 'roadworks_adb_long_term'
+ROADWORKS_SVZBW_SOURCE_IDENTIFICATION = 'roadworks_svzbw'
+
+# Publication identifiers, for Mobilithek publications, we use their Mobilithek dataset ID
+ROADWORKS_ADB_SHORT_TERM_PUBLICATION_IDENTIFIER = 'https://mobilithek.info/offers/641235133820284928'
+ROADWORKS_ADB_LONG_TERM_PUBLICATION_IDENTIFIER = 'https://mobilithek.info/offers/641228542228467712'
+ROADWORKS_SVZBW_PUBLICATION_IDENTIFIER = 'https://mobilithek.info/offers/-5342395678156131804'
+
 ROADWORKS_ASSET_KEY_PREFIX = ['traffic', 'roadworks']
 INCIDENTS_ASSET_KEY_PREFIX = ['traffic', 'incidents']
 
@@ -102,6 +120,29 @@ def roadworks_adb_short_term_datex2() -> None:
 
 
 @asset(
+    compute_kind='GeoParquet',
+    deps={'roadworks_adb_short_term_datex2'},
+    group_name='traffic',
+    automation_condition=AutomationCondition.eager(),
+    key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
+)
+def roadworks_adb_short_term_geoparquet() -> None:
+    """
+    Transforms short term roadworks from AdB to GeoParquet.
+    """
+    destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
+    datex2_transformer.transform(
+        filename=str(Path(destination_folder, ROADWORKS_ADB_SHORT_TERM_DATEX2_FIILENAME)),
+        outDir=GEOPARQUET_TEMP_DIR,
+        input_format=datex2_transformer.InputFormat.DATEX2_2_2_XML,
+        output_format=datex2_transformer.OutputFormat.GEOPARQUET,
+        validate=False,
+        sourceIdentification=ROADWORKS_ADB_SHORT_TERM_SOURCE_IDENTIFICATION,
+        publicationIdentifier=ROADWORKS_ADB_SHORT_TERM_PUBLICATION_IDENTIFIER,
+    )
+
+
+@asset(
     compute_kind='DATEX2',
     group_name='traffic',
     automation_condition=(
@@ -132,6 +173,29 @@ def roadworks_adb_long_term_datex2() -> None:
 
 
 @asset(
+    compute_kind='GeoParquet',
+    deps={'roadworks_adb_long_term_datex2'},
+    group_name='traffic',
+    automation_condition=AutomationCondition.eager(),
+    key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
+)
+def roadworks_adb_long_term_geoparquet() -> None:
+    """
+    Transforms long term roadworks from AdB to GeoParquet.
+    """
+    destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
+    datex2_transformer.transform(
+        filename=str(Path(destination_folder, ROADWORKS_ADB_LONG_TERM_DATEX2_FIILENAME)),
+        outDir=GEOPARQUET_TEMP_DIR,
+        input_format=datex2_transformer.InputFormat.DATEX2_2_2_XML,
+        output_format=datex2_transformer.OutputFormat.GEOPARQUET,
+        validate=False,
+        sourceIdentification=ROADWORKS_ADB_LONG_TERM_SOURCE_IDENTIFICATION,
+        publicationIdentifier=ROADWORKS_ADB_LONG_TERM_PUBLICATION_IDENTIFIER,
+    )
+
+
+@asset(
     compute_kind='DATEX2',
     group_name='traffic',
     automation_condition=(
@@ -152,6 +216,44 @@ def roadworks_svzbw_datex2() -> None:
         ROADWORKS_SVZBW_DATEX2_FILENAME,
         create_precompressed=True,
     )
+
+
+@asset(
+    compute_kind='GeoParquet',
+    deps={'roadworks_svzbw_datex2'},
+    group_name='traffic',
+    automation_condition=AutomationCondition.eager(),
+    key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
+)
+def roadworks_svzbw_geoparquet() -> None:
+    """
+    Transforms roadworks from SVZ-BW to GeoParquet.
+    """
+    destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
+    datex2_transformer.transform(
+        filename=str(Path(destination_folder, ROADWORKS_SVZBW_DATEX2_FILENAME)),
+        outDir=GEOPARQUET_TEMP_DIR,
+        input_format=datex2_transformer.InputFormat.DATEX2_2_2_XML,
+        output_format=datex2_transformer.OutputFormat.GEOPARQUET,
+        validate=False,
+        sourceIdentification=ROADWORKS_SVZBW_SOURCE_IDENTIFICATION,
+        publicationIdentifier=ROADWORKS_SVZBW_PUBLICATION_IDENTIFIER,
+    )
+
+
+@asset(
+    compute_kind='GeoParquet',
+    deps={'roadworks_svzbw_geoparquet', 'roadworks_adb_long_term_geoparquet', 'roadworks_adb_short_term_geoparquet'},
+    group_name='traffic',
+    automation_condition=AutomationCondition.eager(),
+    key_prefix=ROADWORKS_ASSET_KEY_PREFIX,
+)
+def roadworks_and_events_bw_geoparquet() -> None:
+    """
+    Merges all roadwork and event .parquet files into a single GeoParquet.
+    """
+    destination_file = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX, ROADWORKS_AND_EVENTS_PARQUET_FILENAME)
+    datex2_merge.merge_partition(GEOPARQUET_TEMP_DIR, destination_file)
 
 
 @asset(
