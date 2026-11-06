@@ -25,52 +25,81 @@ from dagster_docker import docker_container_op
 
 logger = logging.getLogger(__name__)
 
-import_op = docker_container_op.configured(
-    {
-        # Note: We mirror ipl-orchestration's docker-compose.yaml here, the env vars & mounts should be kept in sync with it.
-        'image': {'env': 'IPL_GTFS_IMPORTER_IMAGE'},
-        'networks': [os.getenv('IPL_GTFS_IMPORTER_NETWORK')],
-        'env_vars': [
-            # todo: connect via pgbouncer?
-            'PGHOST=gtfs-db',
-            'PGPORT=5432',
-            'PGUSER=' + os.getenv('IPL_GTFS_DB_POSTGRES_USER'),
-            'PGPASSWORD=' + os.getenv('IPL_GTFS_DB_POSTGRES_PASSWORD'),
-            'PGDATABASE=' + os.getenv('IPL_GTFS_DB_POSTGRES_DB'),
-            'GTFS_IMPORTER_SCHEMA=' + os.getenv('IPL_GTFS_DB_POSTGRES_SCHEMA'),
-            'GTFS_DOWNLOAD_URL=' + os.getenv('IPL_GTFS_IMPORTER_GTFS_DOWNLOAD_URL'),
-            'GTFS_DOWNLOAD_USER_AGENT=' + os.getenv('IPL_GTFS_IMPORTER_GTFS_DOWNLOAD_USER_AGENT'),
-            'GTFS_TMP_DIR=/var/gtfs',
-            'POSTGREST_USER=' + os.getenv('IPL_GTFS_DB_POSTGREST_USER'),
-            'POSTGREST_PASSWORD=' + os.getenv('IPL_GTFS_DB_POSTGREST_PASSWORD'),
-            'POSTGREST_STATEMENT_COST_LIMIT=' + os.getenv('IPL_GTFS_API_COST_LIMIT'),
-        ],
-        'container_kwargs': {
-            # > Remove the container when it has finished running. Default: False.
-            'auto_remove': True,
-            'volumes': [
-                os.getenv('IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR') + ':/var/gtfs/:rw',
-                os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR') + ':/etc/gtfs',
-                os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR'), 'download.sh')
-                + ':/importer/download.sh',
-            ],
-            # > CPU shares (relative weight).
-            # from https://docs.docker.com/config/containers/resource_constraints/#configure-the-default-cfs-scheduler:
-            # > --cpu-shares – Set this flag to a value greater or less than the default of 1024 to increase or reduce the container's weight, and give it access to a greater or lesser proportion of the host machine's CPU cycles. This is only enforced when CPU cycles are constrained. When plenty of CPU cycles are available, all containers use as much CPU as they need. In that way, this is a soft limit. --cpu-shares doesn't prevent containers from being scheduled in Swarm mode. It prioritizes container CPU resources for the available CPU cycles. It doesn't guarantee or reserve any specific CPU access.
-            'cpu_shares': 512,
-            'extra_hosts': (
-                {os.getenv('IPL_GTFS_IMPORTER_EXTRA_HOST_HOSTNAME'): os.getenv('IPL_GTFS_IMPORTER_EXTRA_HOST_IP')}
-                if os.getenv('IPL_GTFS_IMPORTER_EXTRA_HOST_HOSTNAME') and os.getenv('IPL_GTFS_IMPORTER_EXTRA_HOST_IP')
-                else {}
-            ),
+
+def make_gtfs_import_op(
+    *,
+    op_name,
+    database,
+    gtfs_importer_schema,
+    gtfs_download_url,
+    gtfs_download_user_agent,
+    gtfstidy_before_import=False,
+    custom_env_vars=[],
+    cpu_shares=512,
+    extra_hosts={},
+):
+    return docker_container_op.configured(
+        {
+            # Note: We mirror ipl-orchestration's docker-compose.yaml here, the env vars & mounts should be kept in sync with it.
+            'image': {'env': 'IPL_GTFS_IMPORTER_IMAGE'},
+            'networks': [os.getenv('IPL_GTFS_IMPORTER_NETWORK')],
+            'env_vars': [
+                # todo: connect via pgbouncer?
+                'PGHOST=gtfs-db',
+                'PGPORT=5432',
+                'PGUSER=' + os.getenv('IPL_GTFS_DB_POSTGRES_USER'),
+                'PGPASSWORD=' + os.getenv('IPL_GTFS_DB_POSTGRES_PASSWORD'),
+                'PGDATABASE=' + database,
+                'GTFS_IMPORTER_SCHEMA=' + gtfs_importer_schema,
+                'GTFS_DOWNLOAD_URL=' + gtfs_download_url,
+                'GTFS_DOWNLOAD_USER_AGENT=' + gtfs_download_user_agent,
+                'GTFS_TMP_DIR=/var/gtfs',
+                'GTFSTIDY_BEFORE_IMPORT' + gtfstidy_before_import,
+            ]
+            + custom_env_vars,
+            'container_kwargs': {
+                # # > Remove the container when it has finished running. Default: False.
+                # 'auto_remove': True,
+                'volumes': [
+                    os.getenv('IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR') + ':/var/gtfs/:rw',
+                    os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR') + ':/etc/gtfs',
+                    # todo: explain why
+                    os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR'), 'download.sh')
+                    + ':/importer/download.sh',
+                ],
+                # > CPU shares (relative weight).
+                # from https://docs.docker.com/config/containers/resource_constraints/#configure-the-default-cfs-scheduler:
+                # > --cpu-shares – Set this flag to a value greater or less than the default of 1024 to increase or reduce the container's weight, and give it access to a greater or lesser proportion of the host machine's CPU cycles. This is only enforced when CPU cycles are constrained. When plenty of CPU cycles are available, all containers use as much CPU as they need. In that way, this is a soft limit. --cpu-shares doesn't prevent containers from being scheduled in Swarm mode. It prioritizes container CPU resources for the available CPU cycles. It doesn't guarantee or reserve any specific CPU access.
+                'cpu_shares': cpu_shares,
+                'extra_hosts': extra_hosts,
+            },
         },
-    },
-    name='import_op',
+        name=op_name,
+    )
+
+
+main_gtfs_import = make_gtfs_import_op(
+    op_name='main_gtfs_import',
+    database=os.getenv('IPL_GTFS_DB_POSTGRES_DB'),
+    gtfs_importer_schema=os.getenv('IPL_GTFS_DB_POSTGRES_SCHEMA'),
+    gtfs_download_url=os.getenv('IPL_GTFS_IMPORTER_GTFS_DOWNLOAD_URL'),
+    gtfs_download_user_agent=os.getenv('IPL_GTFS_IMPORTER_GTFS_DOWNLOAD_USER_AGENT'),
+    gtfstidy_before_import=os.getenv('IPL_GTFS_IMPORTER_GTFSTIDY_BEFORE_IMPORT', 'false'),
+    custom_env_vars=[
+        'POSTGREST_USER=' + os.getenv('IPL_GTFS_DB_POSTGREST_USER'),
+        'POSTGREST_PASSWORD=' + os.getenv('IPL_GTFS_DB_POSTGREST_PASSWORD'),
+        'POSTGREST_STATEMENT_COST_LIMIT=' + os.getenv('IPL_GTFS_API_COST_LIMIT'),
+    ],
+    extra_hosts=(
+        {os.getenv('IPL_GTFS_IMPORTER_EXTRA_HOST_HOSTNAME'): os.getenv('IPL_GTFS_IMPORTER_EXTRA_HOST_IP')}
+        if os.getenv('IPL_GTFS_IMPORTER_EXTRA_HOST_HOSTNAME') and os.getenv('IPL_GTFS_IMPORTER_EXTRA_HOST_IP')
+        else {}
+    ),
 )
 
 
 @op
-def reload_gtfs_api_config(gtfs_import):
+def reload_gtfs_api_config(main_gtfs_import):
     # Note: We mirror ipl-orchestration's `import-new-gtfs` Make target here.
     client = docker.from_env()
 
@@ -91,13 +120,13 @@ def reload_gtfs_api_config(gtfs_import):
 
 
 @graph_asset(
-    group_name='gtfs',
+    group_name='main_gtfs',
     automation_condition=(
         AutomationCondition.on_cron('0 1 * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
     ),
 )
-def gtfs():
+def main_gtfs():
     """
-    Downloads, cleans, and imports the gtfs data
+    Downloads, cleans, and imports MobiData-BW's main (as in: all regular PT) GTFS feed
     """
-    return reload_gtfs_api_config(import_op())
+    return reload_gtfs_api_config(main_gtfs_import())
