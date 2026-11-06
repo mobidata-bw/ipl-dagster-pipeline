@@ -31,21 +31,19 @@ import_op = docker_container_op.configured(
         'image': {'env': 'IPL_GTFS_IMPORTER_IMAGE'},
         'networks': [os.getenv('IPL_GTFS_IMPORTER_NETWORK')],
         'env_vars': [
-            'PGHOST=' + os.getenv('IPL_GTFS_DB_POSTGRES_HOST'),
+            # todo: connect via pgbouncer?
+            'PGHOST=gtfs-db',
             'PGPORT=5432',
             'PGUSER=' + os.getenv('IPL_GTFS_DB_POSTGRES_USER'),
             'PGPASSWORD=' + os.getenv('IPL_GTFS_DB_POSTGRES_PASSWORD'),
             'PGDATABASE=' + os.getenv('IPL_GTFS_DB_POSTGRES_DB'),
+            'GTFS_IMPORTER_SCHEMA=' + os.getenv('IPL_GTFS_DB_POSTGRES_SCHEMA'),
             'GTFS_DOWNLOAD_URL=' + os.getenv('IPL_GTFS_IMPORTER_GTFS_DOWNLOAD_URL'),
             'GTFS_DOWNLOAD_USER_AGENT=' + os.getenv('IPL_GTFS_IMPORTER_GTFS_DOWNLOAD_USER_AGENT'),
-            'GTFS_IMPORTER_DB_PREFIX=' + os.getenv('IPL_GTFS_DB_POSTGRES_DB_PREFIX'),
-            'GTFS_IMPORTER_DSN_FILE=/var/gtfs/pgbouncer-dsn.txt',
             'GTFS_TMP_DIR=/var/gtfs',
             'POSTGREST_USER=' + os.getenv('IPL_GTFS_DB_POSTGREST_USER'),
             'POSTGREST_PASSWORD=' + os.getenv('IPL_GTFS_DB_POSTGREST_PASSWORD'),
             'POSTGREST_STATEMENT_COST_LIMIT=' + os.getenv('IPL_GTFS_API_COST_LIMIT'),
-            'GTFS_IMPORTER_SCHEMA=' + os.getenv('IPL_GTFS_IMPORTER_SCHEMA'),
-            'GTFSTIDY_REMOVE_REDUNDANT_STOPS=false',
         ],
         'container_kwargs': {
             # > Remove the container when it has finished running. Default: False.
@@ -72,22 +70,24 @@ import_op = docker_container_op.configured(
 
 
 @op
-def reload_pgbouncer_databases(import_op):
+def reload_gtfs_api_config(gtfs_import):
     # Note: We mirror ipl-orchestration's `import-new-gtfs` Make target here.
     client = docker.from_env()
-    # Temporarilly return ipl-pgbouncer-1 as default container name if not configured otherwise
-    container_name = os.getenv('IPL_GTFS_PGBOUNCER_CONTAINER', 'ipl-pgbouncer-1')
-    # TODO check for existanc and log warning if not
-    # if container_name == None:
-    #    logger.warning('Will not reload pgbouncer databases, as IPL_GTFS_PGBOUNCER_CONTAINER is unset')
-    #    return
-    container = client.containers.get(container_name)
-    if container:
-        container.exec_run('/reload-pgbouncer-databases.sh')
-    else:
-        logger.warning(
-            f'Will not reload pgbouncer databases, as IPL_GTFS_PGBOUNCER_CONTAINER {container_name} is not found'
+
+    container_name = os.getenv('IPL_GTFS_API_CONTAINER_NAME')
+    if container_name == None:
+        raise Exception(
+            "Failed to reload gtfs-api's config because $IPL_GTFS_API_CONTAINER_NAME is unset or empty.",
         )
+    container = client.containers.get(container_name)
+    if container == None:
+        raise Exception(
+            f'Failed to reload gtfs-api\'s config because there is no container "{container_name}" (from $IPL_GTFS_API_CONTAINER_NAME).',
+        )
+
+    # > To reload the configuration via signal, send a SIGUSR2 signal to the server process.
+    # Note: We assume here that the PostgREST process is the container's root/only process.
+    container.kill(signal='USR2')
 
 
 @graph_asset(
@@ -100,4 +100,4 @@ def gtfs():
     """
     Downloads, cleans, and imports the gtfs data
     """
-    return reload_pgbouncer_databases(import_op())
+    return reload_gtfs_api_config(import_op())
