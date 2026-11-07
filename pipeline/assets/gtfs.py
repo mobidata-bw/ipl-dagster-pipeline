@@ -29,7 +29,6 @@ logger = logging.getLogger(__name__)
 def make_gtfs_import_op(
     *,
     op_name,
-    database,
     gtfs_importer_schema,
     gtfs_download_url,
     gtfs_download_user_agent,
@@ -49,22 +48,22 @@ def make_gtfs_import_op(
                 'PGPORT=5432',
                 'PGUSER=' + os.getenv('IPL_GTFS_DB_POSTGRES_USER'),
                 'PGPASSWORD=' + os.getenv('IPL_GTFS_DB_POSTGRES_PASSWORD'),
-                'PGDATABASE=' + database,
+                'PGDATABASE=' + os.getenv('IPL_GTFS_DB_POSTGRES_DB'),
                 'GTFS_IMPORTER_SCHEMA=' + gtfs_importer_schema,
                 'GTFS_DOWNLOAD_URL=' + gtfs_download_url,
                 'GTFS_DOWNLOAD_USER_AGENT=' + gtfs_download_user_agent,
                 'GTFS_TMP_DIR=/var/gtfs',
-                'GTFSTIDY_BEFORE_IMPORT' + gtfstidy_before_import,
+                'GTFSTIDY_BEFORE_IMPORT=' + gtfstidy_before_import,
             ]
             + custom_env_vars,
             'container_kwargs': {
                 # # > Remove the container when it has finished running. Default: False.
                 # 'auto_remove': True,
                 'volumes': [
-                    os.getenv('IPL_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR') + ':/var/gtfs/:rw',
-                    os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR') + ':/etc/gtfs',
+                    os.getenv('IPL_MAIN_GTFS_IMPORTER_HOST_GTFS_OUTPUT_DIR') + ':/var/gtfs/:rw',
+                    os.getenv('IPL_MAIN_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR') + ':/etc/gtfs',
                     # todo: explain why
-                    os.path.join(os.getenv('IPL_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR'), 'download.sh')
+                    os.path.join(os.getenv('IPL_MAIN_GTFS_IMPORTER_HOST_CUSTOM_SCRIPTS_DIR'), 'download.sh')
                     + ':/importer/download.sh',
                 ],
                 # > CPU shares (relative weight).
@@ -80,38 +79,37 @@ def make_gtfs_import_op(
 
 main_gtfs_import = make_gtfs_import_op(
     op_name='main_gtfs_import',
-    database=os.getenv('IPL_GTFS_DB_POSTGRES_DB'),
-    gtfs_importer_schema=os.getenv('IPL_GTFS_DB_POSTGRES_SCHEMA'),
-    gtfs_download_url=os.getenv('IPL_GTFS_IMPORTER_GTFS_DOWNLOAD_URL'),
-    gtfs_download_user_agent=os.getenv('IPL_GTFS_IMPORTER_GTFS_DOWNLOAD_USER_AGENT'),
-    gtfstidy_before_import=os.getenv('IPL_GTFS_IMPORTER_GTFSTIDY_BEFORE_IMPORT', 'false'),
+    gtfs_importer_schema=os.getenv('IPL_MAIN_GTFS_DB_POSTGRES_SCHEMA'),
+    gtfs_download_url=os.getenv('IPL_MAIN_GTFS_IMPORTER_GTFS_DOWNLOAD_URL'),
+    gtfs_download_user_agent=os.getenv('IPL_MAIN_GTFS_IMPORTER_GTFS_DOWNLOAD_USER_AGENT'),
+    gtfstidy_before_import=os.getenv('IPL_MAIN_GTFS_IMPORTER_GTFSTIDY_BEFORE_IMPORT', 'false'),
     custom_env_vars=[
-        'POSTGREST_USER=' + os.getenv('IPL_GTFS_DB_POSTGREST_USER'),
-        'POSTGREST_PASSWORD=' + os.getenv('IPL_GTFS_DB_POSTGREST_PASSWORD'),
-        'POSTGREST_STATEMENT_COST_LIMIT=' + os.getenv('IPL_GTFS_API_COST_LIMIT'),
+        'POSTGREST_USER=' + os.getenv('IPL_MAIN_GTFS_DB_POSTGREST_USER'),
+        'POSTGREST_PASSWORD=' + os.getenv('IPL_MAIN_GTFS_DB_POSTGREST_PASSWORD'),
+        'POSTGREST_STATEMENT_COST_LIMIT=' + os.getenv('IPL_MAIN_GTFS_API_COST_LIMIT'),
     ],
     extra_hosts=(
-        {os.getenv('IPL_GTFS_IMPORTER_EXTRA_HOST_HOSTNAME'): os.getenv('IPL_GTFS_IMPORTER_EXTRA_HOST_IP')}
-        if os.getenv('IPL_GTFS_IMPORTER_EXTRA_HOST_HOSTNAME') and os.getenv('IPL_GTFS_IMPORTER_EXTRA_HOST_IP')
+        {os.getenv('IPL_MAIN_GTFS_IMPORTER_EXTRA_HOST_HOSTNAME'): os.getenv('IPL_MAIN_GTFS_IMPORTER_EXTRA_HOST_IP')}
+        if os.getenv('IPL_MAIN_GTFS_IMPORTER_EXTRA_HOST_HOSTNAME') and os.getenv('IPL_MAIN_GTFS_IMPORTER_EXTRA_HOST_IP')
         else {}
     ),
 )
 
 
 @op
-def reload_gtfs_api_config(main_gtfs_import):
+def reload_main_gtfs_api_config(main_gtfs_import):
     # Note: We mirror ipl-orchestration's `import-new-gtfs` Make target here.
     client = docker.from_env()
 
-    container_name = os.getenv('IPL_GTFS_API_CONTAINER_NAME')
+    container_name = os.getenv('IPL_MAIN_GTFS_API_CONTAINER_NAME')
     if container_name == None:
         raise Exception(
-            "Failed to reload gtfs-api's config because $IPL_GTFS_API_CONTAINER_NAME is unset or empty.",
+            "Failed to reload gtfs-api's config because $IPL_MAIN_GTFS_API_CONTAINER_NAME is unset or empty.",
         )
     container = client.containers.get(container_name)
     if container == None:
         raise Exception(
-            f'Failed to reload gtfs-api\'s config because there is no container "{container_name}" (from $IPL_GTFS_API_CONTAINER_NAME).',
+            f'Failed to reload gtfs-api\'s config because there is no container "{container_name}" (from $IPL_MAIN_GTFS_API_CONTAINER_NAME).',
         )
 
     # > To reload the configuration via signal, send a SIGUSR2 signal to the server process.
@@ -129,4 +127,4 @@ def main_gtfs():
     """
     Downloads, cleans, and imports MobiData-BW's main (as in: all regular PT) GTFS feed
     """
-    return reload_gtfs_api_config(main_gtfs_import())
+    return reload_main_gtfs_api_config(main_gtfs_import())
