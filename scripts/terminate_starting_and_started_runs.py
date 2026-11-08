@@ -21,7 +21,7 @@ import dagster._check as check
 
 # / Dagster Patch ---------------------------------------------------
 from dagster_graphql import DagsterGraphQLClient, DagsterGraphQLClientError
-from requests.exceptions import ConnectionError
+from gql.transport.exceptions import TransportConnectionFailed
 
 logging.basicConfig()
 logger = logging.getLogger(__file__.rsplit('/', 1)[1])
@@ -132,8 +132,8 @@ def get_run_ids_of_runs(status: list[str], timeout: int = 20) -> list[str]:
             response = client._execute(GET_RUNS_QUERY, variables)
             return [run['runId'] for run in response['runsOrError']['results']]
         except DagsterGraphQLClientError as ex:
-            if isinstance(ex.__cause__, ConnectionError):
-                time.sleep(0.1)
+            if isinstance(ex.__cause__, TransportConnectionFailed):
+                time.sleep(1)
                 if time.perf_counter() - start_time >= timeout:
                     raise TimeoutError('Waited too long for the Dagster Webserver startup') from ex
             else:
