@@ -14,6 +14,7 @@
 
 import logging
 import os
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -57,6 +58,34 @@ ROADWORKS_ASSET_KEY_PREFIX = ['traffic', 'roadworks']
 INCIDENTS_ASSET_KEY_PREFIX = ['traffic', 'incidents']
 
 logger = logging.getLogger(__name__)
+
+
+def _datex2_to_geoparquet(datex2_filename: str, source_identification: str, publication_identifier: str) -> None:
+    """
+    Transforms the published DATEX2 file `datex2_filename` (in the roadworks web folder) into
+    `GEOPARQUET_TEMP_DIR/<stem>.parquet`, from where `roadworks_and_events_bw_geoparquet` merges it.
+
+    The parquet file is generated in a private temp dir inside GEOPARQUET_TEMP_DIR (same filesystem, and
+    not matched by the merge's `*.parquet` glob) and then atomically moved into place, so a concurrently
+    running merge never reads a partially written file.
+    """
+    source_file = Path(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX, datex2_filename)
+    target_dir = Path(GEOPARQUET_TEMP_DIR)
+    target_dir.mkdir(parents=True, exist_ok=True)
+    # transform() names its output <stem of input file><format suffix>
+    parquet_filename = source_file.stem + '.parquet'
+
+    with tempfile.TemporaryDirectory(dir=target_dir, prefix='.tmp-') as tmp_dir:
+        datex2_transformer.transform(
+            filename=str(source_file),
+            outDir=tmp_dir,
+            input_format=datex2_transformer.InputFormat.DATEX2_2_2_XML,
+            output_format=datex2_transformer.OutputFormat.GEOPARQUET,
+            validate=False,
+            sourceIdentification=source_identification,
+            publicationIdentifier=publication_identifier,
+        )
+        Path(tmp_dir, parquet_filename).replace(target_dir / parquet_filename)
 
 
 @asset(
@@ -130,15 +159,10 @@ def roadworks_adb_short_term_geoparquet() -> None:
     """
     Transforms short term roadworks from AdB to GeoParquet.
     """
-    destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
-    datex2_transformer.transform(
-        filename=str(Path(destination_folder, ROADWORKS_ADB_SHORT_TERM_DATEX2_FIILENAME)),
-        outDir=GEOPARQUET_TEMP_DIR,
-        input_format=datex2_transformer.InputFormat.DATEX2_2_2_XML,
-        output_format=datex2_transformer.OutputFormat.GEOPARQUET,
-        validate=False,
-        sourceIdentification=ROADWORKS_ADB_SHORT_TERM_SOURCE_IDENTIFICATION,
-        publicationIdentifier=ROADWORKS_ADB_SHORT_TERM_PUBLICATION_IDENTIFIER,
+    _datex2_to_geoparquet(
+        ROADWORKS_ADB_SHORT_TERM_DATEX2_FIILENAME,
+        ROADWORKS_ADB_SHORT_TERM_SOURCE_IDENTIFICATION,
+        ROADWORKS_ADB_SHORT_TERM_PUBLICATION_IDENTIFIER,
     )
 
 
@@ -183,15 +207,10 @@ def roadworks_adb_long_term_geoparquet() -> None:
     """
     Transforms long term roadworks from AdB to GeoParquet.
     """
-    destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
-    datex2_transformer.transform(
-        filename=str(Path(destination_folder, ROADWORKS_ADB_LONG_TERM_DATEX2_FIILENAME)),
-        outDir=GEOPARQUET_TEMP_DIR,
-        input_format=datex2_transformer.InputFormat.DATEX2_2_2_XML,
-        output_format=datex2_transformer.OutputFormat.GEOPARQUET,
-        validate=False,
-        sourceIdentification=ROADWORKS_ADB_LONG_TERM_SOURCE_IDENTIFICATION,
-        publicationIdentifier=ROADWORKS_ADB_LONG_TERM_PUBLICATION_IDENTIFIER,
+    _datex2_to_geoparquet(
+        ROADWORKS_ADB_LONG_TERM_DATEX2_FIILENAME,
+        ROADWORKS_ADB_LONG_TERM_SOURCE_IDENTIFICATION,
+        ROADWORKS_ADB_LONG_TERM_PUBLICATION_IDENTIFIER,
     )
 
 
@@ -229,15 +248,10 @@ def roadworks_svzbw_geoparquet() -> None:
     """
     Transforms roadworks from SVZ-BW to GeoParquet.
     """
-    destination_folder = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX)
-    datex2_transformer.transform(
-        filename=str(Path(destination_folder, ROADWORKS_SVZBW_DATEX2_FILENAME)),
-        outDir=GEOPARQUET_TEMP_DIR,
-        input_format=datex2_transformer.InputFormat.DATEX2_2_2_XML,
-        output_format=datex2_transformer.OutputFormat.GEOPARQUET,
-        validate=False,
-        sourceIdentification=ROADWORKS_SVZBW_SOURCE_IDENTIFICATION,
-        publicationIdentifier=ROADWORKS_SVZBW_PUBLICATION_IDENTIFIER,
+    _datex2_to_geoparquet(
+        ROADWORKS_SVZBW_DATEX2_FILENAME,
+        ROADWORKS_SVZBW_SOURCE_IDENTIFICATION,
+        ROADWORKS_SVZBW_PUBLICATION_IDENTIFIER,
     )
 
 
@@ -252,8 +266,14 @@ def roadworks_and_events_bw_geoparquet() -> None:
     """
     Merges all roadwork and event .parquet files into a single GeoParquet.
     """
-    destination_file = os.path.join(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX, ROADWORKS_AND_EVENTS_PARQUET_FILENAME)
-    datex2_merge.merge_partition(GEOPARQUET_TEMP_DIR, destination_file)
+    destination_file = Path(WEB_ROOT, *ROADWORKS_ASSET_KEY_PREFIX, ROADWORKS_AND_EVENTS_PARQUET_FILENAME)
+    destination_file.parent.mkdir(parents=True, exist_ok=True)
+    # Merge into a temp file next to the destination (same filesystem, so the final replace is an atomic
+    # rename and web clients never see a partially written file)...
+    tmp_file = destination_file.with_name(destination_file.name + '.tmp')
+    datex2_merge.merge_partition(os.path.join(GEOPARQUET_TEMP_DIR, '*.parquet'), str(tmp_file))
+    # ...then replace the former file
+    tmp_file.replace(destination_file)
 
 
 @asset(
