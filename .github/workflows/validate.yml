@@ -17,11 +17,11 @@ jobs:
 
     - name: validate docker-compose.yml
       run: |
-        docker compose config
+        docker compose --env-file .env.EXAMPLE config
 
     - name: validate docker-compose.dev.yml
       env:
         # Will be set by Makefile locally, is required for validation
         DOCKER_LOCAL_USER: '1000:1000'
       run: |
-        docker compose -f docker-compose.dev.yml config
+        docker compose --env-file .env.EXAMPLE -f docker-compose.dev.yml config
