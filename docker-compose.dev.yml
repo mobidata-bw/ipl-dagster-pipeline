@@ -24,6 +24,8 @@ services:
 
   postgis:
     image: postgis/postgis:${IPL_POSTGIS_VERSION_TAG}
+    volumes:
+      - ./var/ipl_postgis:/var/lib/ipl_postgis
     healthcheck:
       test: "PGPASSWORD=admin pg_isready -h 127.0.0.1 -U admin -d pipeline"
       interval: 5s
