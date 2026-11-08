@@ -17,7 +17,7 @@ run_monitoring:
   enabled: true
   start_timeout_seconds: 180
   cancel_timeout_seconds: 180
-  max_resume_run_attempts: 3
+  max_resume_run_attempts: 0
   poll_interval_seconds: 120
   # max_runtime_seconds 21600s = 6h
   # to overwrite this for individual jobs, see 
