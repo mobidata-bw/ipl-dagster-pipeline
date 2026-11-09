@@ -25,7 +25,7 @@ jobs:
         cache: 'pip'
 
     - name: pip install
-      run: pip install -r requirements-dagster.txt -r requirements-dev.txt
+      run: pip install -r requirements.txt
 
     - name: lint using ruff
       run: ruff check --output-format=github .
