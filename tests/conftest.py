@@ -32,7 +32,7 @@ def stripped_pipes_subprocess_client() -> Mock:
 
     def run(command: str | Sequence[str], **kwargs) -> PipesClientCompletedInvocation:
         process = Popen(command, stdout=PIPE, stderr=PIPE)  # noqa: S603
-        out, err = process.communicate()
+        _out, _err = process.communicate()
         if process.returncode != 0:
             raise DagsterPipesExecutionError(
                 f'External execution process failed with code {process.returncode}',
