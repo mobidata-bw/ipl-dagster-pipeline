@@ -106,7 +106,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
         else:
             raise Exception(f'Outputs of type {type(obj)} not supported.')
 
-    def load_input(self, context: InputContext) -> geopandas.GeoDataFrame:
+    def load_input(self, context: InputContext) -> pandas.DataFrame:
         schema, table = self._get_schema_table(context.asset_key)
         with connect_postgresql(config=self._config) as con:
             columns = (context.metadata or {}).get('columns')
@@ -221,7 +221,7 @@ class PostgreSQLPandasIOManager(ConfigurableIOManager):  # type: ignore
 class PostGISGeoPandasIOManager(PostgreSQLPandasIOManager):  # type: ignore
     """This IOManager will take in a geopandas dataframe and store it in postgis."""
 
-    def handle_output(self, context: OutputContext, obj: geopandas.GeoDataFrame):
+    def handle_output(self, context: OutputContext, obj: pandas.DataFrame):
         schema, table = self._get_schema_table(context.asset_key)
 
         if isinstance(obj, geopandas.GeoDataFrame):
