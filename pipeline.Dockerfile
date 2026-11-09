@@ -20,7 +20,7 @@ RUN apt update && apt install -y \
 COPY requirements-pipeline.txt /opt/dagster/app
 
 # Install requirements
-RUN pip install -r requirements-pipeline.txt
+RUN pip install -r requirements-pipeline.txt -r requirements-pipeline-gdal.txt
 
 # Add repository code
 COPY pipeline/ /opt/dagster/app/pipeline/

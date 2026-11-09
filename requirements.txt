@@ -1,3 +1,4 @@
 -r requirements-dagster.txt
 -r requirements-pipeline.txt
+-r requirements-pipeline-gdal.txt
 -r requirements-dev.txt
