@@ -32,7 +32,10 @@ def make_gtfs_import_op(
     gtfs_importer_schema,
     gtfs_download_url,
     gtfs_download_user_agent,
+    curl_mirror_additional_args,
+    gtfs_to_sql_additional_args,
     gtfstidy_before_import=False,
+    gtfs_importer_verbose=False,
     custom_env_vars=[],
     cpu_shares=512,
     extra_hosts={},
@@ -52,8 +55,12 @@ def make_gtfs_import_op(
                 'GTFS_IMPORTER_SCHEMA=' + gtfs_importer_schema,
                 'GTFS_DOWNLOAD_URL=' + gtfs_download_url,
                 'GTFS_DOWNLOAD_USER_AGENT=' + gtfs_download_user_agent,
+                'CURL_MIRROR_ADDITIONAL_ARGS=' + curl_mirror_additional_args,
                 'GTFS_TMP_DIR=/var/gtfs',
+                'GTFS_TO_SQL_ADDIIPL_MAIN_GTFS_IMPORTER_GTFSTIDY_BEFORE_IMPORTTIONAL_ARGS='
+                + gtfs_to_sql_additional_args,
                 'GTFSTIDY_BEFORE_IMPORT=' + gtfstidy_before_import,
+                'GTFS_IMPORTER_VERBOSE=' + ('true' if gtfs_importer_verbose else 'false'),
             ]
             + custom_env_vars,
             'container_kwargs': {
@@ -82,7 +89,10 @@ main_gtfs_import = make_gtfs_import_op(
     gtfs_importer_schema=os.getenv('IPL_MAIN_GTFS_DB_POSTGRES_SCHEMA'),
     gtfs_download_url=os.getenv('IPL_MAIN_GTFS_IMPORTER_GTFS_DOWNLOAD_URL'),
     gtfs_download_user_agent=os.getenv('IPL_MAIN_GTFS_IMPORTER_GTFS_DOWNLOAD_USER_AGENT'),
+    curl_mirror_additional_args=os.getenv('IPL_MAIN_GTFS_IMPORTER_CURL_MIRROR_ADDITIONAL_ARGS', ''),
+    gtfs_to_sql_additional_args=os.getenv('IPL_MAIN_GTFS_IMPORTER_GTFS_TO_SQL_ADDITIONAL_ARGS', ''),
     gtfstidy_before_import=os.getenv('IPL_MAIN_GTFS_IMPORTER_GTFSTIDY_BEFORE_IMPORT', 'false'),
+    gtfs_importer_verbose=True,
     custom_env_vars=[
         'POSTGREST_USER=' + os.getenv('IPL_MAIN_GTFS_DB_POSTGREST_USER'),
         'POSTGREST_PASSWORD=' + os.getenv('IPL_MAIN_GTFS_DB_POSTGREST_PASSWORD'),
@@ -128,3 +138,38 @@ def main_gtfs():
     Downloads, cleans, and imports MobiData-BW's main (as in: all regular PT) GTFS feed
     """
     return reload_main_gtfs_api_config(main_gtfs_import())
+
+
+amarillo_gtfs_import = make_gtfs_import_op(
+    op_name='amarillo_gtfs_import',
+    gtfs_importer_schema=os.getenv('IPL_AMARILLO_GTFS_DB_POSTGRES_SCHEMA'),
+    gtfs_download_url=os.getenv('IPL_AMARILLO_GTFS_IMPORTER_GTFS_DOWNLOAD_URL'),
+    gtfs_download_user_agent=os.getenv('IPL_AMARILLO_GTFS_IMPORTER_GTFS_DOWNLOAD_USER_AGENT'),
+    curl_mirror_additional_args=os.getenv('IPL_AMARILLO_GTFS_IMPORTER_CURL_MIRROR_ADDITIONAL_ARGS', ''),
+    gtfs_to_sql_additional_args=os.getenv('IPL_AMARILLO_GTFS_IMPORTER_GTFS_TO_SQL_ADDITIONAL_ARGS', ''),
+    gtfstidy_before_import=os.getenv('IPL_AMARILLO_GTFS_IMPORTER_GTFSTIDY_BEFORE_IMPORT', 'false'),
+    gtfs_importer_verbose=True,
+    extra_hosts=(
+        {
+            os.getenv('IPL_AMARILLO_GTFS_IMPORTER_EXTRA_HOST_HOSTNAME'): os.getenv(
+                'IPL_AMARILLO_GTFS_IMPORTER_EXTRA_HOST_IP'
+            )
+        }
+        if os.getenv('IPL_AMARILLO_GTFS_IMPORTER_EXTRA_HOST_HOSTNAME')
+        and os.getenv('IPL_AMARILLO_GTFS_IMPORTER_EXTRA_HOST_IP')
+        else {}
+    ),
+)
+
+
+@graph_asset(
+    group_name='amarillo_gtfs',
+    automation_condition=(
+        AutomationCondition.on_cron('0 1 * * *') & ~AutomationCondition.in_progress() | AutomationCondition.eager()
+    ),
+)
+def amarillo_gtfs():
+    """
+    Downloads, cleans, and imports MobiData-BW's Amarillo GTFS feed
+    """
+    return amarillo_gtfs_import()
