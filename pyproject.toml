@@ -133,14 +133,7 @@ exclude = [
 ]
 
 [[tool.mypy.overrides]]
-# See https://github.com/HBNetwork/python-decouple/issues/122
 module = [
-    "dagster",
-    "dagster._check",
-    "dagster_docker",
-    "dagster_graphql",
-    "geopandas",
-    "geopandas.array",
     "osgeo",
     "osgeo_utils.samples",
     "defusedxml",

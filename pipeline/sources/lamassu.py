@@ -20,7 +20,8 @@ from urllib.parse import urljoin
 import geopandas as gpd
 import pandas as pd
 import requests
-from geopandas.array import ExtensionDtype, GeometryDtype
+from geopandas.array import GeometryDtype
+from pandas.api.extensions import ExtensionDtype
 
 from pipeline.util.urllib import get
 
