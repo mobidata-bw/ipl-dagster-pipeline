@@ -102,13 +102,13 @@ class WebcamWorker:
             self.context.log.error(f'Could not parse lftp output: {result} / {stderr}')
             return
 
-        total_directories, _, total_files, total_symlinks = total_match.groups()
+        total_directories, _, total_files, _total_symlinks = total_match.groups()
         new_match = re.search(r'New: (\d+) files?, (\d+) symlinks?', result)
 
         # TODO: this would be perfect for metrics
         metadata = {'total_directories': total_directories, 'total_files': total_files}
         if new_match:
-            new_files, new_symlinks = new_match.groups()
+            new_files, _new_symlinks = new_match.groups()
             metadata['new_files'] = new_files
         self.context.add_output_metadata(metadata)
 
