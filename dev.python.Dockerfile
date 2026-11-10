@@ -19,5 +19,5 @@ RUN apt update && apt install -y \
 
 
 # Copy and install requirements
-COPY requirements.txt requirements-pipeline.txt requirements-dev.txt requirements-dagster.txt /opt/dagster/app/
+COPY requirements.txt requirements-pipeline-gdal.txt requirements-pipeline.txt requirements-dev.txt requirements-dagster.txt /opt/dagster/app/
 RUN pip install -r requirements.txt
