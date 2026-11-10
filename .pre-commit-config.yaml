@@ -8,20 +8,21 @@ repos:
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.11.10
+    # Keep in sync with ruff version in requirements-dev.txt
+    rev: v0.17.4
     hooks:
       - id: ruff-format
       - id: ruff
         args: [ --fix, --exit-non-zero-on-fix ]
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+  # mypy runs in the project's (activated) virtualenv, so it sees the same packages and type stubs
+  # (dagster, pandas-stubs, types-geopandas, ...) as CI and `make lint-check`, instead of an isolated
+  # pre-commit environment with a separately maintained list of additional_dependencies.
+  - repo: local
     hooks:
     - id: mypy
-      exclude: ^tests/
-      additional_dependencies: [
-        "types-requests==2.32.0.20250515",
-        "types-urllib3==1.26.25.14",
-        "types-psycopg2==2.9.21.20250516",
-        "pandas-stubs==2.2.3.250308",
-      ]
+      name: mypy
+      entry: mypy pipeline tests
+      language: system
+      types: [python]
+      pass_filenames: false
