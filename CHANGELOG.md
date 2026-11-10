@@ -4,6 +4,7 @@ The changelog lists most feature changes between each release.
 
 ## [unreleased]
 
+## 2026-11-10
 - ⚠️ Addition: New public asset `traffic/roadworks/roadworks_and_events_bw.parquet`, which, for now, bundles situation records of the three situation publications [roadworks_adb_short_term](https://mobilithek.info/offers/641235133820284928), [roadworks_adb_long_term](https://mobilithek.info/offers/641228542228467712) and [roadworks_svzbw](https://mobilithek.info/offers/-5342395678156131804). The conversion/merging logic is provided via [datex2-xml2json](https://pypi.org/project/datex2-xml2json/). This requires a new ENV VAR:
   - `GEOPARQUET_TEMP_DIR`: the directory into which temporary parquet files are generated before they are aggregated to `traffic/roadworks/roadworks_and_events_bw.parquet`
 - change: bump dagster to v1.13.29 and dagster-docker to v0.29.29.
