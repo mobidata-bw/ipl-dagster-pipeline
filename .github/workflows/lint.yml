@@ -46,4 +46,4 @@ jobs:
       run: ruff format --check --diff .
 
     - name: type-check using mypy
-      run: mypy pipeline tests
+      run: mypy ./pipeline ./tests ./scripts
