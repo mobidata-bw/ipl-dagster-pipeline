@@ -40,7 +40,7 @@ jobs:
 
     # todo: DRY with build-publish.yml workflow
     - name: build and push dagster-pipeline Docker image
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         file: pipeline.Dockerfile
         push: true
@@ -51,7 +51,7 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
     - name: build and push dagster-daemon Docker image
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         file: dagster.Dockerfile
         target: daemon
@@ -63,7 +63,7 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
     - name: build and push dagster-dagit Docker image
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         file: dagster.Dockerfile
         target: dagit
